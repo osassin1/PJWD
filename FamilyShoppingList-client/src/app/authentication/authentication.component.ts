@@ -37,7 +37,7 @@ ngOnInit() {
 }
 
   onSubmit(){
-    this.isAuthenticated = 1;
+    this.isAuthenticated = 0;
   }
 
       // convenience getter for easy access to form fields
