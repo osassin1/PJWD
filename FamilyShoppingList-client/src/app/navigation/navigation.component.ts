@@ -13,7 +13,7 @@ export class NavigationComponent {
 
 
   isAuthenticated(){
-    return 1; //AuthenticationComponent.authenticated();
+    return 0; //AuthenticationComponent.authenticated();
   }
 
   noOfItemsOnList(){
