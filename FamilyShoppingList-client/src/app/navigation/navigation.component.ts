@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthenticationComponent } from '../authentication/authentication.component';
+import { AuthenticationService } from '../authentication/authentication.service';
 
 @Component({
   selector: 'app-navigation',
@@ -11,9 +12,12 @@ import { AuthenticationComponent } from '../authentication/authentication.compon
 })
 export class NavigationComponent {
 
+  constructor(private authenticationService:AuthenticationService){}
 
   isAuthenticated(){
-    return 0; //AuthenticationComponent.authenticated();
+    console.log("NavigationComponent::isAuthenticated() = " + 
+        this.authenticationService.getAuthenticated());
+    return this.authenticationService.getAuthenticated();
   }
 
   noOfItemsOnList(){
