@@ -9,11 +9,14 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
+console.log('config.use_env_variable:' + JSON.stringify(config) + JSON.stringify(process.env[config.use_env_variable]));
+
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  console.log('database else ...');
+  sequelize = new Sequelize(config.database, config.username, config.password, config );
 }
 
 fs
@@ -40,4 +43,30 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+db.inventory = require("./inventory")(sequelize, Sequelize);
+db.store = require("./store")(sequelize, Sequelize);
+db.listcategory = require("./listcategory")(sequelize, Sequelize);
+
+// db.inventory.hasOne(db.listcategory,{
+//     through: "inventory_list_category_id",
+//     as: "list_category",  // database table name
+//     foreignKey: "id",
+// });
+
+// db.listcategory.hasMany(db.inventory,{
+// //    through: "inventory_list_category_id",
+// //    as: "inventory",  // database table name
+// //    foreignKey: "id",
+// });
+
+
+db.inventory.belongsTo(db.listcategory,{
+    through: "inventory_list_category_id",
+    as: "list_category",  // database table name
+    foreignKey: "inventory_list_category_id",
+});
+
+
 module.exports = db;
+
+
