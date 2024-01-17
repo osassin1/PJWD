@@ -7,10 +7,9 @@ const {
 
 
 const { Sequelize } = require('.');
-const { Store } = require('./store');
 
 module.exports = (sequelize, DataTypes) => {
-  class Inventory extends Model {
+  class inventory extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -22,7 +21,13 @@ module.exports = (sequelize, DataTypes) => {
       //list_category
     }
   }
-  Inventory.init({
+  inventory.init({
+    inventory_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -37,31 +42,38 @@ module.exports = (sequelize, DataTypes) => {
     }, 
     notes: DataTypes.STRING,
 
-    inventory_store_id : {
+    store_id : {
       type: DataTypes.INTEGER,
       foreignKey: true,
       refrences : {
         model: 'store',
         key: 'store_id',
-        //deferrable: Deferrable.INITIALLY_DEFERRED
       }
     },
 
-    inventory_list_category_id :
+    list_category_id :
     {
       type: DataTypes.INTEGER,
       foreignKey: true,
       refrences : {
         model: 'list_category',
         key: 'list_category_id',
-        //deferrable: Deferrable.INITIALLY_DEFERRED
+      }
+    },
+
+    quantity_id :
+    {
+      type: DataTypes.INTEGER,
+      foreignKey: true,
+      refrences : {
+        model: 'quantity',
+        key: 'quantity_id',
       }
     }
-
 
   }, {
     sequelize,
     modelName: 'inventory',
   });
-  return Inventory;
+  return inventory;
 };

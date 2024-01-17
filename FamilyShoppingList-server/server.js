@@ -1,5 +1,14 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
+var corsOptions = {
+    origin : "http://localhost:8081"
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const models = require("./models");
 const Inventory = models.inventory;
 const Store = models.store;
@@ -11,7 +20,7 @@ models.sequelize.sync().then(function () {
 });
 app.get('/', function (req, res) {
     //res.send("Welcome to FamilyShoppingList!");
-    id = 15;
+    id = 3;
     Inventory.findByPk(id)
     .then(data => {
         if(data) {
@@ -33,7 +42,11 @@ app.get('/', function (req, res) {
         }      
     })
 });
-app.listen(3000, function () {
+
+require("./routes/family_member.routes")(app);
+
+
+app.listen(8080, function () {
     console.log("> express server has started");
 });
 

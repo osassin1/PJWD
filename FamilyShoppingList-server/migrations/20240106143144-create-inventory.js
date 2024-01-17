@@ -3,13 +3,13 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('inventory', {
-      id: {
+      inventory_id: {
+        type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
       },
-      inventory_store_id: {
+      store_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         foreignKey: true,
@@ -18,13 +18,22 @@ module.exports = {
           key: 'store_id'
         }
       },
-      inventory_list_category_id: {
+      list_category_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         foreignKey: true,
         reference:{
           model: 'list_category',
           key: 'list_category_id'
+        }
+      },
+      quantity_id :
+      {
+        type: DataTypes.INTEGER,
+        foreignKey: true,
+        refrences : {
+          model: 'quantity',
+          key: 'quantity_id',
         }
       },
       name: {
