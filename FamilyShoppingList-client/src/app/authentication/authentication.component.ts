@@ -1,16 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule, NgStyle } from '@angular/common';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthenticationService } from '../authentication/authentication.service';
-
+import { HttpClientModule } from '@angular/common/http';
+import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 
 @Component({
   selector: 'app-authentication',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, ReactiveFormsModule, 
+    CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, NgSelectModule, NgStyle, NgOptionHighlightModule
   ],
+  providers: [AuthenticationService],
   templateUrl: './authentication.component.html',
   styleUrl: './authentication.component.css'
   
@@ -21,9 +24,19 @@ export class AuthenticationComponent implements OnInit {
   loginForm!: FormGroup;
   signupForm! : FormGroup;
   loading = false;
-  submitted = false;
+  submittedLogin = false;
+  submittedSignup = false;
   signup = false;
   error = '';
+
+  //familyMemberColor = { 'color_id':0, 'name': 'black'};
+
+  
+  colorSelectForm!: FormGroup;
+  colorsToSelectFrom: any[] = [];
+
+  //photos: any[] = [];
+
   //isAuthenticated = 0;
 
   constructor(
@@ -32,29 +45,55 @@ export class AuthenticationComponent implements OnInit {
     //private route: ActivatedRoute,
     //private router: Router,
     //private authenticationService: AuthenticationService
-) {
+    ) {
     //iconRegistry.addSvgIcon('thumps-up');
     // redirect to home if already logged in
     //if (this.authenticationService.userValue) {
     //    this.router.navigate(['/']);
     //}
-}
+    }
 
-ngOnInit() {
-  this.loginForm = this.formBuilder.group({
+  ngOnInit() {
+
+    this.colorSelectForm = this.formBuilder.group({
+      color_fm: ''
+    });
+
+    this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
-  });
-  this.authenticationService.setAuthenticated(false);
-}
+    });
+
+    this.signupForm = this.formBuilder.group({
+      username: ['', [Validators.required,Validators.minLength(6), Validators.maxLength(20)] ],
+      password: ['', [Validators.required,Validators.minLength(6), Validators.maxLength(20)] ],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required]
+    });
+
+    this.authenticationService.setAuthenticated(false);
+
+    // this is for testing when signup is true from the start
+    // the 'signup' button will not be pressed, so load colors now
+    if (this.signup) {
+      this.loadColors();
+    }
+  }
+
+  private loadColors(){
+    this.authenticationService.getAllColors().subscribe((response:any) => {
+      console.log('response:',response);
+      this.colorsToSelectFrom = response;
+    });
+  }
 
   // onSubmit(){
   //   this.isAuthenticated = 1;
   // }
 
-      // convenience getter for easy access to form fields
-      get f() { return this.loginForm.controls; }
 
+  get f() { return this.loginForm.controls; }
+  get fs() { return this.signupForm.controls; }
 
       get authenticated() { 
         
@@ -64,7 +103,7 @@ ngOnInit() {
 
 
 onLogin() {
-  this.submitted = true;
+  this.submittedLogin = true;
 
   // stop here if form is invalid
   if (this.loginForm.invalid) {
@@ -99,18 +138,28 @@ getSignup()
 {
   return this.signup;
 }
-onSignup()
-{
-  this.signupForm = this.formBuilder.group({
-    username: ['', Validators.required],
-    password: ['', Validators.required]
-});  
-  this.signup = true;
-}
 
-onSubmitSignup(){
+  onSignup() {
+    console.log("onSignUp");
 
-}
+    this.loadColors();
+    
+    console.log('authentication.component: after this.authenticationService.getAllColors().subscribe((response:any) => {');
+  
+
+    this.signup = true;
+    console.log("onSignUp done");
+  }
+
+  onSubmitSignup() {
+    console.log('onSubmitSignup');
+    this.submittedSignup = true;
+
+    if (this.signupForm.invalid) {
+      return;
+    }
+
+  }
 
 }
 

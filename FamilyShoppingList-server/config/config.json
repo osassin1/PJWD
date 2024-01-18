@@ -9,10 +9,10 @@
   "test": {
     "username": "shopping_list",
     "password": "airY@Shop99",
-    "database": "database_test",
+    "database": "shopping_list_db",
     "host": "127.0.0.1",
     "dialect": "mysql"
-  },
+    },
   "production": {
     "username": "root",
     "password": null,

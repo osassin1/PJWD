@@ -1,0 +1,30 @@
+select 	shopping_list.shopping_date, 
+		shopping_list.inventory_id, 
+        shopping_list.family_member_id,
+        store.store_id, 
+        store.name 
+from ((database_test.shopping_list
+inner join database_test.inventory on 
+shopping_list.inventory_id = inventory.inventory_id)
+INNER JOIN database_test.store on
+store.store_id = inventory.store_id);
+
+
+-- all shopping lists for a store (i.e. Whole Foods)
+
+select 	shopping_list.shopping_date, 
+		shopping_list.inventory_id, 
+        inventory.name,
+        shopping_list.family_member_id,
+        family_member.first_name,
+        family_member.last_name,
+        store.store_id, 
+        store.name 
+from (((shopping_list_db.shopping_list
+inner join shopping_list_db.inventory on 
+shopping_list.inventory_id = inventory.inventory_id)
+INNER JOIN shopping_list_db.store on
+store.store_id = inventory.store_id AND store.name='Whole Foods')
+inner join shopping_list_db.family_member on
+shopping_list.family_member_id=family_member.family_member_id
+); 
