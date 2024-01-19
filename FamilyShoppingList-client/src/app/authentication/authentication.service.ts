@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 import { FamilyMember } from '../models/family_member.model';
 import { Color } from '../models/color.model';
 
@@ -18,13 +19,8 @@ export class AuthenticationService {
     constructor(
         private http: HttpClient
     ) {
-        //this.authenticated=false;
         console.log('AuthenticationService::in constructor');
     }
-
-    // public get clientValue() {
-    //     return this.clientSubject.value;
-    // }
 
     public getAuthenticated(){
         console.log('AuthenticationService::getAuthenticate=' + this.authenticated);
@@ -44,8 +40,10 @@ export class AuthenticationService {
     }
 
     login(username:string, password:string): Observable<FamilyMember>{
-        console.log('login:' + username + ' ' + password);
-        return this.http.post<FamilyMember>(`${baseUrl}/login`, {username, password});
-    }
+        return this.http.post<FamilyMember>(`${baseUrl}/login`, {
+            username, 
+            password
+        });
+    };
 }
 

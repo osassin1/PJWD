@@ -17,7 +17,7 @@ module.exports = {
       created_at: new Date(),
       updated_at : new Date()
     }, {
-      name: 'yellow',
+      name: 'pink',
       created_at: new Date(),
       updated_at : new Date()
     }, {
@@ -34,6 +34,10 @@ module.exports = {
       updated_at : new Date()
     }, {
       name : 'orange',
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name : 'gray',
       created_at: new Date(),
       updated_at : new Date()
     }],{});

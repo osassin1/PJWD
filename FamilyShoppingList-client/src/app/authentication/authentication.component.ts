@@ -3,9 +3,12 @@ import { CommonModule, NgStyle } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AuthenticationService } from '../authentication/authentication.service';
 import { HttpClientModule } from '@angular/common/http';
 import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
+
+
+import { AuthenticationService } from '../authentication/authentication.service';
+import { FamilyMemberService } from '../family_member/family_member.service';
 
 @Component({
   selector: 'app-authentication',
@@ -36,9 +39,9 @@ export class AuthenticationComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private authenticationService:AuthenticationService,
+    private familyMemberServcice: FamilyMemberService
     //private route: ActivatedRoute,
     //private router: Router,
-    //private authenticationService: AuthenticationService
     ) {
     //iconRegistry.addSvgIcon('thumps-up');
     // redirect to home if already logged in
@@ -60,8 +63,6 @@ export class AuthenticationComponent implements OnInit {
       lastName: ['', Validators.required],
       color_fm: ['', Validators.required]
     });
-
-    this.authenticationService.setAuthenticated(false);
 
     // this is for testing when signup is true from the start
     // the 'signup' button will not be pressed, so load colors now
@@ -86,9 +87,7 @@ export class AuthenticationComponent implements OnInit {
   get fs() { return this.signupForm.controls; }
 
   get authenticated() {
-
-    return this.authenticationService.getAuthenticated();
-    //return 0;
+    return this.familyMemberServcice.isAuthenticated;
   }
 
 
@@ -103,9 +102,25 @@ onLogin() {
   this.error = '';
   this.loading = true;
 
-  const respdata = this.authenticationService.login(this.f['username'].value, this.f['password'].value);
+  console.log('this.authenticationService.login');
 
-  console.log('respdata: ' + JSON.stringify(respdata) );
+  this.authenticationService.login(
+    this.f['username'].value, 
+    this.f['password'].value
+    ).subscribe({
+      next: (v) => { 
+        this.familyMemberServcice.familyMember = v; 
+        this.loading = false;
+        //const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+        this.familyMemberServcice.isAuthenticated = true;
+      },
+      error: (e) => {
+        this.error = e.error.message;
+        this.loading = false;
+      },
+      complete: () => console.info('complete')
+    });
+
 
   // this.authenticationService.login(this.f.username.value, this.f.password.value)
   //     .pipe(first())
@@ -124,7 +139,7 @@ onLogin() {
   setTimeout(() => 
   {
     this.loading = false;
-    this.authenticationService.setAuthenticated(true); 
+    //this.authenticationService.setAuthenticated(true); 
   }, 2000);
 
 }

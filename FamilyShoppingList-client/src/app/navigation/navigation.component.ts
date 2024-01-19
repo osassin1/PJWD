@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthenticationComponent } from '../authentication/authentication.component';
-import { AuthenticationService } from '../authentication/authentication.service';
+import { FamilyMemberService } from '../family_member/family_member.service';
 
 @Component({
   selector: 'app-navigation',
@@ -12,12 +12,12 @@ import { AuthenticationService } from '../authentication/authentication.service'
 })
 export class NavigationComponent {
 
-  constructor(private authenticationService:AuthenticationService){}
+  constructor(private familyMemberService:FamilyMemberService){}
 
   isAuthenticated(){
-    console.log("NavigationComponent::isAuthenticated() = " + 
-        this.authenticationService.getAuthenticated());
-    return this.authenticationService.getAuthenticated();
+    // console.log("NavigationComponent::isAuthenticated() = " + 
+    //     this.familyMemberService.isAuthenticated);
+    return this.familyMemberService.isAuthenticated;
   }
 
   noOfItemsOnList(){
