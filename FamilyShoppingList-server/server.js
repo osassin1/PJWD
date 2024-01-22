@@ -44,7 +44,7 @@ app.get('/', function (req, res) {
 });
 
 require("./routes/family_member.routes")(app);
-require("./routes/inventory.routes")(app);
+//require("./routes/inventory.routes")(app);
 require("./routes/shopping_list.routes")(app);
 
 

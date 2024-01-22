@@ -66,6 +66,14 @@ export class ShoppinglistComponent implements OnInit {
   onSelectChange(){
     console.log('onSelectChange(event){');
     console.log(this.selectShoppingListForm.value );
+
+    this.shoppingListService.getAllDates().subscribe((response:any) => {
+      console.log('ShoppinglistComponent - response:',response);
+      this.shoppingToSelectFrom = response;
+      this.selectedShoppingList = this.shoppingToSelectFrom[0];
+      //this.selectShoppingListForm.setValue('shopping_list_form_selected');
+    });
+
   }
 
   getShoppingLists(){

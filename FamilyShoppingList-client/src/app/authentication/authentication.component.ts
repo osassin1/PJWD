@@ -6,7 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 import { Router, ActivatedRoute } from '@angular/router';
-import { first } from 'rxjs/operators';
+//import { first } from 'rxjs/operators';
 
 import { AuthenticationService } from '../authentication/authentication.service';
 import { FamilyMemberService } from '../family_member/family_member.service';
