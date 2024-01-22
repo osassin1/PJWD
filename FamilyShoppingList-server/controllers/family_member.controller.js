@@ -8,7 +8,6 @@ const Op = db.Sequelize.Op;
 
 // retrieve all family_members from the database.
 exports.findAll = (req, res) => {
-  const title = req.query.title;
 
     family_member.findAll({
         attributes: ['family_member_id', 'username', 'first_name', 'last_name', 'color.name' ], 

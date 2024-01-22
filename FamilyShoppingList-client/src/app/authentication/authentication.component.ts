@@ -5,7 +5,8 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
-
+import { Router, ActivatedRoute } from '@angular/router';
+import { first } from 'rxjs/operators';
 
 import { AuthenticationService } from '../authentication/authentication.service';
 import { FamilyMemberService } from '../family_member/family_member.service';
@@ -39,9 +40,9 @@ export class AuthenticationComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private authenticationService:AuthenticationService,
-    private familyMemberServcice: FamilyMemberService
-    //private route: ActivatedRoute,
-    //private router: Router,
+    private familyMemberServcice: FamilyMemberService,
+    private route: ActivatedRoute,
+    private router: Router,
     ) {
     //iconRegistry.addSvgIcon('thumps-up');
     // redirect to home if already logged in
@@ -64,6 +65,9 @@ export class AuthenticationComponent implements OnInit {
       color_fm: ['', Validators.required]
     });
 
+    // just login for testing purposes 
+    //this.loginFamilyMember("osassin","mysecret");
+
     // this is for testing when signup is true from the start
     // the 'signup' button will not be pressed, so load colors now
     if (this.signup) {
@@ -78,9 +82,41 @@ export class AuthenticationComponent implements OnInit {
     });
   }
 
-  // onSubmit(){
-  //   this.isAuthenticated = 1;
-  // }
+  private loginFamilyMember(username : string, password : string){
+    this.error = '';
+    this.loading = true;
+  
+    this.authenticationService.login(
+      username, 
+      password
+      ).subscribe({
+        next: (v) => { 
+          console.log('loginFamilyMember : ');
+          console.log(v);
+          //this.familyMemberServcice.familyMember = v; 
+          this.loading = false;
+
+          // --- ToDo ---
+          // http://localhost:8081/authentication?returnUrl=%2Fshoppinglist
+          //
+          // doesn't work
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/shoppinglist';
+
+          console.log('retunrUrl:' + returnUrl);
+
+          this.familyMemberServcice.isAuthenticated = true;
+          //return this.familyMemberServcice.familyMember;
+          //this.router.navigate(['/shoppinglist']);
+          this.router.navigate([returnUrl]);
+        },
+        error: (e) => {
+          this.error = e.error.message;
+          this.loading = false;
+        },
+        complete: () => console.info('authenticat.component: complete')
+      });
+  
+  }
 
 
   get f() { return this.loginForm.controls; }
@@ -99,43 +135,18 @@ onLogin() {
       return;
   }
 
-  this.error = '';
-  this.loading = true;
-
   console.log('this.authenticationService.login');
 
-  this.authenticationService.login(
-    this.f['username'].value, 
-    this.f['password'].value
-    ).subscribe({
-      next: (v) => { 
-        this.familyMemberServcice.familyMember = v; 
-        this.loading = false;
-        //const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-        this.familyMemberServcice.isAuthenticated = true;
-      },
-      error: (e) => {
-        this.error = e.error.message;
-        this.loading = false;
-      },
-      complete: () => console.info('complete')
-    });
+  this.loginFamilyMember( this.f['username'].value, this.f['password'].value);
 
+  console.log('this.authenticationService.login: ' +  this.familyMemberServcice.isAuthenticated);
 
-  // this.authenticationService.login(this.f.username.value, this.f.password.value)
-  //     .pipe(first())
-  //     .subscribe({
-  //         next: () => {
-  //             // get return url from route parameters or default to '/'
-  //             const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-  //             this.router.navigate([returnUrl]);
-  //         },
-  //         error: error => {
-  //             this.error = error;
-  //             this.loading = false;
-  //         }
-  //     });
+  if( this.familyMemberServcice.isAuthenticated ){
+    console.log('this.router.navigate');
+    this.router.navigate(['/shoppinglist']);
+  }
 
+  
   setTimeout(() => 
   {
     this.loading = false;

@@ -12,6 +12,7 @@ export class FamilyMemberService implements FamilyMember {
     public first_name: string = '';
     public last_name: string = '';
     public token: string = '';
+    public authdata?: string;
     public color : {
             color_id : number,
             family_member_id: number,

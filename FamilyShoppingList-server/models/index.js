@@ -1,5 +1,7 @@
 'use strict';
 
+
+const { QueryTypes } = require("sequelize");
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
@@ -9,7 +11,7 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
-console.log('config.use_env_variable:' + JSON.stringify(config) + JSON.stringify(process.env[config.use_env_variable]));
+console.log('config.use_env_variable:' + JSON.stringify(config));
 
 let sequelize;
 if (config.use_env_variable) {
@@ -61,6 +63,7 @@ fs
     );
   })
   .forEach(file => {
+    console.log(file);
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
@@ -78,6 +81,7 @@ db.inventory = require("./inventory")(sequelize, Sequelize);
 db.store = require("./store")(sequelize, Sequelize);
 db.listcategory = require("./list_category")(sequelize, Sequelize);
 db.color = require("./color")(sequelize, Sequelize);
+db.shopping_list = require("./shopping_list")(sequelize, Sequelize);
 
 // db.inventory.hasOne(db.listcategory,{
 //     through: "inventory_list_category_id",
@@ -125,15 +129,22 @@ db.color.belongsTo(db.family_member,{
 });
 
 
+
 // C:C relationship
 
-// db.shopping_list.hasMany(db.inventory,{
-//   through: "inventory_id",
-//   as: "inventory",  // database table name
-//   foreignKey: "inventory_id",
+db.shopping_list.belongsTo(db.inventory,{
+  through: "shopping",
+  foreignKey: "inventory_id",
+});
+
+// db.inventory.belongsToMany(db.shopping_list,{
+//   through: "shopping",
 // });
 
 
-module.exports = db;
+
+      module.exports = db;
 
 
+  
+  
