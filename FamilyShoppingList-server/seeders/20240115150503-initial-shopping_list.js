@@ -25,10 +25,10 @@ module.exports = {
     const inventory_from_wholefoods = await inventory.findAll({
       attributes: ['inventory_id', 'store_id', 'quantity_id' ],
       include: [{
-        association : 'store'
+        association : 'inventory_to_store'
       }],
       where:{
-        '$store.name$': 'Whole Foods'
+        '$inventory_to_store.name$': 'Whole Foods'
       }
     });
 
@@ -36,10 +36,10 @@ module.exports = {
     const inventory_from_costco = await inventory.findAll({
       attributes: ['inventory_id', 'store_id', 'quantity_id' ],
       include: [{
-        association : 'store'
+        association : 'inventory_to_store'
       }],
       where:{
-        '$store.name$': 'Costco'
+        '$inventory_to_store.name$': 'Costco'
       }
     });
 

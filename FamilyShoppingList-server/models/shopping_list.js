@@ -52,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
       refrences : {
         model: 'family_member',
         key: 'family_member_id',
+        as: 'shopping_list_to_family_member'
       }
     },
     inventory_id : {
@@ -62,7 +63,9 @@ module.exports = (sequelize, DataTypes) => {
       refrences : {
         model: 'inventory',
         key: 'inventory_id',
-      }
+        as: 'shopping_list_to_inventory'
+      },
+  
     },
     quantity: DataTypes.DECIMAL(5,2),
   }, {

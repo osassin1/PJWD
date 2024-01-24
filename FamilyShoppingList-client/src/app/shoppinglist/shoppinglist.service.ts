@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+//import { map } from 'rxjs/operators';
+
 import { ShoppingListDates } from '../models/shopping_list_dates.model';
 import { ShoppingListStore } from '../models/shopping_list_store.model';
+import { ListCategory } from '../models/list_category.model';
+import { ShoppingListItems } from '../models/shopping_list_items.model';
 
 const baseUrl = 'http://localhost:8080/api/shopping_list';
 
@@ -16,6 +20,8 @@ export class ShoppingListService {
     //private familyMemberSubject: BehaviorSubject<FamilyMember | null>;
     //public familyMember: Observable<FamilyMember | null>;
 
+    //shoppingListAll : Map<string, ShoppingListItems[]> = new Map<"",[]>();
+
     private authenticated=false;
 
     constructor(
@@ -28,8 +34,19 @@ export class ShoppingListService {
         return this.http.get<ShoppingListDates[]>(`${baseUrl}/shopping_dates`);
     }
 
-    getList(a: string, store_id : number): Observable<ShoppingListStore[]>{
-        return this.http.get<ShoppingListStore[]>(`${baseUrl}/list`);
+    getList(shopping_date: string, store_id : string): Observable<ShoppingListStore[]>{
+        return this.http.get<ShoppingListStore[]>(`${baseUrl}/list?shopping_date=${shopping_date}&store_id=${store_id}`);
+    }
+
+    getListByCategory(shopping_date: string, store_id : string, list_category_id : string): Observable<ShoppingListItems[]>{
+    console.log('getListByCategory');
+        return this.http.get<ShoppingListItems[]>
+             (`${baseUrl}/list_by_category?shopping_date=${shopping_date}&store_id=${store_id}&list_category_id=${list_category_id}`
+             );
+    }
+
+    getListCatgory(): Observable<ListCategory[]>{
+        return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
     }
 
     // login(username:string, password:string) {

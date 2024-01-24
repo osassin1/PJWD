@@ -21,6 +21,7 @@ module.exports = {
         refrences : {
           model: 'family_member',
           key: 'family_member_id',
+          as: 'shopping_list_to_family_member'
         }
       },
       inventory_id : {
@@ -31,17 +32,18 @@ module.exports = {
         refrences : {
           model: 'inventory',
           key: 'inventory_id',
+          as: 'shopping_list_to_inventory'
         }
       },
       quantity: DataTypes.DECIMAL,
       family_member_id: {
         type: Sequelize.INTEGER
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }

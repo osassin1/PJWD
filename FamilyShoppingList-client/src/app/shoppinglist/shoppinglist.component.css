@@ -1,0 +1,45 @@
+.categorydisplay {
+    font-weight: bold;
+    color: darkslateblue;
+    font-size: large;
+    padding-left: 2em;
+}
+
+
+.itemdisplay_outofstock {
+    text-align-last: left;
+    color: lightgrey;
+}
+
+.small {
+    font-size: .6em;
+}
+
+.itemTitle {
+    font-weight: bold;
+    /* text-align-last: center; */
+    text-align: block;
+    color: black;
+}
+
+.componentparts {
+    max-height: 2em;
+    width: 2em;
+    align-self: right;
+    flex: 110 100 450px;
+}
+
+.category-accordion{
+    width: 100%;
+    /* --bs-accordion-bg : red; */
+    --bs-accordion-active-color: blue;
+    --bs-accordion-active-bg: rgb(222, 245, 253);
+    
+}
+
+
+.category-item-display{
+    text-align-last: left;
+    color: navy;
+    font-weight: bold;
+}

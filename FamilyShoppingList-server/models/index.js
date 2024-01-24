@@ -79,7 +79,7 @@ db.Sequelize = Sequelize;
 
 db.inventory = require("./inventory")(sequelize, Sequelize);
 db.store = require("./store")(sequelize, Sequelize);
-db.listcategory = require("./list_category")(sequelize, Sequelize);
+db.list_category = require("./list_category")(sequelize, Sequelize);
 db.color = require("./color")(sequelize, Sequelize);
 db.shopping_list = require("./shopping_list")(sequelize, Sequelize);
 
@@ -96,21 +96,24 @@ db.shopping_list = require("./shopping_list")(sequelize, Sequelize);
 // });
 
 
+// without these associations, it doesn't work
+//need to be done here
+
 db.inventory.belongsTo(db.list_category,{
     through: "list_category_id",
-    as: "list_category",  // database table name
+    as: "inventory_to_list_category",  // !!!! name of the association !!!!
     foreignKey: "list_category_id",
 });
 
 db.inventory.belongsTo(db.store,{
   through: "store_id",
-  as: "store",  // database table name
+  as: "inventory_to_store",  // !!!! name of the association !!!!
   foreignKey: "store_id",
 });
 
 db.inventory.belongsTo(db.quantity,{
   through: "quantity_id",
-  as: "quantity",  // database table name
+  as: "inventory_to_quantity",  // !!!! name of the association !!!!
   foreignKey: "quantity_id",
 });
 
@@ -118,7 +121,7 @@ db.inventory.belongsTo(db.quantity,{
 // 1:1 relationship between family_member to color
 db.family_member.belongsTo(db.color,{
   through: "color_id",
-  as: "color",  // !!!! name of the association !!!!
+  as: "family_member_to_color",  // !!!! name of the association !!!!
   foreignKey: "color_id",
 });
 
@@ -133,8 +136,15 @@ db.color.belongsTo(db.family_member,{
 // C:C relationship
 
 db.shopping_list.belongsTo(db.inventory,{
-  through: "shopping",
+  through: "inventory_id",
+  as: "shopping_list_to_inventory",
   foreignKey: "inventory_id",
+});
+
+db.shopping_list.belongsTo(db.family_member,{
+  through: "family_member_id",
+  as: 'shopping_list_to_family_member',
+  foreignKey: "family_member_id",
 });
 
 // db.inventory.belongsToMany(db.shopping_list,{

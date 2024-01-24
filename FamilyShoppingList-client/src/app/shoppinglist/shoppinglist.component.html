@@ -6,31 +6,6 @@
     <div class="row">
         <div class="col-md-5">
 
-            <!-- <ng-select [items]="colorsToSelectFrom" bindLabel="name" bindValue="name" placeholder="Select color" -->
-
-                <!-- <div>
-                    <label for="signupForm">Select color</label>
-                    <ng-select [items]="colorsToSelectFrom" bindLabel="name" bindValue="name" placeholder="Select color"
-                        labelForId="colorsToSelectFrom" [virtualScroll]="true" formControlName="color_fm"
-                        [ngStyle]="{ 'color': 'name' }" [ngClass]="{ 'is-invalid': submittedSignup && fs['color_fm'].errors}">
-                        <ng-template ng-label-tmp let-item="item">
-                            <span class="d-inline-block rounded-circle p-2" [ngStyle]="{ 'background-color': item.name }"></span>
-                            <span class="label-text" [ngStyle]="{ 'color': item.name }">{{item.name}}</span>
-                        </ng-template>
-                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-                            <span class="d-inline-block rounded-circle p-2" [ngStyle]="{ 'background-color': item.name }"></span>
-                            <span class="label-text" [ngStyle]="{ 'color': item.name }"
-                                [ngOptionHighlight]="search">{{item.name}}</span>
-                        </ng-template>
-                    </ng-select> -->
-
-                    <!-- this.selectShoppingListForm = this.formBuilder.group({
-                        shopping_list_form : null,
-                        shopping_list_form_selected : null
-                      }); -->
-                                
- <!-- [(ngModel)]="selectedShoppingList" -->
-
 <div class="py-1">
     <form [formGroup]="selectShoppingListForm">
         <!-- <label for="selectShoppingListForm">List [{{f['shopping_list_form_selected']}}]</label> -->
@@ -38,55 +13,46 @@
         labelForId="shoppingToSelectFrom" formControlName="shopping_list_form" [tabIndex]=0
         (change)="selectedShoppingList" (ngModelChange)="onSelectChange()">
         <ng-template ng-label-tmp let-item="item">
-            <span class="label-text">{{item.shopping_date}} {{item['inventory.store.name']}}</span>
+            <span class="label-text">{{item.shopping_date}} {{item['shopping_list_to_inventory.inventory_to_store.name']}}</span>
+            
         </ng-template>
         <ng-template ng-option-tmp let-item="item" let-index="index">
-            <span class="label-text">{{item.shopping_date}} {{item['inventory.store.name']}}</span>
+            <span class="label-text">{{item.shopping_date}} {{item['shopping_list_to_inventory.inventory_to_store.name']}}</span>
+           
         </ng-template>
     </ng-select>
     </form>
 </div>
 
 
-
-<div class="accordion" id="accordionExample">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="headingOne">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-          Accordion Item #1
+<div ngbAccordion [closeOthers]="true" class="accordian-button category-accordion">
+	@for (item of listCategories; track item) {
+		<div ngbAccordionItem [collapsed]="item['list_category_id'] !== 1" >
+			<h2 ngbAccordionHeader>
+				<button ngbAccordionButton class="d-flex category-item-display">
+          <div class="p-1 flex-grow-1">{{ item['name'] }}</div>
+          <div class="p-1">{{item['no_of_items']}}</div>
+          <!-- <div class="p-1"><img class="componentparts" src="https://upload.wikimedia.org/wikipedia/commons/7/76/Intel_Celeron_1.7GHz_CPU.jpg?20110519091349"></div>  -->
         </button>
-      </h2>
-      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-        <div class="accordion-body">
-          <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
-      </div>
-    </div>
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="headingTwo">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-          Accordion Item #2
-        </button>
-      </h2>
-      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-        <div class="accordion-body">
-          <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
-      </div>
-    </div>
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="headingThree">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-          Accordion Item #3
-        </button>
-      </h2>
-      <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-        <div class="accordion-body">
-          <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
-      </div>
-    </div>
-  </div>
+			</h2>
+			<div ngbAccordionCollapse>
+				<div ngbAccordionBody>
+					<ng-template>
+						Inventory Items go here: {{shoppingListAll.get(item.list_category_id)}}
+            {{shoppingListAll.get(item.list_category_id)?.length}}
+            @for (inventoryItem of shoppingListAll.get(item.list_category_id); track inventoryItem) {
+                $total_quantity 
+                <p>{{inventoryItem.shopping_list_to_family_member.color_id}}</p>
+            }
+            <!-- {{getShoppingListByCategory(getshoppingDate(), getstoreId() ,item['list_category_id'])}} -->
+					</ng-template>
+				</div>
+			</div>
+		</div>
+	}
 </div>
+
+
+
 </div>
 </div>

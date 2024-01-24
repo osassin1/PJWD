@@ -1,11 +1,15 @@
 const { QueryTypes } = require("sequelize");
 const db = require("../models");
+//const family_member = require("../models/family_member");
 
 //const color = db.color;
 
 const shopping_list = db.shopping_list;
 const inventory = db.inventory;
 const store = db.store;
+const family_member = db.store;
+const quantity = db.store;
+const list_category = db.list_category;
 
 const Op = db.Sequelize.Op;
 const sequelize = db.sequelize
@@ -15,142 +19,121 @@ exports.getShoppingDates = (req, res) => {
 
     shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
         raw: true,
-        attributes: [ 'shopping_date' ],
-        include: { model: inventory,
-                   attributes: [ ],
-                   exclude: [ 'inventory_id', 'store_id' ],
-                   include: { model: store, as: 'store', 
-                              attributes : [ 'name' ],
-                              exclude: ['store_id'] }
-                 }, 
-        group: [ 'shopping_date', 'inventory->store.store_id' ]
+
+        attributes: ['shopping_date' ],
+        include: [ {association: 'shopping_list_to_inventory', attributes : [], exclude: [ 'inventory_id', 'store_id' ],
+                      include: { association : 'inventory_to_store', attributes: ['name'],exclude: ['store_id'] }
+                   }],
+                   group: [ 'shopping_date', 'shopping_list_to_inventory->inventory_to_store.store_id' ]
 
     }).then(data => {
-            console.log(data);
+          //console.log(data);
           res.send(data);
         })
         .catch(err => {
           res.status(500).send({
             message:
-              err.message || "error while retrieving shopping_list."
+              err.message || "error while retrieving shopping dates."
           });
         });
 };
+
+
+exports.getListCategory = (req,res) => {
+  console.log('getList2');
+  console.log( req.query );
+
+  list_category.scope('excludeCreatedAtUpdateAt').findAll({
+      attributes: ['list_category_id', 'name'],
+      order: [ ['list_category_id', 'ASC'] ]
+  }).then(data => {
+    //console.log(data);
+    res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "error while retrieving list categories."
+    });
+  });;
+}
+
 
 exports.getList = (req, res) => {
-    console.log('getList');
+  console.log('getList');
+  console.log( req.query );
 
-    shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
-        //raw: true,
-        //attributes: [ 'shopping_date' ],
-        include: { model: inventory,
-                   attributes: [ 'name', 'store_id', 'list_category_id'],
-                   exclude: [ 'picture', 'notes' ],
-                   include: { model: store, as: 'store', 
-                              attributes : [ 'name' ],
-                              exclude: ['store_id'],
-                              where : {
-                                store_id : req.body.store_id
-                            } },
-                    where: {
-                        store_id : req.body.store_id
-                    }
-                 }, 
-        //group: [ 'shopping_date', 'inventory->store.store_id' ]
-        where : {
-            shopping_date : req.body.shopping_date,
-        }
+  shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
+      //raw: true,
 
-    }).then(data => {
-            console.log(data);
-          res.send(data);
-        })
-        .catch(err => {
-          res.status(500).send({
-            message:
-              err.message || "error while retrieving shopping_list."
-          });
+      attributes : ['shopping_date','family_member_id'],
+      include : [ {association: 'shopping_list_to_family_member', attributes : ['first_name', 'color_id'],
+                      include: { association : 'family_member_to_color', attribute : ['name', 'color_id']}},
+                  { association: 'shopping_list_to_inventory',
+                      attributes: [ 'name', 'list_category_id', 'quantity_id'],
+                      include: [{association : 'inventory_to_store', attributes : ['store_id'] },
+                                {association : 'inventory_to_list_category', attributes : ['name']},
+                                {association : 'inventory_to_quantity', attribues : ['name', 'unit', 'symbol']}],      
+                      exclude: ['picture'],
+                      where : {
+                        store_id : req.query.store_id
+                      }
+      }],
+      where : {
+        shopping_date : req.query.shopping_date
+      }
+
+  }).then(data => {
+        //console.log(data);
+        res.send(data);
+      })
+      .catch(err => {
+        //console.error( err );
+        res.status(500).send({
+          message:
+            err.message || "error while retrieving shopping_list."
         });
-};
+      });
+
+    }
 
 
-
-// retrieve all family_members from the database.
-// exports.getAllShoppinListByFamilyMember = (req, res) => {
-
-//     const title = req.query.title;
-
-//     shopping_list.findAll({
-//         attributes: ['family_member_id', 'username', 'first_name', 'last_name', 'color.name' ], 
-//         include: { model: color, as: 'color', attributes : ['color_id', 'family_member_id', 'name'] } 
-//        }
-//     )
-//     .then(data => {
-//         console.log(data);
-//       res.send(data);
-//     })
-//     .catch(err => {
-//       res.status(500).send({
-//         message:
-//           err.message || "error while retrieving family_member."
-//       });
-//     });
-// };
-
-
-// family_member.scope('excludeCreatedAtUpdateAt').findOne({
-//     attributes: ['family_member_id', 'username', 'password', 'first_name', 'last_name', 'color.name' ], 
-//     include: { model: color, as: 'color', attributes : ['color_id', 'family_member_id', 'name'] }, 
-//     where: {
-//       username: req.body.username
-//     }
-// })
-// .then(family_member => {
-
-//     if( family_member === null ){
-//       return res.status(401).send({
-//         accessToken: null,
-//         message: "unkown username - please try again"
-//       });
-//     }
-
-//     var checkPassword = bcrypt.compareSync(
-//       req.body.password,
-//       family_member.password
-//     );
-
-//     if (!checkPassword) {
-//       return res.status(401).send({
-//         accessToken: null,
-//         message: "password mismatch - please try again"
-//       });
-//     } 
-
-//     const token = jwt.sign({ id: family_member.family_member_id },
-//       "the secretc of the family shopping list",
-//       {
-//         algorithm: 'HS256',
-//         allowInsecureKeySizes: true,
-//         expiresIn: 86400, // 24 hours
-//       });
-
-//       console.log('token : ' + token );
-
-//       return res.status(200).send({
-//         family_member_id: family_member.family_member_id,
-//         username: family_member.username,
-//         first_name: family_member.first_name,
-//         last_name: family_member.last_name,
-//         color : { color_id: family_member.color.color_id,
-//                   name: family_member.color.name },
-//         token
-//       });
-
-//   })
-//   .catch(err => {
-//     res.status(500).send({
-//       message:
-//         err.message || "error while login family_member."
-//     });
-//   });
-
+    exports.getListByCategory = (req, res) => {
+      console.log('getListByCategory');
+      console.log( req.query );
+    
+      shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
+          //raw: true,
+    
+          attributes : ['shopping_date','family_member_id', 'quantity'],
+          include : [ {association: 'shopping_list_to_family_member', attributes : ['first_name', 'last_name','color_id'],
+                          include: { association : 'family_member_to_color', attribute : ['name', 'color_id']}},
+                      { association: 'shopping_list_to_inventory',
+                          attributes: [ 'name', 'list_category_id', 'quantity_id'],
+                          include: [{association : 'inventory_to_store', attributes : ['store_id'] },
+                                    {association : 'inventory_to_list_category', attributes : ['name']},
+                                    {association : 'inventory_to_quantity', attribues : ['name', 'unit', 'symbol']}],      
+                          exclude: ['picture'],
+                          where : {
+                            store_id : req.query.store_id,
+                            list_category_id : req.query.list_category_id
+                          }
+          }],
+          where : {
+            shopping_date : req.query.shopping_date
+          }
+    
+      }).then(data => {
+            //console.log(data);
+            res.send(data);
+          })
+          .catch(err => {
+            //console.error( err );
+            res.status(500).send({
+              message:
+                err.message || "error while retrieving shopping_list."
+            });
+          });
+    
+        }
+    

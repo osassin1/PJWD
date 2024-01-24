@@ -15,7 +15,8 @@ module.exports = {
         foreignKey: true,
         reference:{
           model: 'store',
-          key: 'store_id'
+          key: 'store_id',
+          as: 'inventory_to_store'
         }
       },
       list_category_id: {
@@ -24,7 +25,8 @@ module.exports = {
         foreignKey: true,
         reference:{
           model: 'list_category',
-          key: 'list_category_id'
+          key: 'list_category_id',
+          as: 'inventory_to_list_category'
         }
       },
       quantity_id :
@@ -34,6 +36,7 @@ module.exports = {
         refrences : {
           model: 'quantity',
           key: 'quantity_id',
+          as: 'inventory_to_quantity'
         }
       },
       name: {

@@ -2,8 +2,13 @@
 
 //const loadpicture = require('fs');
 const base64Img = require('base64-img');
+
 //var apple_mcintosh = base64Img.base64('Organic-Red-Mcintosh-Apples.jpg');
 //var apple_empire = base64Img.base64('Organic-Red-Empire-Apples.jpg');
+
+
+const { store } = require('../models');
+
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -17,11 +22,19 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
+
+    const storeWholeFoods = await store.findOne({
+      where: {
+        name: 'Whole Foods'
+      }
+    });
+
+
     await queryInterface.bulkInsert('inventory', [{
       name: 'Apple sauce, organic',
       picture: base64Img.base64Sync('images/apple-sauce-small.jpg'),
       notes: 'Small apple sauce containers - just buy them if bigger glasses are not available.',
-      store_id: 1,
+      store_id: parseInt(storeWholeFoods.store_id),
       list_category_id: 7,
       quantity_id: 1,
       created_at: new Date(),
@@ -30,7 +43,7 @@ module.exports = {
       name: 'Bananas, organic',
       picture: base64Img.base64Sync('images/bananas.jpg'),
       notes: 'Try to get them not too yellow.',
-      store_id: 1,
+      store_id: parseInt(storeWholeFoods.store_id),
       list_category_id: 1,
       quantity_id: 3,
       created_at: new Date(),
@@ -39,7 +52,7 @@ module.exports = {
       name: 'Black beans, organic',
       picture: base64Img.base64Sync('images/black-beans.jpg'),
       notes: 'We should try to stock up if they are on sale.',
-      store_id: 1,
+      store_id: parseInt(storeWholeFoods.store_id),
       list_category_id: 7,
       quantity_id: 3,
       created_at: new Date(),
@@ -48,7 +61,7 @@ module.exports = {
       name: 'Butternut squash, organic',
       picture: base64Img.base64Sync('images/butternut-squash.jpg'),
       notes: 'Get the largest available.',
-      store_id: 1,
+      store_id: parseInt(storeWholeFoods.store_id),
       list_category_id: 2,
       quantity_id: 1,
       created_at: new Date(),
