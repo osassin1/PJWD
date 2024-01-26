@@ -25,26 +25,30 @@ module.exports = {
     const inventory_from_wholefoods = await inventory.findAll({
       attributes: ['inventory_id', 'store_id', 'quantity_id' ],
       include: [{
-        association : 'store'
+        association : 'inventory_to_store'
       }],
       where:{
-        '$store.name$': 'Whole Foods'
+        '$inventory_to_store.name$': 'Whole Foods'
       }
     });
+
+    console.log('inventory_from_wholefoods',inventory_from_wholefoods);
 
 
     const inventory_from_costco = await inventory.findAll({
       attributes: ['inventory_id', 'store_id', 'quantity_id' ],
       include: [{
-        association : 'store'
+        association : 'inventory_to_store'
       }],
       where:{
-        '$store.name$': 'Costco'
+        '$inventory_to_store.name$': 'Costco'
       }
     });
 
-    const shopping_date = new Date(new Date().setDate(new Date().getDate() + 7));   // add seven days to TODAY
-    shopping_date.setHours(0, 0, 0, 0);
+    console.log('inventory_from_costco',inventory_from_costco);
+
+
+    const shopping_date = new Date(new Date().setDate(new Date().getDate() + 7)).toLocaleDateString('en-US');   // add seven days to TODAY
 
     await queryInterface.bulkInsert('shopping_list', [{
       shopping_date: shopping_date,
@@ -88,10 +92,30 @@ module.exports = {
       family_member_id: family_member_osassin.family_member_id,
       created_at: new Date(),
       updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[6].inventory_id,
+      quantity: 4,
+      family_member_id: family_member_osassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[5].inventory_id,
+      quantity: 1,
+      family_member_id: family_member_osassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[4].inventory_id,
+      quantity: 7,
+      family_member_id: family_member_osassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
     }],{});
 
-    const shopping_date_14days = new Date(new Date().setDate(new Date().getDate() + 14));   // add seven days to TODAY
-    shopping_date_14days.setHours(0, 0, 0, 0);
+    const shopping_date_14days = new Date(new Date().setDate(new Date().getDate() + 14)).toLocaleDateString('en-US');   // add seven days to TODAY
 
     await queryInterface.bulkInsert('shopping_list', [{
       shopping_date: shopping_date_14days,

@@ -48,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       refrences : {
         model: 'store',
         key: 'store_id',
+        as: 'inventory_to_store'
       }
     },
 
@@ -58,6 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       refrences : {
         model: 'list_category',
         key: 'list_category_id',
+        as: 'inventory_to_list_category'
       }
     },
 
@@ -68,6 +70,7 @@ module.exports = (sequelize, DataTypes) => {
       refrences : {
         model: 'quantity',
         key: 'quantity_id',
+        as: 'inventory_to_quantity' 
       }
     }
 

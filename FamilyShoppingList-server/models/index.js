@@ -1,5 +1,7 @@
 'use strict';
 
+
+const { QueryTypes } = require("sequelize");
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
@@ -9,7 +11,7 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
-console.log('config.use_env_variable:' + JSON.stringify(config) + JSON.stringify(process.env[config.use_env_variable]));
+console.log('config.use_env_variable:' + JSON.stringify(config));
 
 let sequelize;
 if (config.use_env_variable) {
@@ -61,6 +63,7 @@ fs
     );
   })
   .forEach(file => {
+    console.log(file);
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
@@ -74,10 +77,13 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+db.quantity = require("./quantity")(sequelize, Sequelize);
+
 db.inventory = require("./inventory")(sequelize, Sequelize);
 db.store = require("./store")(sequelize, Sequelize);
-db.listcategory = require("./list_category")(sequelize, Sequelize);
+db.list_category = require("./list_category")(sequelize, Sequelize);
 db.color = require("./color")(sequelize, Sequelize);
+db.shopping_list = require("./shopping_list")(sequelize, Sequelize);
 
 // db.inventory.hasOne(db.listcategory,{
 //     through: "inventory_list_category_id",
@@ -92,21 +98,24 @@ db.color = require("./color")(sequelize, Sequelize);
 // });
 
 
+// without these associations, it doesn't work
+//need to be done here
+
 db.inventory.belongsTo(db.list_category,{
     through: "list_category_id",
-    as: "list_category",  // database table name
+    as: "inventory_to_list_category",  // !!!! name of the association !!!!
     foreignKey: "list_category_id",
 });
 
 db.inventory.belongsTo(db.store,{
   through: "store_id",
-  as: "store",  // database table name
+  as: "inventory_to_store",  // !!!! name of the association !!!!
   foreignKey: "store_id",
 });
 
 db.inventory.belongsTo(db.quantity,{
   through: "quantity_id",
-  as: "quantity",  // database table name
+  as: "inventory_to_quantity",  // !!!! name of the association !!!!
   foreignKey: "quantity_id",
 });
 
@@ -114,7 +123,7 @@ db.inventory.belongsTo(db.quantity,{
 // 1:1 relationship between family_member to color
 db.family_member.belongsTo(db.color,{
   through: "color_id",
-  as: "color",  // !!!! name of the association !!!!
+  as: "family_member_to_color",  // !!!! name of the association !!!!
   foreignKey: "color_id",
 });
 
@@ -125,15 +134,29 @@ db.color.belongsTo(db.family_member,{
 });
 
 
+
 // C:C relationship
 
-// db.shopping_list.hasMany(db.inventory,{
-//   through: "inventory_id",
-//   as: "inventory",  // database table name
-//   foreignKey: "inventory_id",
+db.shopping_list.belongsTo(db.inventory,{
+  through: "inventory_id",
+  as: "shopping_list_to_inventory",
+  foreignKey: "inventory_id",
+});
+
+db.shopping_list.belongsTo(db.family_member,{
+  through: "family_member_id",
+  as: 'shopping_list_to_family_member',
+  foreignKey: "family_member_id",
+});
+
+// db.inventory.belongsToMany(db.shopping_list,{
+//   through: "shopping",
 // });
 
 
-module.exports = db;
+
+      module.exports = db;
 
 
+  
+  

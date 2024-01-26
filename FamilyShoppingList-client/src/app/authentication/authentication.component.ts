@@ -3,9 +3,13 @@ import { CommonModule, NgStyle } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AuthenticationService } from '../authentication/authentication.service';
 import { HttpClientModule } from '@angular/common/http';
 import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
+import { Router, ActivatedRoute } from '@angular/router';
+//import { first } from 'rxjs/operators';
+
+import { AuthenticationService } from '../authentication/authentication.service';
+import { FamilyMemberService } from '../family_member/family_member.service';
 
 @Component({
   selector: 'app-authentication',
@@ -29,22 +33,16 @@ export class AuthenticationComponent implements OnInit {
   signup = false;
   error = '';
 
-  //familyMemberColor = { 'color_id':0, 'name': 'black'};
-
-  
-  colorSelectForm!: FormGroup;
   colorsToSelectFrom: any[] = [];
-
-  //photos: any[] = [];
 
   //isAuthenticated = 0;
 
   constructor(
     private formBuilder: FormBuilder,
     private authenticationService:AuthenticationService,
-    //private route: ActivatedRoute,
-    //private router: Router,
-    //private authenticationService: AuthenticationService
+    private familyMemberServcice: FamilyMemberService,
+    private route: ActivatedRoute,
+    private router: Router,
     ) {
     //iconRegistry.addSvgIcon('thumps-up');
     // redirect to home if already logged in
@@ -54,11 +52,6 @@ export class AuthenticationComponent implements OnInit {
     }
 
   ngOnInit() {
-
-    this.colorSelectForm = this.formBuilder.group({
-      color_fm: ''
-    });
-
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
@@ -68,10 +61,12 @@ export class AuthenticationComponent implements OnInit {
       username: ['', [Validators.required,Validators.minLength(6), Validators.maxLength(20)] ],
       password: ['', [Validators.required,Validators.minLength(6), Validators.maxLength(20)] ],
       firstName: ['', Validators.required],
-      lastName: ['', Validators.required]
+      lastName: ['', Validators.required],
+      color_fm: ['', Validators.required]
     });
 
-    this.authenticationService.setAuthenticated(false);
+    // just login for testing purposes 
+    //this.loginFamilyMember("osassin","mysecret");
 
     // this is for testing when signup is true from the start
     // the 'signup' button will not be pressed, so load colors now
@@ -87,19 +82,49 @@ export class AuthenticationComponent implements OnInit {
     });
   }
 
-  // onSubmit(){
-  //   this.isAuthenticated = 1;
-  // }
+  private loginFamilyMember(username : string, password : string){
+    this.error = '';
+    this.loading = true;
+  
+    this.authenticationService.login(
+      username, 
+      password
+      ).subscribe({
+        next: (v) => { 
+          console.log('loginFamilyMember : ');
+          console.log(v);
+          //this.familyMemberServcice.familyMember = v; 
+          this.loading = false;
+
+          // --- ToDo ---
+          // http://localhost:8081/authentication?returnUrl=%2Fshoppinglist
+          //
+          // doesn't work
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/shoppinglist';
+
+          console.log('retunrUrl:' + returnUrl);
+
+          this.familyMemberServcice.isAuthenticated = true;
+          //return this.familyMemberServcice.familyMember;
+          //this.router.navigate(['/shoppinglist']);
+          this.router.navigate([returnUrl]);
+        },
+        error: (e) => {
+          this.error = e.error.message;
+          this.loading = false;
+        },
+        complete: () => console.info('authenticat.component: complete')
+      });
+  
+  }
 
 
   get f() { return this.loginForm.controls; }
   get fs() { return this.signupForm.controls; }
 
-      get authenticated() { 
-        
-        return this.authenticationService.getAuthenticated();
-        //return 0;
-      }
+  get authenticated() {
+    return this.familyMemberServcice.isAuthenticated;
+  }
 
 
 onLogin() {
@@ -110,26 +135,22 @@ onLogin() {
       return;
   }
 
-  this.error = '';
-  this.loading = true;
-  // this.authenticationService.login(this.f.username.value, this.f.password.value)
-  //     .pipe(first())
-  //     .subscribe({
-  //         next: () => {
-  //             // get return url from route parameters or default to '/'
-  //             const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-  //             this.router.navigate([returnUrl]);
-  //         },
-  //         error: error => {
-  //             this.error = error;
-  //             this.loading = false;
-  //         }
-  //     });
+  console.log('this.authenticationService.login');
 
+  this.loginFamilyMember( this.f['username'].value, this.f['password'].value);
+
+  console.log('this.authenticationService.login: ' +  this.familyMemberServcice.isAuthenticated);
+
+  if( this.familyMemberServcice.isAuthenticated ){
+    console.log('this.router.navigate');
+    this.router.navigate(['/shoppinglist']);
+  }
+
+  
   setTimeout(() => 
   {
     this.loading = false;
-    this.authenticationService.setAuthenticated(true); 
+    //this.authenticationService.setAuthenticated(true); 
   }, 2000);
 
 }
@@ -155,8 +176,8 @@ getSignup()
     console.log('onSubmitSignup');
     this.submittedSignup = true;
 
-    if (this.signupForm.invalid) {
-      return;
+    if (this.signupForm.invalid ) {
+        return;
     }
 
   }

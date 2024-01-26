@@ -1,28 +1,30 @@
-<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css"> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<div class="home" *ngIf="isAuthenticated(); else authentication">
-<nav class="navbar navbar-expand-sm bg-medium navbar-light" style="background-color:lightskyblue">
+<!-- <div class="home" *ngIf="isAuthenticated(); else authentication"> -->
+<div class="home">
+        <nav class="navbar navbar-expand-sm bg-medium navbar-light" style="background-color:rgb(108, 197, 252)">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" style="font-size:2em font-weight-bold">FamilyShoppingList</a>
+            <a class="navbar-brand" style="font-size:2em font-weight-bold">FSL</a>    <!-- FamilyShoppingList -->
         </div>
         <ul class="nav navbar-nav">
-            <li class="nav-item" *ngIf="!isAuthenticated()">
-                <a class="nav-link" routerLink="login">login</a>
-            </li>
-            <li class="nav-item" *ngIf="isAuthenticated()">
-                <a class="nav-link" routerLink="inventory">inventory</a>
-            </li>
-            <li routerLinkActive="active" *ngIf="isAuthenticated()">
+            <li class="nav-item">
                 <a class="nav-link" routerLink="shopping_list">list</a>
             </li>
-            <li class="nav-item" *ngIf="isAuthenticated()">
-                <a class="nav-link" routerLink="logout">logout</a>
+            <li class="nav-item">
+                <a class="nav-link" routerLink="inventory">inventory</a>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" type="button" href="#" (click)="logout()">logout</button>
             </li>
         </ul>
-        <ul class="nav navbar-nav navbar-right" *ngIf="isAuthenticated()">
+        <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+            <span class="d-inline-block rounded-circle p-2" [ngStyle]="{ 'background-color': color() }"></span>
+            <label style="padding-left: 10px;"> {{firstName()}} {{lastName()}}</label>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
             <li *ngIf="isAuthenticated() && noOfItemsOnList()" routerLinkActive="active">
-                <a class="nav-link" routerLink="shoppingcart">
+                <a class="nav-link" routerLink="shoppinglist">
                     <span class="badge rounded-pill badge-notification bg-danger">
             {{noOfItemsOnList()}}</span>
                     <!-- <i class="material-icons" aria-hidden="true">list</i>' -->
@@ -39,6 +41,6 @@
     </div>
 </nav>
 </div>
-<ng-template #authentication>
+<!-- <ng-template #authentication>
     <app-authentication></app-authentication>
-</ng-template>
+</ng-template> -->

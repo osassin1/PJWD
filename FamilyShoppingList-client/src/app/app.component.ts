@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { NavigationComponent } from './navigation/navigation.component';
+//import { NavigationComponent } from './navigation/navigation.component';
 import { AuthenticationComponent } from './authentication/authentication.component';
 //import { AuthenticationService } from './authentication/authentication.service';
 
@@ -9,8 +9,8 @@ import { AuthenticationComponent } from './authentication/authentication.compone
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, NavigationComponent, AuthenticationComponent, 
-    //AuthenticationService
+  imports: [CommonModule, RouterOutlet, AuthenticationComponent, 
+    //AuthenticationService, NavigationComponent
 
   ],
   templateUrl: './app.component.html',
@@ -18,4 +18,5 @@ import { AuthenticationComponent } from './authentication/authentication.compone
 })
 export class AppComponent {
   title = 'FamilyShoppingList';
+  
 }

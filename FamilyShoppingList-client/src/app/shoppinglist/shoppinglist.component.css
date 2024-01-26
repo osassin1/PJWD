@@ -1,0 +1,61 @@
+.categorydisplay {
+    font-weight: bold;
+    color: darkslateblue;
+    font-size: large;
+    padding-left: 2em;
+}
+
+
+.itemdisplay_outofstock {
+    text-align-last: left;
+    color: lightgrey;
+}
+
+.small {
+    font-size: .6em;
+}
+
+.itemTitle {
+    font-weight: bold;
+    /* text-align-last: center; */
+    text-align: block;
+    color: black;
+}
+
+.componentparts {
+    max-height: 2em;
+    width: 2em;
+    align-self: right;
+    flex: 110 100 450px;
+}
+
+.category-accordion{
+    width: 100%;
+    /* --bs-accordion-bg : red; */
+    --bs-accordion-active-color: blue;
+    --bs-accordion-active-bg: rgb(222, 245, 253);
+    --bs-accordion-bg: rgb(238, 236, 236);
+    
+}
+
+
+.category-total-display{
+    color: navy;
+    font-weight: bold;
+}
+
+.category-item-display{
+    color: navy;
+    /* font-weight: bold; */
+}
+
+.category-item-notes{
+    color: navy;
+    font-size: .7em;
+    /* font-weight: bold; */
+}
+
+.inventory-picture{
+    max-height: 3em;
+    width: 3em;
+}

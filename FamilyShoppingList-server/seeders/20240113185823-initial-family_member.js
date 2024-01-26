@@ -3,6 +3,9 @@
 const { color, family_member } = require('../models');
 //const { family_member } = require('../models');
 
+var bcrypt = require("bcryptjs");
+
+
 //module.db.color = require("./color")(sequelize, Sequelize);
 
 /** @type {import('sequelize-cli').Migration} */
@@ -26,7 +29,7 @@ module.exports = {
 
     await family_member.build({
       username: 'osassin',
-      password : 'mysecret',
+      password : bcrypt.hashSync('mysecret', 8),
       first_name: 'Oliver',
       last_name: 'Sassin',
       color_id: parseInt(colorOne.color_id),
@@ -54,13 +57,13 @@ module.exports = {
 
     const colorOne2 = await color.findOne({
       where: {
-        name: 'purple'
+        name: 'pink'
       }
     });
 
     await family_member.build({
       username: 'lea.sassin',
-      password : 'mysecret',
+      password : bcrypt.hashSync('mysecret', 8),
       first_name: 'Lea',
       last_name: 'Sassin',
       color_id: parseInt(colorOne2.color_id),
