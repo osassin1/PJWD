@@ -14,15 +14,6 @@ module.exports = function(app) {
   
     var router = require("express").Router();
   
-    //   // retrieve all family_members exclude 'password'
-    // router.get("/", family_member.findAll);
-
-    // // retrieve all family_members exclude 'password'
-    // router.get("/colors", family_member.findAllColors);
-
-    // // retrieve one family_members with 'password'
-    // router.post("/login", family_member.login);
-    
     router.get("/", inventory.getAllInventory);
 
     router.get("/picture", inventory.getPicture);

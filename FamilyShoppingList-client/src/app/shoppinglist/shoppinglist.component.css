@@ -34,6 +34,7 @@
     /* --bs-accordion-bg : red; */
     --bs-accordion-active-color: blue;
     --bs-accordion-active-bg: rgb(222, 245, 253);
+    --bs-accordion-bg: rgb(238, 236, 236);
     
 }
 
@@ -54,3 +55,7 @@
     /* font-weight: bold; */
 }
 
+.inventory-picture{
+    max-height: 3em;
+    width: 3em;
+}

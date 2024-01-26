@@ -1,3 +1,5 @@
+import { SafeUrl } from "@angular/platform-browser"
+
 export interface ShoppingListItems {
     shopping_date : string,               //  "shopping_date": "1/30/2024",
     family_member_id : number,            // "family_member_id": 1,
@@ -11,8 +13,6 @@ export interface ShoppingListItems {
             color_id : number,            // "color_id": 6,
             family_member_id : string,    // "family_member_id": 1,
             name : string,                // "name": "orange",
-                                          // "createdAt": "2024-01-23T15:37:22.000Z",
-                                          // "updatedAt": "2024-01-23T15:37:22.000Z"
             }
     },
     shopping_list_to_inventory : {        // "shopping_list_to_inventory": {
@@ -31,8 +31,6 @@ export interface ShoppingListItems {
                 name: string,             //  "name": "pounds",
                 unit: string,             // "unit": 1,
                 symbol: string,           // "symbol": "lbs",
-                // "createdAt": "2024-01-23T15:37:22.000Z",
-                // "updatedAt": "2024-01-23T15:37:22.000Z"
             }
     }
 }    
