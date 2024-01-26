@@ -25,6 +25,8 @@ module.exports = function(app) {
     
     router.get("/", inventory.getAllInventory);
 
+    router.get("/picture", inventory.getPicture);
+
     app.use('/api/inventory', router);
   };
   

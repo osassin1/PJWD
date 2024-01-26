@@ -32,6 +32,8 @@ module.exports = {
       }
     });
 
+    console.log('inventory_from_wholefoods',inventory_from_wholefoods);
+
 
     const inventory_from_costco = await inventory.findAll({
       attributes: ['inventory_id', 'store_id', 'quantity_id' ],
@@ -42,6 +44,9 @@ module.exports = {
         '$inventory_to_store.name$': 'Costco'
       }
     });
+
+    console.log('inventory_from_costco',inventory_from_costco);
+
 
     const shopping_date = new Date(new Date().setDate(new Date().getDate() + 7)).toLocaleDateString('en-US');   // add seven days to TODAY
 
@@ -84,6 +89,27 @@ module.exports = {
       shopping_date: shopping_date,
       inventory_id: inventory_from_costco[0].inventory_id,
       quantity: 12,
+      family_member_id: family_member_osassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[6].inventory_id,
+      quantity: 4,
+      family_member_id: family_member_osassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[5].inventory_id,
+      quantity: 1,
+      family_member_id: family_member_osassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[4].inventory_id,
+      quantity: 7,
       family_member_id: family_member_osassin.family_member_id,
       created_at: new Date(),
       updated_at : new Date()

@@ -6,6 +6,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 
+import { DomSanitizer } from '@angular/platform-browser';
+
 import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 //import { NgbPaginationModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -17,6 +19,7 @@ import { ShoppingListDates } from '../models/shopping_list_dates.model';
 import { ShoppingListTotal } from '../models/shopping_list_total.model';
 
 import { ShoppingListService } from './shoppinglist.service';
+import { InventoryService } from '../inventory/inventory.service';
 
 
 //imports: [NavigationComponent, NgSelectModule, CommonModule, NgStyle, FormsModule],
@@ -26,7 +29,8 @@ import { ShoppingListService } from './shoppinglist.service';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, 
             NgSelectModule, NgStyle, NgOptionHighlightModule, NavigationComponent,
-            NgbAccordionModule ],
+            NgbAccordionModule,
+             ],
   templateUrl: './shoppinglist.component.html',
   styleUrl: './shoppinglist.component.css'
 })
@@ -50,6 +54,7 @@ export class ShoppinglistComponent implements OnInit {
   storeId : number = 0;
   storeName : string = "";
   shoppingListItem : ShoppingListItems[] = [];
+  inventoryPicture_1 : any;
 
   // shopping list with all ietms
   //
@@ -59,6 +64,8 @@ export class ShoppinglistComponent implements OnInit {
   shoppingListAllTotal : Map<string, ShoppingListTotal> = new Map<"",any>();
 
   constructor(private shoppingListService: ShoppingListService,
+              private inventoryService: InventoryService,
+              private domSanatizer: DomSanitizer,
               private formBuilder: FormBuilder) {
     
   }
@@ -83,9 +90,27 @@ export class ShoppinglistComponent implements OnInit {
   
 
       console.log(this.shoppingListDates);
+
+      this.getInventoryPicture(2);
+
+      console.log('this.inventoryPicture_1:',this.inventoryPicture_1);
+
   }
 
   get f() { return this.selectShoppingListForm.controls; }
+
+  adjustForDecimals(x : any, unit : string) {
+    if( unit == "2" ){  // number
+      const v = Number.parseFloat(x).toFixed(0);
+      return v;
+    }
+    return x;
+  }
+
+  getCategoryNo(category_item : string){
+    return this.shoppingListAllTotal.get(category_item) !== undefined;
+  }
+  
 
   logout(){
     console.log('shoppinglist.component : logout');
@@ -183,72 +208,120 @@ export class ShoppinglistComponent implements OnInit {
     //this.getShoppingListByCategory(shopping_date, store_id, list_category_id);
   }
 
-//   .pipe(map ( item => {
-//     console.log(item);
-//     this.shoppingListAll.set(list_category_id, item);
-
-//  }))
-
-
   getShoppingListByCategory(shopping_date : string, store_id : string, list_category_id: string){
     console.log('in getShoppingListByCategory');
-    let total_quantity = 0;
-    let shoppingListAllTotal : ShoppingListTotal;
+    
+    
 
     this.shoppingListService.getListByCategory(shopping_date, store_id, list_category_id)
       .subscribe({
-        next: (v) => { 
+        next: (v) => {
           console.log('getShoppingListByCategory : ');
           console.log(v);
-          if( this.shoppingListAll.has(list_category_id) ){
+          if (this.shoppingListAll.has(list_category_id)) {
             this.shoppingListAll.delete(list_category_id);
           }
-          this.shoppingListAll.set(list_category_id,v);
-          v.map((x => { 
-            total_quantity += x.quantity;
+          this.shoppingListAll.set(list_category_id, v);
+          let total_quantity: number = 0.;
+          v.map((x => {
+            total_quantity += +x.quantity;     // the '+x.quantity' is important
+            // without the '+' sign it would 
+            // concat strings instead of adding.
           }))
-          console.log('total_quantity:', list_category_id, '  ', total_quantity);
 
-          // --> doesn't work !!!!!!!!!!!!!!
-          // shoppingListAllTotal.list_category_id = parseInt(list_category_id);
-          // shoppingListAllTotal.shopping_date = shopping_date;
-          // shoppingListAllTotal.store_id = parseInt(store_id);
+          // console.log('total_quantity:', list_category_id, '  ', total_quantity);
 
-        //   family_members : [{
-        //     family_member_id: number,
-        //     first_name: string,
-        //     last_name: string,
-        //     color_id: number,
-        //     color_name: string
-        // }]
-          // v.map((x => { 
-          //   console.log('new x:');
-          //   console.log(x);
-          //   shoppingListAllTotal.family_members.push({
-          //     family_member_id: x.family_member_id,
-          //     first_name: x.shopping_list_to_family_member.first_name,
-          //     last_name: x.shopping_list_to_family_member.last_name,
-          //     color_id: x.shopping_list_to_family_member.color_id,
-          //     color_name: x.shopping_list_to_family_member.family_member_to_color.name
-          //   });
-          // }))
+          // This creates the sum of inventory items entered by different 
+          // family members from the shopping list per category; it conatins the total 
+          // quantity and who (via color reference) entered it.
+          let tempArray: any[] = [];
+          let tempMap = new Map();
+          v.map((x => {
+              tempMap.set(x.family_member_id, {  
+              family_member_id: x.family_member_id,
+              first_name: x.shopping_list_to_family_member.first_name,
+              last_name: x.shopping_list_to_family_member.last_name,
+              color_id: x.shopping_list_to_family_member.color_id,
+              color_name: x.shopping_list_to_family_member.family_member_to_color.name
+            })}
+          ))
 
-          
+          // console.log('tempMap:', tempMap);
 
-//          this.shoppingListAllTotal.set(list_category_id,shoppingListAllTotal);
+          tempMap.forEach(m => {
+              tempArray.push(m);
+          });
 
-          console.log(this.shoppingListAllTotal);
-          
-        },
-        error: (e) => {
-          console.error( e.error.message );
+            // console.log('tempArray:',tempArray)
+
+            // my_array.forEach((e) => {
+            //   if(!unique_array.includes(e)){
+            //     console.log('e:',e);
+            //     unique_array.push(e);
+            //   }
+            // });
+            // console.log('unique_array:',unique_array);
+
+            // let unique_array = [... new Set(my_array)];
+            // console.log('unique_array:',unique_array);
+
+
+            console.log('tempArray.length:',tempArray.length);
+
+            if( tempArray.length ) {
+              const shoppingListAllTotalTemp: ShoppingListTotal = <ShoppingListTotal>{
+                list_category_id: parseInt(list_category_id),
+                shopping_date: shopping_date,
+                store_id: parseInt(store_id),
+                total_quantity: total_quantity,
+                family_members: tempArray
+              }
+              this.shoppingListAllTotal.set(list_category_id, shoppingListAllTotalTemp);
+            }
+
+          }
+
+        ,error: (e) => {
+          console.error(e.error.message);
           //this.loading = false;
         },
         complete: () => console.info('getShoppingListByCategory: complete')
       });
   }
 
+  getInventoryPicture(id : number){
+    
+    console.log('getInventoryPicture:', id);
 
+    // this.inventoryService.getPicture(id)
+    //   .subscribe({
+    //     next: (v) => {
+    //       console.log('picture v:', v);
+    //       console.log('picture typeof v:', typeof(v));
+    //       console.log('picture --> v:', v  );
+
+    //       this.inventoryPicture_1 = v.image; 
+
+    //       console.log('this.inventoryPicture_1:',this.inventoryPicture_1)
+    //     }
+    //   });
+
+    this.inventoryService.getPicture(id)
+    .subscribe(baseImage => {
+      //let objectURL = URL.createObjectURL(blob);
+      alert( JSON.stringify(baseImage));
+
+       let objectURL = baseImage;
+       this.inventoryPicture_1 = this.domSanatizer.bypassSecurityTrustUrl(objectURL);
+
+      //this.inventoryPicture_1 = baseImage;
+
+      //this.inventoryPicture_1 = this.domSanatizer.bypassSecurityTrustResourceUrl(objectURL);
+      //baseImage.image;
+      console.log('this.inventoryPicture_1:',this.inventoryPicture_1)
+    })
+
+  }
   // findCategory() {
   //   this.shoppingList.find()
   //    .pipe(map(data => {

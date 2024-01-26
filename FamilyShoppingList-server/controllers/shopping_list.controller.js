@@ -105,11 +105,11 @@ exports.getList = (req, res) => {
       shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
           //raw: true,
     
-          attributes : ['shopping_date','family_member_id', 'quantity'],
+          attributes : ['shopping_date','family_member_id', 'quantity','inventory_id'],
           include : [ {association: 'shopping_list_to_family_member', attributes : ['first_name', 'last_name','color_id'],
                           include: { association : 'family_member_to_color', attribute : ['name', 'color_id']}},
                       { association: 'shopping_list_to_inventory',
-                          attributes: [ 'name', 'list_category_id', 'quantity_id'],
+                          attributes: [ 'name', 'list_category_id', 'quantity_id', 'notes'],
                           include: [{association : 'inventory_to_store', attributes : ['store_id'] },
                                     {association : 'inventory_to_list_category', attributes : ['name']},
                                     {association : 'inventory_to_quantity', attribues : ['name', 'unit', 'symbol']}],      

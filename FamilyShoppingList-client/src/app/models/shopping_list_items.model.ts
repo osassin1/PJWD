@@ -2,6 +2,7 @@ export interface ShoppingListItems {
     shopping_date : string,               //  "shopping_date": "1/30/2024",
     family_member_id : number,            // "family_member_id": 1,
     quantity : number,
+    inventory_id: number,
     shopping_list_to_family_member : {    // "shopping_list_to_family_member": {
         first_name : string,              // "first_name": "Oliver",
         last_name: string,
@@ -18,6 +19,7 @@ export interface ShoppingListItems {
             name : string,                // "name": "Apple sauce, organic",
             list_category_id : number,    // "list_category_id": 7,
             quantity_id : number,         // "quantity_id": 1,
+            notes: string,
             inventory_to_store : {        // "inventory_to_store": {
                 store_id: number          // "store_id": 1
             },

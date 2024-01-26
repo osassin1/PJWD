@@ -38,8 +38,19 @@
 }
 
 
-.category-item-display{
-    text-align-last: left;
+.category-total-display{
     color: navy;
     font-weight: bold;
 }
+
+.category-item-display{
+    color: navy;
+    /* font-weight: bold; */
+}
+
+.category-item-notes{
+    color: navy;
+    font-size: .7em;
+    /* font-weight: bold; */
+}
+

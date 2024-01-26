@@ -27,7 +27,7 @@ module.exports = {
     }, {
       name : 'number',
       unit: 2,            //number
-      symbol: '',
+      symbol: 'item(s)',
       created_at: new Date(),
       updated_at : new Date()
     }, {

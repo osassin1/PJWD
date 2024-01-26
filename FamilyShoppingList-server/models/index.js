@@ -77,6 +77,8 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+db.quantity = require("./quantity")(sequelize, Sequelize);
+
 db.inventory = require("./inventory")(sequelize, Sequelize);
 db.store = require("./store")(sequelize, Sequelize);
 db.list_category = require("./list_category")(sequelize, Sequelize);

@@ -10,8 +10,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const models = require("./models");
-const Inventory = models.inventory;
-const Store = models.store;
 
 models.sequelize.sync().then(function () {
     console.log("> database has been synced");
@@ -24,7 +22,7 @@ app.get('/', function (req, res) {
 
 
 require("./routes/family_member.routes")(app);
-//require("./routes/inventory.routes")(app);
+require("./routes/inventory.routes")(app);
 require("./routes/shopping_list.routes")(app);
 
 

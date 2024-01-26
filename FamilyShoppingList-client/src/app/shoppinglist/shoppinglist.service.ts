@@ -39,7 +39,6 @@ export class ShoppingListService {
     }
 
     getListByCategory(shopping_date: string, store_id : string, list_category_id : string): Observable<ShoppingListItems[]>{
-    console.log('getListByCategory');
         return this.http.get<ShoppingListItems[]>
              (`${baseUrl}/list_by_category?shopping_date=${shopping_date}&store_id=${store_id}&list_category_id=${list_category_id}`
              );
@@ -48,6 +47,7 @@ export class ShoppingListService {
     getListCatgory(): Observable<ListCategory[]>{
         return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
     }
+
 
     // login(username:string, password:string) {
     //     console.log("AuthenticationService: login");

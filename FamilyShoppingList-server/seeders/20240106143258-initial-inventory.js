@@ -75,6 +75,33 @@ module.exports = {
       quantity_id: 3,
       created_at: new Date(),
       updated_at : new Date()
+    }, {
+      name: 'Carrots, organic',
+      picture: base64Img.base64Sync('images/carrots-organic.jpg'),
+      notes: 'Get longer ones with green on it.',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Fennel, organic',
+      picture: base64Img.base64Sync('images/fennel-organic.jpg'),
+      notes: 'Smaller ones are ok.',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Onion (Yellow), organic',
+      picture: base64Img.base64Sync('images/onion-yellow-organic.jpg'),
+      notes: '',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
 
     }],{});
 

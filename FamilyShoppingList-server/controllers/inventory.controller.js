@@ -26,6 +26,32 @@ exports.getAllInventory = (req, res) => {
 
 
 
+{/* <img style="display:block; width:10em;height:10em;"' +
+                        ' src="' + data['picture'] + '"> 
+ */}
+
+exports.getPicture = (req,res) => {
+  console.log('getInventoryPicture');
+  console.log( req.query );
+
+  inventory.scope('excludeCreatedAtUpdateAt').findByPk(req.query.inventory_id)
+  .then(data => {
+    if( data ) {
+        //console.log( JSON.stringify(data['picture']) );
+        //res.status(200).send('<img src="' + data['picture'] + '">');
+        console.log(data['picture']);
+        res.send(data['picture']);
+    }
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "error while retrieving inventory picture."
+    });
+  });;
+}
+
+
 // family_member.scope('excludeCreatedAtUpdateAt').findOne({
 //     attributes: ['family_member_id', 'username', 'password', 'first_name', 'last_name', 'color.name' ], 
 //     include: { model: color, as: 'color', attributes : ['color_id', 'family_member_id', 'name'] }, 
