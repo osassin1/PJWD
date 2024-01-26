@@ -28,7 +28,7 @@ module.exports = {
     });
 
     await family_member.build({
-      username: 'osassin',
+      username: 'oliver.sassin',
       password : bcrypt.hashSync('mysecret', 8),
       first_name: 'Oliver',
       last_name: 'Sassin',
@@ -82,6 +82,41 @@ module.exports = {
       {
         where: {
           color_id: parseInt(colorOne2.color_id) 
+        }
+      }
+    ).catch(function(error){
+      console.log('Update error:' + error);
+    });
+
+
+
+    const colorOne3 = await color.findOne({
+      where: {
+        name: 'purple'
+      }
+    });
+
+    await family_member.build({
+      username: 'heidi.sassin',
+      password : bcrypt.hashSync('mysecret', 8),
+      first_name: 'Heidi',
+      last_name: 'Sassin',
+      color_id: parseInt(colorOne3.color_id),
+      created_at: new Date(),
+      updated_at : new Date()
+    }).save().then(function(new_family_member){
+        colorOne3.family_member_id = new_family_member.family_member_id;
+    }).catch(function(error){
+      console.log(error);
+    });
+
+    const updatedInfo3 = await color.update(
+      {
+        family_member_id: colorOne3.family_member_id 
+      },
+      {
+        where: {
+          color_id: parseInt(colorOne3.color_id) 
         }
       }
     ).catch(function(error){

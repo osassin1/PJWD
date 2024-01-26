@@ -19,8 +19,8 @@
             </li>
         </ul>
         <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-            <span class="d-inline-block rounded-circle p-2" [ngStyle]="{ 'background-color': color() }"></span>
-            <label style="padding-left: 10px;"> {{firstName()}} {{lastName()}}</label>
+            <span class="d-inline-block family_member_dot p-2" [ngStyle]="{ 'background-color': color() }"></span>
+            <label> {{firstName()}} {{lastName()}}</label>
         </div>
         <ul class="nav navbar-nav navbar-right">
             <li *ngIf="isAuthenticated() && noOfItemsOnList()" routerLinkActive="active">

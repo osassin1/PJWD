@@ -17,7 +17,9 @@ module.exports = function(app) {
     router.get("/shopping_dates", shopping_list.getShoppingDates);
     router.get("/list", shopping_list.getList);
     router.get("/list_category", shopping_list.getListCategory);
+
     router.get("/list_by_category", shopping_list.getListByCategory);
+    router.get("/list_by_category_groupby", shopping_list.getListByCategoryGroupBy);
 
 
     

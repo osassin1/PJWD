@@ -1,15 +1,13 @@
 .categorydisplay {
     font-weight: bold;
     color: darkslateblue;
-    font-size: large;
-    padding-left: 2em;
+    /* font-size: large; */
+    /* padding-left: 2em;
+    padding-right: 2em; */
+    padding: 10px;
 }
 
 
-.itemdisplay_outofstock {
-    text-align-last: left;
-    color: lightgrey;
-}
 
 .small {
     font-size: .6em;
@@ -22,12 +20,12 @@
     color: black;
 }
 
-.componentparts {
+/* .componentparts {
     max-height: 2em;
     width: 2em;
     align-self: right;
     flex: 110 100 450px;
-}
+} */
 
 .category-accordion{
     width: 100%;
@@ -37,6 +35,14 @@
     --bs-accordion-bg: rgb(238, 236, 236);
     
 }
+
+/* .family_member_dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 2px;
+} */
+
 
 
 .category-total-display{

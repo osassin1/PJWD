@@ -10,7 +10,7 @@ module.exports = {
       attributes: ['family_member_id'],
       where :
       {
-        username: 'osassin'
+        username: 'oliver.sassin'
       }
     });
 
@@ -19,6 +19,14 @@ module.exports = {
       where :
       {
         username: 'lea.sassin'
+      }
+    });
+
+    const family_member_heidi_sassin = await family_member.findOne({
+      attributes: ['family_member_id'],
+      where :
+      {
+        username: 'heidi.sassin'
       }
     });
 
@@ -32,7 +40,7 @@ module.exports = {
       }
     });
 
-    console.log('inventory_from_wholefoods',inventory_from_wholefoods);
+    console.log('inventory_from_wholefoods:' + inventory_from_wholefoods);
 
 
     const inventory_from_costco = await inventory.findAll({
@@ -45,7 +53,6 @@ module.exports = {
       }
     });
 
-    console.log('inventory_from_costco',inventory_from_costco);
 
 
     const shopping_date = new Date(new Date().setDate(new Date().getDate() + 7)).toLocaleDateString('en-US');   // add seven days to TODAY
@@ -111,6 +118,76 @@ module.exports = {
       inventory_id: inventory_from_wholefoods[4].inventory_id,
       quantity: 7,
       family_member_id: family_member_osassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[13].inventory_id,
+      quantity: 1,
+      family_member_id: family_member_heidi_sassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[12].inventory_id,
+      quantity: 1,
+      family_member_id: family_member_heidi_sassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[11].inventory_id,
+      quantity: 1,
+      family_member_id: family_member_heidi_sassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[10].inventory_id,
+      quantity: 2,
+      family_member_id: family_member_heidi_sassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[10].inventory_id,
+      quantity: 1,
+      family_member_id: family_member_lea_sassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[9].inventory_id,
+      quantity: 3,
+      family_member_id: family_member_heidi_sassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[9].inventory_id,
+      quantity: 2,
+      family_member_id: family_member_lea_sassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[9].inventory_id,
+      quantity: 1.5,
+      family_member_id: family_member_osassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[8].inventory_id,
+      quantity: 1,
+      family_member_id: family_member_heidi_sassin.family_member_id,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      shopping_date: shopping_date,
+      inventory_id: inventory_from_wholefoods[6].inventory_id,
+      quantity: 2,
+      family_member_id: family_member_heidi_sassin.family_member_id,
       created_at: new Date(),
       updated_at : new Date()
     }],{});

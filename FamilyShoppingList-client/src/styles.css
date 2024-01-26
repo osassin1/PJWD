@@ -3,3 +3,11 @@
 /* @import "~@ng-select/ng-select/themes/default.theme.css"; */
 
 @import "../node_modules/@ng-select/ng-select/themes/default.theme.css";
+
+.family_member_dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    padding: 10px;
+    margin-right: 5px;    
+}
