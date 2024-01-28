@@ -27,24 +27,24 @@
             <div ngbAccordion class="accordian-button category-accordion">
                 @for (item of listCategories; track item) {
                 <div ngbAccordionItem [collapsed]="item['list_category_id']"
-                    [disabled]="!getCategoryNo(item['list_category_id'])">
+                    [disabled]="!hasCategoryItems(item['list_category_id'])">
+
                     <h2 ngbAccordionHeader>
                         <button ngbAccordionButton class="category-total-display d-flex">
                             <div class="p-1 flex-grow-1">{{ item['name'] }}</div>
-                            <div class="p-2 padding:10px;" *ngIf="shoppingListAllTotal.size>0 && 
-                                  shoppingListAllTotal.get(item.list_category_id)">
+                            <div class="p-1 padding:10px;" *ngIf="shoppingListAllTotal.size>0 && 
+                                    shoppingListAllTotal.get(item.list_category_id)">
                                 @for (inventoryItem of shoppingListAllTotal.get(item.list_category_id)?.family_members;
                                 track inventoryItem){
-                                <!-- <span class="d-inline-block rounded-circle p-2"  -->
                                 <div class="d-inline-block family_member_dot p-2"
-                                    [ngStyle]="{ 'background-color': inventoryItem.color_name, 'padding': '10em'  }">
+                                    [ngStyle]="{ 'background-color': inventoryItem, 'padding': '10em'  }">
                                 </div>
-                                
                                 }
                             </div>
                             <div class="p-2" *ngIf="shoppingListAllTotal.size>0 && 
-                         shoppingListAllTotal.get(item.list_category_id)">
-                                #{{shoppingListAll.get(item.list_category_id)?.length}}
+                                                    shoppingListAllTotal.get(item.list_category_id) &&
+                                                    shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items">
+                                #{{shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items}}
                             </div>
                         </button>
                     </h2>
@@ -53,23 +53,86 @@
                             <ng-template>
                                 @for (inventoryItem of shoppingListAll.get(item.list_category_id);
                                 track inventoryItem) {
-                                    <div class="category-item-display d-flex">
-                                        <div class="p-1"><img class="inventory-picture" [src]='getPicture(inventoryItem.inventory_id)'></div>
-                                        
-                                        <div class="p-1 flex-grow-1">{{inventoryItem.shopping_list_to_inventory.name}}
-                                            <div class="d-inline-block family_member_dot p-1"
-                                                [ngStyle]="{ 'background-color': inventoryItem. shopping_list_to_family_member.family_member_to_color.name}">
-                                            </div>
-                                            <div class="p-1 category-item-notes" category-item-notes>
-                                                {{inventoryItem.shopping_list_to_inventory.notes}}
+                                <div class="category-item-display">
+                                    
+                                        <div *ngIf="inventoryItem.num_of_items>1; else displaySingle">
+                                            <div id="accordionCategoryItems">
+                                                <div class="accordion-item">
+                                                    <div class="accordion-header">
+                                                        <button class="category-item-accordion" type="button"
+                                                            data-bs-toggle="collapse"
+                                                            attr.data-bs-target="#flush_{{inventoryItem.inventory_id}}" 
+                                                            aria-expanded="false"
+                                                            attr.aria-controls="flush_{{inventoryItem.inventory_id}}">
+
+                                                            <div class="d-flex">
+                                                                <div class="p-0"><img class="inventory-picture"
+                                                                        [src]='getPicture(inventoryItem.inventory_id)'>
+                                                                </div>
+
+                                                                <div class="p-1 flex-grow-1">
+                                                                    {{inventoryItem.inventory_name}}
+                                                                    @for (colorItem of inventoryItem.family_members;
+                                                                    track colorItem) {
+                                                                    <div class="d-inline-block family_member_dot p-1"
+                                                                        [ngStyle]="{ 'background-color': colorItem.name}">
+                                                                    </div>
+                                                                    }
+                                                                    <div class="p-1 category-item-notes"
+                                                                        category-item-notes>
+                                                                        {{inventoryItem.inventory_notes}}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="px-1">
+                                                                    {{adjustForDecimals(inventoryItem.quantity,inventoryItem.inventory_unit)}}
+                                                                </div>
+                                                                <div class="p-0"> {{inventoryItem.inventory_symbol}}
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                    <div id="flush_{{inventoryItem.inventory_id}}" class="collapse"
+                                                        data-bs-parent="#accordionCategoryItems">
+                                                        <div class="category-item-accordion-flush ">
+                                                            @for (inventoryItemDetail of inventoryItem.family_members;
+                                                            track inventoryItemDetail) {
+                                                                    <div class="d-flex justify-content-end">
+                                                                        <div class="p-0 flex-shrink-1"> 
+                                                                            {{inventoryItemDetail.first_name}}  
+                                                                         
+                                                                            <div class="d-inline-block family_member_dot p-1" [ngStyle]="{ 'background-color': inventoryItemDetail.name}"> </div>
+                                                                        </div>
+                                                                        <div class="d-flex px-1">
+                                                                            {{adjustForDecimals(inventoryItemDetail.quantity,inventoryItem.inventory_unit)}}
+                                                                            {{inventoryItem.inventory_symbol}}
+                                                                        </div>
+                                                                    </div>
+                                                            }  
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="p-1">
-                                            {{adjustForDecimals(inventoryItem.quantity,inventoryItem.shopping_list_to_inventory.inventory_to_quantity.unit)}}
-                                        </div>
-                                        <div class="p-1">
-                                            {{inventoryItem.shopping_list_to_inventory.inventory_to_quantity.symbol}}</div>
-                                    </div>
+                                        <ng-template #displaySingle>
+                                            <div class="d-flex">
+                                                <div class="p-1"><img class="inventory-picture"
+                                                        [src]='getPicture(inventoryItem.inventory_id)'></div>
+
+                                                <div class="p-1 flex-grow-1">{{inventoryItem.inventory_name}}
+                                                    <div class="d-inline-block family_member_dot p-1"
+                                                        [ngStyle]="{ 'background-color': inventoryItem.family_members[0].name}">
+                                                    </div>
+                                                    <div class="p-1 category-item-notes" category-item-notes>
+                                                        {{inventoryItem.inventory_notes}}
+                                                    </div>
+                                                </div>
+                                                <div class="p-1">
+                                                    {{adjustForDecimals(inventoryItem.quantity,inventoryItem.inventory_unit)}}
+                                                </div>
+                                                <div class="p-1"> {{inventoryItem.inventory_symbol}}</div>
+                                            </div>
+                                        </ng-template>
+                                </div>
                                 }
                             </ng-template>
                         </div>

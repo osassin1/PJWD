@@ -55,7 +55,7 @@ module.exports = {
 
 
 
-    const shopping_date = new Date(new Date().setDate(new Date().getDate() + 7)).toLocaleDateString('en-US');   // add seven days to TODAY
+    const shopping_date = new Date(new Date().setDate(new Date().getDate() + 7)).toLocaleDateString('en-US',{month: '2-digit', day: '2-digit', year: 'numeric'});   // add seven days to TODAY
 
     await queryInterface.bulkInsert('shopping_list', [{
       shopping_date: shopping_date,
@@ -192,7 +192,7 @@ module.exports = {
       updated_at : new Date()
     }],{});
 
-    const shopping_date_14days = new Date(new Date().setDate(new Date().getDate() + 14)).toLocaleDateString('en-US');   // add seven days to TODAY
+    const shopping_date_14days = new Date(new Date().setDate(new Date().getDate() + 14)).toLocaleDateString('en-US',{month: '2-digit', day: '2-digit', year: 'numeric'});   // add seven days to TODAY
 
     await queryInterface.bulkInsert('shopping_list', [{
       shopping_date: shopping_date_14days,

@@ -57,52 +57,50 @@ export class AuthenticationService {
         return this.http.get<Color[]>(`${baseUrl}/colors`);
     }
 
-    // login(username:string, password:string): Observable<FamilyMember>{
-    //     return this.http.post<FamilyMember>(`${baseUrl}/login`, {
-    //         username, 
-    //         password
-    //     });
-    // }
-
     login(username:string, password:string) {
         console.log("AuthenticationService: login");
+        console.log("AuthenticationService: login --> this.familyMemberSubject.value : ", this.familyMemberSubject.value);
         return this.http.post<FamilyMember>(`${baseUrl}/login`, {
             username, 
             password
-        }).pipe(map(familyMember => {
-            console.log("AuthenticationService: login in }).pipe(map(familyMember =>");
-            console.log(familyMember);
-            localStorage.setItem('familyMember', JSON.stringify(familyMember));
-            this.familyMemberSubject.next(familyMember);
-            return familyMember;            
+        }).pipe(map(fm => {
+            console.log('login : ', fm);
+            localStorage.setItem('familyMember', JSON.stringify(fm));
+            this.familyMemberSubject.next(fm);
+            console.log("AuthenticationService: login.familyMember --> this.familyMemberSubject.value : ", this.familyMemberSubject.value);
+            return fm;            
         }));
     };
 
     logout(){
         console.log("AuthenticationService: logout");
         console.log(localStorage.getItem('familyMember'));
-        //localStorage.clear();
+        localStorage.clear();
         localStorage.removeItem('familyMember');
-        this.familyMemberSubject.next(null);
+
+        // This make re-login impossible
+        // need to investigate more
+        //this.familyMemberSubject.next(null);
         //this.familyMemberSubject.closed;
-        this.router.navigate(['/authentication']);
+        this.router.navigate(['/']);
     }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) : boolean {
         console.log('AuthenticationService: canActivate');
-        const familyMember = this.familyMemberValue;
-        console.log(familyMember);
+        //const familyMember = this.familyMemberValue;
+        console.log('AuthenticationService: canActivate --> this.familyMemberSubject.value : ',this.familyMemberSubject.value);
+        console.log('AuthenticationService: canActivate --> this.familyMember : ',this.familyMember);
 
-        if (familyMember) {
-            console.log('canActivate familyMember :');
-            console.log(familyMember);
+        if (this.familyMemberSubject.value) {
+            console.log('AuthenticationService: canActivate --> familyMember :', this.familyMemberSubject.value);
             // logged in so return true
             return true;
         }
         console.log('AuthenticationService: canActivate --> no');
 
         // not logged in so redirect to login page with the return url
-        this.router.navigate(['/authentication'], { queryParams: { returnUrl: state.url } });
+        //console.log('AuthenticationService: canActivate --> no : ', state.url);
+        //this.router.navigate(['/authentication'], { queryParams: { returnUrl: state.url } });
         return false;
     }
 }

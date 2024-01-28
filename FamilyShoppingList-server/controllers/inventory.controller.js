@@ -6,14 +6,13 @@ const Op = db.Sequelize.Op;
 
 
 exports.getAllInventory = (req, res) => {
-
     inventory.findAll({
         attributes: ['shopping_date' ], 
         group: ['shopping_date']
        }
     )
     .then(data => {
-        console.log(data);
+      //console.log(data);
       res.send(data);
     })
     .catch(err => {
@@ -31,15 +30,9 @@ exports.getAllInventory = (req, res) => {
  */}
 
 exports.getPicture = (req,res) => {
-  console.log('getInventoryPicture');
-  console.log( req.query );
-
   inventory.scope('excludeCreatedAtUpdateAt').findByPk(req.query.inventory_id)
   .then(data => {
     if( data ) {
-        //console.log( JSON.stringify(data['picture']) );
-        //res.status(200).send('<img src="' + data['picture'] + '">');
-        //console.log(data['picture']);
         res.send(data['picture']);
     }
   })

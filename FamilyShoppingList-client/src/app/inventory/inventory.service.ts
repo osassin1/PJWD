@@ -39,8 +39,6 @@ export class InventoryService {
 
     loadPicture(inventory_id: number) : SafeUrl {
         if (!this.pictureInventory.has(inventory_id)) {
-            console.log('loadPicture:', inventory_id);
-
             this.getPicture(inventory_id)
                 .subscribe(picture => {
                     let objectURL = picture;   

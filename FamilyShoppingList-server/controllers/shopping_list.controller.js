@@ -1,6 +1,6 @@
 const { QueryTypes } = require("sequelize");
 const db = require("../models");
-const { Map } = require('immutable');
+const { Map, List } = require('immutable');
 
 //const color = db.color;
 
@@ -15,17 +15,16 @@ const Op = db.Sequelize.Op;
 const sequelize = db.sequelize
 
 exports.getShoppingDates = (req, res) => {
-  console.log('getShoppingDates');
-
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
     raw: true,
-
     attributes: ['shopping_date'],
     include: [{
       association: 'shopping_list_to_inventory', attributes: [], exclude: ['inventory_id', 'store_id'],
       include: { association: 'inventory_to_store', attributes: ['name'], exclude: ['store_id'] }
     }],
-    group: ['shopping_date', 'shopping_list_to_inventory->inventory_to_store.store_id']
+    order : [['shopping_date', 'ASC']],
+    group: ['shopping_date', 'shopping_list_to_inventory->inventory_to_store.store_id'],
+    
 
   }).then(data => {
     //console.log(data);
@@ -41,9 +40,6 @@ exports.getShoppingDates = (req, res) => {
 
 
 exports.getListCategory = (req, res) => {
-  console.log('getList2');
-  console.log(req.query);
-
   list_category.scope('excludeCreatedAtUpdateAt').findAll({
     attributes: ['list_category_id', 'name'],
     order: [['list_category_id', 'ASC']]
@@ -61,12 +57,7 @@ exports.getListCategory = (req, res) => {
 
 
 exports.getList = (req, res) => {
-  console.log('getList');
-  console.log(req.query);
-
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
-    //raw: true,
-
     attributes: ['shopping_date', 'family_member_id'],
     include: [{
       association: 'shopping_list_to_family_member', attributes: ['first_name', 'color_id'],
@@ -86,7 +77,6 @@ exports.getList = (req, res) => {
     where: {
       shopping_date: req.query.shopping_date
     }
-
   }).then(data => {
     //console.log(data);
     res.send(data);
@@ -98,62 +88,10 @@ exports.getList = (req, res) => {
           err.message || "error while retrieving shopping_list."
       });
     });
-
-}
-
-
-exports.getListByCategory = (req, res) => {
-  console.log('getListByCategory');
-  console.log(req.query);
-
-  shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
-    //raw: true,
-
-    attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id'],
-    include: [{
-      association: 'shopping_list_to_family_member', attributes: ['first_name', 'last_name', 'color_id'],
-      include: { association: 'family_member_to_color', attribute: ['name', 'color_id'] }
-    },
-    {
-      association: 'shopping_list_to_inventory',
-      attributes: ['name', 'list_category_id', 'quantity_id', 'notes'],
-      include: [{ association: 'inventory_to_store', attributes: ['store_id'] },
-      { association: 'inventory_to_list_category', attributes: ['name'] },
-      { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'] }],
-      exclude: ['picture'],
-      where: {
-        store_id: req.query.store_id,
-        list_category_id: req.query.list_category_id
-      }
-    }],
-    where: {
-      shopping_date: req.query.shopping_date
-    },
-    order: [
-      ['inventory_id', 'ASC']
-    ]
-
-  }).then(data => {
-    //console.log(data);
-    res.send(data);
-  })
-    .catch(err => {
-      //console.error( err );
-      res.status(500).send({
-        message:
-          err.message || "error while retrieving shopping_list."
-      });
-    });
-
 }
 
 exports.getListByCategoryGroupBy = (req, res) => {
-  console.log('getListByCategoryGroupedBy');
-  console.log(req.query);
-
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
-    //raw: true,
-
     attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id'],
     include: [{
       association: 'shopping_list_to_family_member', attributes: ['first_name', 'last_name', 'color_id'],
@@ -177,40 +115,79 @@ exports.getListByCategoryGroupBy = (req, res) => {
     order: [
       ['inventory_id', 'ASC'] 
     ]
-
   }).then(data => {
 
-    var newData = Map();
+    // The map reduces the number of entries to one, eliminating duplicates. 
+    // For example, two family members can enter the same item independently, 
+    // to display them it is better to reduce I to one entry. 
+    var newInventoryData = Map();
+
+    var colorForCategory = new List();
+    var categoryName = "";
+    var categoryTotalNumOfItems = 0;
 
     data.forEach(x => {
-      console.log('x:', x['inventory_id']);
-      newData = newData.set( x['inventory_id'], {'color_id' : x['shopping_list_to_family_member.color_id'],
-                                        'quantity' : x['quantity'],
-                                        'inventory_name' : x['shopping_list_to_inventory.name']
 
-                        
-    });
+      colorForCategory = colorForCategory.push(x['shopping_list_to_family_member']['family_member_to_color']['name']);
+      if( categoryName.length == 0){
+        categoryName = x['shopping_list_to_inventory']['inventory_to_list_category']['name'];
+      }
+      categoryTotalNumOfItems++;
 
+      // Prune the inventory data
+      if( !newInventoryData.has(x['inventory_id']) ) {
+        newInventoryData = newInventoryData.set( x['inventory_id'], {'num_of_items' : 1,
+          'quantity' : x['quantity'],
+          'inventory_id' : x['inventory_id'],
+          'inventory_name' : x['shopping_list_to_inventory']['name'],
+          'inventory_notes' : x['shopping_list_to_inventory']['notes'],
+          'inventory_symbol' : x['shopping_list_to_inventory']['inventory_to_quantity']['symbol'],
+          'inventory_unit' : x['shopping_list_to_inventory']['inventory_to_quantity']['unit'],
+          'family_members' : [ {'name' : x['shopping_list_to_family_member']['family_member_to_color']['name'],
+                                'quantity' : x['quantity'],
+                                'first_name' : x['shopping_list_to_family_member']['first_name'],
+                                'last_name' : x['shopping_list_to_family_member']['last_name']
+            } ] 
+        });
+      } 
+      else {
+          var y = newInventoryData.get(x['inventory_id']); 
+          var family_member_array = y['family_members'];
+          
+          family_member_array.push({'name' : x['shopping_list_to_family_member']['family_member_to_color']['name'],
+                                    'quantity'   : x['quantity'],
+                                    'first_name' : x['shopping_list_to_family_member']['first_name'],
+                                    'last_name'  : x['shopping_list_to_family_member']['last_name']
+                                  
+          });
 
-    });
-    console.log('newData:', newData);
+          newInventoryData = newInventoryData.set( x['inventory_id'], {'num_of_items' : y['num_of_items'] + 1,
+          'quantity' : parseFloat(y['quantity']) + parseFloat(x['quantity']),
+          'inventory_id' : x['inventory_id'],
+          'inventory_name' : y['inventory_name'],
+          'inventory_notes' : y['inventory_notes'],
+          'inventory_symbol' : y['inventory_symbol'],
+          'inventory_unit' : y['inventory_unit'],
+          'family_members' : family_member_array });
+      }
+     });
 
+    var categoryTotal = {
+      'category_name' : categoryName,
+      'total_num_of_items' : categoryTotalNumOfItems,
+      'family_members': colorForCategory.toSet().toList() // this makes it unique colors
+    };
+    var returnData = {'category' : categoryTotal,
+                      'inventory' : newInventoryData.toSet().toArray()
+    };
 
-
-
-
-
-
-
-
-    //console.log(data);
-    res.send("no data yet");
+    res.send(returnData);
   })
     .catch(err => {
       //console.error( err );
       res.status(500).send({
         message:
-          err.message || "error while retrieving shopping_list."
+          err.message || "error while retrieving getListByCategoryGroupBy."
       });
     });
 

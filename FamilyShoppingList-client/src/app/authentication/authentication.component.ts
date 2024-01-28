@@ -91,8 +91,7 @@ export class AuthenticationComponent implements OnInit {
       password
       ).subscribe({
         next: (v) => { 
-          console.log('loginFamilyMember : ');
-          console.log(v);
+          console.log('loginFamilyMember : ', v);
           //this.familyMemberServcice.familyMember = v; 
           this.loading = false;
 
@@ -135,18 +134,18 @@ onLogin() {
       return;
   }
 
-  console.log('this.authenticationService.login');
+  console.log('authentication.component - onLogon');
+  console.log('authentication.component - onLogon: this.loginFamilyMember');
 
   this.loginFamilyMember( this.f['username'].value, this.f['password'].value);
 
-  console.log('this.authenticationService.login: ' +  this.familyMemberServcice.isAuthenticated);
+  console.log('authentication.component - onLogon: this.loginFamilyMember : ', this.familyMemberServcice.isAuthenticated);
 
-  if( this.familyMemberServcice.isAuthenticated ){
-    console.log('this.router.navigate');
-    this.router.navigate(['/shoppinglist']);
-  }
+  // if( this.familyMemberServcice.isAuthenticated ){
+  //   console.log('uthentication.component - onLogon: this.router.navigate');
+  //   this.router.navigate(['/shoppinglist']);
+  // }
 
-  
   setTimeout(() => 
   {
     this.loading = false;
