@@ -38,8 +38,8 @@ export class ShoppingListService {
     //          (`${baseUrl}/list_by_category?shopping_date=${shopping_date}&store_id=${store_id}&list_category_id=${list_category_id}`
     //          );
     // }
-    
-    getListByCategoryByGroup(shopping_date: string, store_id : string, list_category_id : string): Observable<any>{
+
+    getListByCategoryByGroup(shopping_date: string, store_id : number, list_category_id : number): Observable<any>{
         return this.http.get<any>
              (`${baseUrl}/list_by_category_groupby?shopping_date=${shopping_date}&store_id=${store_id}&list_category_id=${list_category_id}`
              );

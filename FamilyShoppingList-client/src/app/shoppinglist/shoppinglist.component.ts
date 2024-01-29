@@ -19,7 +19,8 @@ import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 
 import { ShoppingListService } from './shoppinglist.service';
 import { InventoryService } from '../inventory/inventory.service';
-
+import { Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 // import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -45,6 +46,15 @@ export class ShoppinglistComponent implements OnInit {
   // drop-down select in category section of accardion
   selectShoppingCategoryForm!: FormGroup;
 
+  // select from inventory
+  selectFromInventoryForm!: FormGroup;
+  selectedInventoryItem: any;
+  inventoryItemsToSelectFrom: ShoppingListInventory[] = [];
+  //localCategoryInventory : Map<number, ShoppingListInventory[]> = new Map<0,[]>();
+
+  inventoryItemsToSelectFromBS: BehaviorSubject<any[] | []>;
+  inventoryItemsToSelectFromOb: Observable<any[] | []>;
+
   selectedShoppingList: any = "";
   selectedShoppingCategoryItem: any ="";
 
@@ -57,6 +67,7 @@ export class ShoppinglistComponent implements OnInit {
   shoppingDate : string = "";
   storeId : number = 0;
   storeName : string = "";
+  categoryId : number = 0;
 
   
   // this contains all inventory items on the shopping lisy by 
@@ -64,18 +75,22 @@ export class ShoppinglistComponent implements OnInit {
   // ShoppingListItems[]>. The array ShoppingListItems[] contains
   // the shopping item from inventory + quantity
   
-  shoppingListAll : Map<string, ShoppingListInventory[]> = new Map<"",[]>();
+  shoppingListAll : Map<number, ShoppingListInventory[]> = new Map<0,[]>();
 
   // It's the summary/totals of each category, e.g.
   // who (family member) has items in this category, how many
   // items are there. There's also a total of units, which
   // might be to complicated when summing up item(s) and weights.
-  shoppingListAllTotal : Map<string, ShoppingListTotal> = new Map<"",any>();
+  shoppingListAllTotal : Map<number, ShoppingListTotal> = new Map<0,any>();
 
 
   constructor(private shoppingListService: ShoppingListService,
               private inventoryService: InventoryService,
               private formBuilder: FormBuilder) {
+
+                this.inventoryItemsToSelectFromBS = new BehaviorSubject(this.inventoryItemsToSelectFrom);
+                this.inventoryItemsToSelectFromOb = this.inventoryItemsToSelectFromBS.asObservable();
+                    
     
   }
 
@@ -99,6 +114,12 @@ export class ShoppinglistComponent implements OnInit {
         this.selectedShoppingList = this.shoppingToSelectFrom[0];
       });
 
+      this.selectFromInventoryForm = this.formBuilder.group({
+        inventory_item_form : null
+      });
+
+
+
   }
 
   get f() { return this.selectShoppingListForm.controls; }
@@ -113,7 +134,7 @@ export class ShoppinglistComponent implements OnInit {
     return x;
   }
 
-  hasCategoryItems(category_item : string) : boolean {
+  hasCategoryItems(category_item : number) : boolean {
 
     // if the category doesn't exist yet, then return false
     // and stop checking
@@ -137,7 +158,6 @@ export class ShoppinglistComponent implements OnInit {
   }
 
   onSelectChange(){
-
     this.shoppingListService.getAllDates().subscribe((response:any) => {
       this.shoppingDate = this.selectShoppingListForm.value['shopping_list_form']['shopping_date'];
       this.storeId = this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.store_id'];
@@ -149,16 +169,43 @@ export class ShoppinglistComponent implements OnInit {
       
       for (let item in this.listCategories){
         const list_category_id = this.listCategories[item]['list_category_id'];
-        this.getShoppingListByCategoryNew(this.shoppingDate, this.storeId.toString(), list_category_id);
+        this.getShoppingListByCategory(this.shoppingDate, this.storeId, list_category_id);
+        //this.localCategoryInventory.set(list_category_id, this.inventoryService.categoryInventory.get(list_category_id)! );
       }
     });
+  }
 
+  onAddInventory(list_category_id:number){
+    console.log('onAddInvetory');
+    //this.inventoryItemsToSelectFrom  
+    //this.inventoryItemsToSelectFrom =
+    //var inventoryData = this.inventoryService.loadInventory(this.storeId, list_category_id)
+    //console.log('inventoryData: ', inventoryData);
+    
+    this.inventoryService.getInventoryByCategory(this.storeId, list_category_id)
+    .subscribe(inventory => {
+       console.log('onAddInventory InventoryService::loadInventory --> inventory : ', inventory);
+       this.inventoryItemsToSelectFrom = inventory
+       this.inventoryItemsToSelectFromBS.next(inventory);
+   })
+
+
+
+
+    console.log('this.inventoryItemsToSelectFrom : ', this.inventoryItemsToSelectFrom);
   }
 
   getPicture(inventory_id:number):SafeUrl{
-    return this.inventoryService.pictureInventory.get(inventory_id) ?? "no loaded";
+    return this.inventoryService.pictureInventory.get(inventory_id) ?? "not loaded";
   }
 
+  // *** doesn't work ***
+  getInventoryByCategory(list_category_id:number){
+    //console.log('this.inventoryService.categoryInventory.get(list_category_id):', this.inventoryService.categoryInventory.get(list_category_id))
+    //return this.inventoryService.loadInventory(this.storeId, list_category_id);
+    console.log('this.inventoryItemsToSelectFromBS.getValue():',this.inventoryItemsToSelectFromBS.getValue());
+    return this.inventoryItemsToSelectFromBS.getValue();
+  }
 
   checkCategory(element : any, _category : string) : boolean {
     return (element === _category );
@@ -167,7 +214,7 @@ export class ShoppinglistComponent implements OnInit {
 
   // Load the shopping list by categories to match the accordion selector
   // and handle each section individually.
-  getShoppingListByCategoryNew(shopping_date : string, store_id : string, list_category_id: string){
+  getShoppingListByCategory(shopping_date : string, store_id : number, list_category_id: number){
 
     this.shoppingListService.getListByCategoryByGroup(shopping_date, store_id, list_category_id)
       .subscribe({
@@ -181,6 +228,8 @@ export class ShoppinglistComponent implements OnInit {
           this.shoppingListAll.get(list_category_id)?.forEach((p => {
             this.inventoryService.loadPicture(p.inventory_id);
            }));
+
+          
 
         },error: (e) => {
           console.error(e.error.message);

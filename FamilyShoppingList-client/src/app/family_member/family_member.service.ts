@@ -5,7 +5,7 @@ import { FamilyMember } from '../models/family_member.model';
     providedIn: 'root',
 })
 
-export class FamilyMemberService /*implements FamilyMember*/ {
+export class FamilyMemberService implements FamilyMember {
     
     public family_member_id: number = 0;
     public username: string = '';

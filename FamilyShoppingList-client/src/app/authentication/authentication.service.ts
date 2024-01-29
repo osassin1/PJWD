@@ -19,6 +19,10 @@ const baseUrl = 'http://localhost:8080/api/family_member';
     providedIn: 'root',
 })
 
+
+
+
+
 export class AuthenticationService {
     private familyMemberSubject: BehaviorSubject<FamilyMember | null>;
     public familyMember: Observable<FamilyMember | null>;

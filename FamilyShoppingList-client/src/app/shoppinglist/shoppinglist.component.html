@@ -24,14 +24,58 @@
                     </ng-select>
                 </form>
             </div>
+            <!-- <button class="bi bi-plus-circle border-0">
+            </button> -->
+            <!-- <div class="accordion" id="addInventory">
+                <div class="accordion-item">
+                  <div class="accordion-header" id="headingOne">
+                    <button class="bi bi-plus-circle border-0 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    </button>
+                </div>
+                  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                  </div>
+                </div>
+            </div> -->
+            
             <div ngbAccordion class="accordian-button category-accordion">
                 @for (item of listCategories; track item) {
                 <div ngbAccordionItem [collapsed]="item['list_category_id']"
-                    [disabled]="!hasCategoryItems(item['list_category_id'])">
-
+                    [disabled]="!hasCategoryItems(item['list_category_id']) && false">
                     <h2 ngbAccordionHeader>
                         <button ngbAccordionButton class="category-total-display d-flex">
-                            <div class="p-1 flex-grow-1">{{ item['name'] }}</div>
+                            <div class="p-1 flex-grow-1">{{item['name']}}</div>
+
+
+                            <!-- <div class="accordion" id="addInventory{{item.list_category_id}}">
+                                <div class="accordion-item">
+                                  <div class="accordion-header" id="heading_{{item.list_category_id}}">
+                                    <button class="bi bi-plus-circle border-0 collapsed" type="button" data-bs-toggle="collapse" 
+                                            attr.data-bs-target="#collapse_{{item.list_category_id}}" aria-expanded="true" 
+                                            aria-controls="collapseOne" attr.aria-controls="collapse_{{item.list_category_id}}"  
+                                            (click)="onAddInventory(item.list_category_id)">
+                                    </button>
+                                </div>
+                                  <div id="collapse_{{item.list_category_id}}" class="accordion-collapse collapse" attr.aria-labelledby="heading_{{item.list_category_id}}" attr.data-bs-parent="#addInventory{{item.list_category_id}}">
+                                    <div class="accordion-body category-item-notes">
+
+                                        @for( itemInventory of inventoryItemsToSelectFromBS.getValue(); track itemInventory){
+                                            <div>{{itemInventory['name']}}</div>
+                                        }
+                        
+
+                                    </div>
+                                  </div>
+                                </div>
+                            </div> -->
+                
+
+
+
+
+
                             <div class="p-1 padding:10px;" *ngIf="shoppingListAllTotal.size>0 && 
                                     shoppingListAllTotal.get(item.list_category_id)">
                                 @for (inventoryItem of shoppingListAllTotal.get(item.list_category_id)?.family_members;
@@ -48,6 +92,28 @@
                             </div>
                         </button>
                     </h2>
+                    <div class="accordion" id="addInventory{{item.list_category_id}}">
+                        <div class="accordion-item">
+                          <div class="accordion-header" id="heading_{{item.list_category_id}}">
+                            <button class="bi bi-plus-circle border-0 collapsed" type="button" data-bs-toggle="collapse" 
+                                    attr.data-bs-target="#collapse_{{item.list_category_id}}" aria-expanded="true" 
+                                    aria-controls="collapseOne" attr.aria-controls="collapse_{{item.list_category_id}}"  
+                                    (click)="onAddInventory(item.list_category_id)">
+                            </button>
+                        </div>
+                          <div id="collapse_{{item.list_category_id}}" class="accordion-collapse collapse" attr.aria-labelledby="heading_{{item.list_category_id}}" attr.data-bs-parent="#addInventory{{item.list_category_id}}">
+                            <div class="accordion-body category-item-notes">
+
+                                @for( itemInventory of inventoryItemsToSelectFromBS.getValue(); track itemInventory){
+                                    <div>{{itemInventory['name']}}</div>
+                                }
+                
+
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+
                     <div ngbAccordionCollapse>
                         <div ngbAccordionBody>
                             <ng-template>
@@ -58,7 +124,7 @@
                                         <div *ngIf="inventoryItem.num_of_items>1; else displaySingle">
                                             <div id="accordionCategoryItems">
                                                 <div class="accordion-item">
-                                                    <div class="accordion-header">
+                                                    <div class="accordion-header" id="heading_{{inventoryItem.inventory_id}}">
                                                         <button class="category-item-accordion" type="button"
                                                             data-bs-toggle="collapse"
                                                             attr.data-bs-target="#flush_{{inventoryItem.inventory_id}}" 
@@ -92,6 +158,7 @@
                                                         </button>
                                                     </div>
                                                     <div id="flush_{{inventoryItem.inventory_id}}" class="collapse"
+                                                        attr.aria-labelledby="heading_{{inventoryItem.inventory_id}}"
                                                         data-bs-parent="#accordionCategoryItems">
                                                         <div class="category-item-accordion-flush ">
                                                             @for (inventoryItemDetail of inventoryItem.family_members;

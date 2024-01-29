@@ -14,9 +14,11 @@ module.exports = function(app) {
   
     var router = require("express").Router();
   
-    router.get("/", inventory.getAllInventory);
+    // router.get("/", inventory.getAllInventory);
 
     router.get("/picture", inventory.getPicture);
+
+    router.get("/inventory_by_category", inventory.getInventoryByCategory);
 
     app.use('/api/inventory', router);
   };

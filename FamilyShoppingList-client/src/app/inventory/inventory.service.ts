@@ -3,6 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
+import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
+
+
 
 const baseUrl = 'http://localhost:8080/api/inventory';
 
@@ -12,13 +15,15 @@ const baseUrl = 'http://localhost:8080/api/inventory';
 
 
 
-export class InventoryService {
+export class InventoryService  {
    public pictureInventory : Map<number,SafeUrl> = new Map<0,"">();
+   public categoryInventory : any[] = [];
 
     constructor(
         private http: HttpClient,
         private domSanatizer: DomSanitizer,
     ) {
+
     }
 
 
@@ -35,6 +40,40 @@ export class InventoryService {
              responseType: 'text'
          };
         return this.http.get<any>(`${baseUrl}/picture?inventory_id=${inventory_id}`, httpOptions);
+    }
+
+
+    getInventoryByCategory(store_id : number, list_category_id : number): Observable<any>{
+        return this.http.get<any>
+             (`${baseUrl}/inventory_by_category?store_id=${store_id}&list_category_id=${list_category_id}`
+             );
+    }
+
+
+    // loadInventory(store_id : number, list_category_id: number){
+    //     if(!this.categoryInventory.has(list_category_id)){
+    //         this.getInventoryByCategory(store_id, list_category_id)
+    //         .subscribe(inventory => {
+    //             console.log('InventoryService::loadInventory --> inventory : ', inventory);
+    //             this.categoryInventory.set(list_category_id, inventory);
+    //         })
+    //     }
+    //     return this.categoryInventory.get(list_category_id) ?? [];
+    // }
+    loadInventory(store_id : number, list_category_id: number) {
+        // if(!this.categoryInventory.has(list_category_id)){
+        //     this.getInventoryByCategory(store_id, list_category_id)
+        //     .subscribe(inventory => {
+        //         console.log('InventoryService::loadInventory --> inventory : ', inventory);
+        //         this.categoryInventory.set(list_category_id, inventory);
+        //     })
+        // }
+        // return this.categoryInventory.get(list_category_id)!;
+        this.getInventoryByCategory(store_id, list_category_id)
+             .subscribe(inventory => {
+                console.log('InventoryService::loadInventory --> inventory : ', inventory);
+                return inventory;
+            })
     }
 
     loadPicture(inventory_id: number) : SafeUrl {
