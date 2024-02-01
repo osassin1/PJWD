@@ -18,6 +18,7 @@ module.exports = function(app) {
 
     router.get("/picture", inventory.getPicture);
 
+    router.get("/inventory_by_store", inventory.getInventoryByStore);
     router.get("/inventory_by_category", inventory.getInventoryByCategory);
 
     app.use('/api/inventory', router);

@@ -19,11 +19,19 @@ import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 
 import { ShoppingListService } from './shoppinglist.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { AuthenticationService } from '../authentication/authentication.service';
+
+//import { FamilyMemberService } from '../family_member/family_member.service';
+
 import { Observable } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 // import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
+import { WebcamModule } from 'ngx-webcam';
+
+import {WebcamImage} from 'ngx-webcam'; 
 
 @Component({
   selector: 'app-shoppinglist',
@@ -32,6 +40,7 @@ import { BehaviorSubject } from 'rxjs';
             NgSelectModule, NgStyle, NgOptionHighlightModule, NavigationComponent,
             // NgbModule,
             NgbAccordionModule,
+            WebcamModule,
             
              ],
   templateUrl: './shoppinglist.component.html',
@@ -48,12 +57,15 @@ export class ShoppinglistComponent implements OnInit {
 
   // select from inventory
   selectFromInventoryForm!: FormGroup;
-  selectedInventoryItem: any;
-  inventoryItemsToSelectFrom: ShoppingListInventory[] = [];
+  selectedInventoryItem: any[] = [];
+  selectedInventoryQuantity : number[] = [];
+
+  // inventoryItemsToSelectFrom: ShoppingListInventory[] = [];
+  // inventoryItemsToSelectFrom: any[] = [];
   //localCategoryInventory : Map<number, ShoppingListInventory[]> = new Map<0,[]>();
 
-  inventoryItemsToSelectFromBS: BehaviorSubject<any[] | []>;
-  inventoryItemsToSelectFromOb: Observable<any[] | []>;
+  // inventoryItemsToSelectFromBS: BehaviorSubject<any[] | []>;
+  // inventoryItemsToSelectFromOb: Observable<any[] | []>;
 
   selectedShoppingList: any = "";
   selectedShoppingCategoryItem: any ="";
@@ -84,12 +96,30 @@ export class ShoppinglistComponent implements OnInit {
   shoppingListAllTotal : Map<number, ShoppingListTotal> = new Map<0,any>();
 
 
+  //public webcamImage: WebcamImage = new WebcamImage("","", new ImageData(0,0,undefined) ); 
+  public webcamImage : any;
+  private trigger: Subject<void> = new Subject<void>(); 
+  triggerSnapshot(): void { 
+   this.trigger.next(); 
+  } 
+  handleImage(webcamImage: WebcamImage): void { 
+   console.info('Saved webcam image', webcamImage); 
+   this.webcamImage = webcamImage; 
+  } 
+   
+  public get triggerObservable(): Observable<void> { 
+   return this.trigger.asObservable(); 
+  } 
+
+
+
   constructor(private shoppingListService: ShoppingListService,
               private inventoryService: InventoryService,
+              private authenticationService: AuthenticationService,
               private formBuilder: FormBuilder) {
 
-                this.inventoryItemsToSelectFromBS = new BehaviorSubject(this.inventoryItemsToSelectFrom);
-                this.inventoryItemsToSelectFromOb = this.inventoryItemsToSelectFromBS.asObservable();
+                // this.inventoryItemsToSelectFromBS = new BehaviorSubject(this.inventoryItemsToSelectFrom);
+                // this.inventoryItemsToSelectFromOb = this.inventoryItemsToSelectFromBS.asObservable();
                     
     
   }
@@ -105,6 +135,10 @@ export class ShoppinglistComponent implements OnInit {
         shopping_category_item_form_selected: null
       })
 
+      this.selectFromInventoryForm = this.formBuilder.group({
+        inventory_item_form : null
+      });
+
       this.shoppingListService.getListCatgory().subscribe((response:any) => {
         this.listCategories = response;
       });
@@ -114,9 +148,6 @@ export class ShoppinglistComponent implements OnInit {
         this.selectedShoppingList = this.shoppingToSelectFrom[0];
       });
 
-      this.selectFromInventoryForm = this.formBuilder.group({
-        inventory_item_form : null
-      });
 
 
 
@@ -175,37 +206,55 @@ export class ShoppinglistComponent implements OnInit {
     });
   }
 
+  
   onAddInventory(list_category_id:number){
-    console.log('onAddInvetory');
-    //this.inventoryItemsToSelectFrom  
-    //this.inventoryItemsToSelectFrom =
-    //var inventoryData = this.inventoryService.loadInventory(this.storeId, list_category_id)
-    //console.log('inventoryData: ', inventoryData);
-    
-    this.inventoryService.getInventoryByCategory(this.storeId, list_category_id)
-    .subscribe(inventory => {
-       console.log('onAddInventory InventoryService::loadInventory --> inventory : ', inventory);
-       this.inventoryItemsToSelectFrom = inventory
-       this.inventoryItemsToSelectFromBS.next(inventory);
-   })
+    console.log('onAddInvetory :', list_category_id);
+    console.log('categoryId :', this.categoryId);
+    if( this.categoryId != list_category_id ){
+      
+      this.categoryId = list_category_id;
+    }
+
+    // const inventory =  this.inventoryService.loadInventory(this.storeId, list_category_id);
+    //    this.inventoryItemsToSelectFrom = inventory
+    //    this.inventoryItemsToSelectFromBS.next(inventory);
+    //    this.inventoryItemsToSelectFrom = inventory; 
 
 
-
-
-    console.log('this.inventoryItemsToSelectFrom : ', this.inventoryItemsToSelectFrom);
+    // console.log('this.inventoryItemsToSelectFrom : ', this.inventoryItemsToSelectFrom);
   }
 
   getPicture(inventory_id:number):SafeUrl{
-    return this.inventoryService.pictureInventory.get(inventory_id) ?? "not loaded";
+    return this.inventoryService.pictureInventory.get(inventory_id) ??  this.inventoryService.loadPicture(inventory_id);
   }
 
-  // *** doesn't work ***
-  getInventoryByCategory(list_category_id:number){
-    //console.log('this.inventoryService.categoryInventory.get(list_category_id):', this.inventoryService.categoryInventory.get(list_category_id))
-    //return this.inventoryService.loadInventory(this.storeId, list_category_id);
-    console.log('this.inventoryItemsToSelectFromBS.getValue():',this.inventoryItemsToSelectFromBS.getValue());
-    return this.inventoryItemsToSelectFromBS.getValue();
+
+  getInventoryByCategory(list_category_id:number) {
+    return this.inventoryService.categoryInventoryNew.get(list_category_id) || null;
   }
+  
+  getInventoryByID(inventory_id:number) {
+    return this.inventoryService.inventoryData.get(inventory_id) || this.inventoryService.getInventoryByID(inventory_id) || null;
+  }
+  
+
+  getInventoryDefaultSelect(list_category_id:number) {
+    var inventoryArray = this.inventoryService.categoryInventoryNew.get(list_category_id);
+
+    if( inventoryArray == undefined || !inventoryArray ){
+      return "Select inventory item";
+    }
+    console.log('inventoryArray[0]:',inventoryArray[0]);
+    return inventoryArray[0];
+  }
+  
+  // *** doesn't work ***
+  // getInventoryByCategory(list_category_id:number){
+  //   //console.log('this.inventoryService.categoryInventory.get(list_category_id):', this.inventoryService.categoryInventory.get(list_category_id))
+  //   //return this.inventoryService.loadInventory(this.storeId, list_category_id);
+  //   console.log('this.inventoryItemsToSelectFromBS.getValue():',this.inventoryItemsToSelectFromBS.getValue());
+  //   return this.inventoryItemsToSelectFromBS.getValue();
+  // }
 
   checkCategory(element : any, _category : string) : boolean {
     return (element === _category );
@@ -227,6 +276,7 @@ export class ShoppinglistComponent implements OnInit {
           // inventory service
           this.shoppingListAll.get(list_category_id)?.forEach((p => {
             this.inventoryService.loadPicture(p.inventory_id);
+            this.inventoryService.loadInventory(store_id, p.inventory_id);
            }));
 
           
@@ -238,8 +288,78 @@ export class ShoppinglistComponent implements OnInit {
       });
   }
   
+  // that needs refactoring
+  //
+  // This returns true if the inevntory item in on shopping list
+  // otherwise it is false (it could be used to determine if
+  // an item needs to be updated or added if not on it yet)
+  getCategory(list_category_id: number, inventory_id: number){
+    var found = false;
+    this.shoppingListAll.get(list_category_id)?.forEach(x => {     
+      if( !found ) { 
+        found = (x.inventory_id == inventory_id);
+      }
+    });
+    return found;
+  }
+
+  getShoppingListQuantity(inventory_id: number, list_category_id: number){
+    let quantity = 0;
+
+    let index = this.shoppingListAll.get(list_category_id)?.findIndex(x => x.inventory_id == inventory_id);
+
+    if( index == undefined ){
+      return 0;
+    }
+    let fm = this.shoppingListAll.get(list_category_id);
+    if( fm !== undefined && fm[index] !== undefined) {
+      fm[index].family_members.forEach(m => {
+        if( m.family_member_id == this.authenticationService.familyMemberValue?.family_member_id){
+          quantity =  parseFloat(m.quantity);
+        }
+      })
+    }
+    
+    //this.selectedInventoryQuantity[list_category_id] = quantity;
+
+    return quantity;
+  }
+
   onSelectItem(itemId: string) {
     console.log('onSelectItem: ' + itemId );
   }
+
+  onSelectInventoryItem(categoryId: number) {
+    console.log('selectedInventoryItem[categoryId]: ', this.selectedInventoryItem[categoryId] );
+
+    this.selectedInventoryQuantity[categoryId] =this.getShoppingListQuantity( this.selectedInventoryItem[categoryId], categoryId);
+  }
+
+
+
+onCancelInventoryItem(){
+  console.log('onCancelInventoryItem');
+}
+
+
+onCameraInventoryItem(){
+  console.log('onCameraInventoryItem');
+}
+
+
+
+onOkInventoryItem(list_category_id: number){
+  console.log('onOkInventoryItem');
+  console.log('onOkInventoryItem - inventory_id:', this.selectedInventoryItem[list_category_id]);
+  console.log('onOkInventoryItem - list_category_id:', list_category_id);
+  console.log('onOkInventoryItem - new_quantity:', this.selectedInventoryQuantity[list_category_id]);
+  console.log('onOkInventoryItem - old_quantity():', this.getShoppingListQuantity( this.selectedInventoryItem[list_category_id], list_category_id));
+  console.log('onOkInventoryItem - shoppingDate:' + this.shoppingDate);
+  console.log('onOkInventoryItem - storeId:' + this.storeId);
+  console.log('onOkInventoryItem - store name:' + this.storeName);
+  console.log('onOkInventoryItem - this.authenticationService.familyMemberValue?.family_member_id:', this.authenticationService.familyMemberValue?.family_member_id);
+}
+
+
 
 }

@@ -171,6 +171,24 @@ module.exports = {
       quantity_id: 3,
       created_at: new Date(),
       updated_at : new Date()
+    }, {
+      name: 'Chicken (breast), organic',
+      picture: "no picture yet",
+      notes: 'Package of three chicken breast',
+      store_id: parseInt(storeCosto.store_id),
+      list_category_id: 3,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Chicken (legs), organic',
+      picture: "no picture yet",
+      notes: 'Package of two legs',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 3,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
 
     }],{});
 

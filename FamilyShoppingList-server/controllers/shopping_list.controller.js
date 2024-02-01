@@ -146,7 +146,8 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'family_members' : [ {'name' : x['shopping_list_to_family_member']['family_member_to_color']['name'],
                                 'quantity' : x['quantity'],
                                 'first_name' : x['shopping_list_to_family_member']['first_name'],
-                                'last_name' : x['shopping_list_to_family_member']['last_name']
+                                'last_name' : x['shopping_list_to_family_member']['last_name'],
+                                'family_member_id' : x['family_member_id'],
             } ] 
         });
       } 
@@ -157,7 +158,8 @@ exports.getListByCategoryGroupBy = (req, res) => {
           family_member_array.push({'name' : x['shopping_list_to_family_member']['family_member_to_color']['name'],
                                     'quantity'   : x['quantity'],
                                     'first_name' : x['shopping_list_to_family_member']['first_name'],
-                                    'last_name'  : x['shopping_list_to_family_member']['last_name']
+                                    'last_name'  : x['shopping_list_to_family_member']['last_name'],
+                                    'family_member_id' : x['family_member_id'],
                                   
           });
 

@@ -33,13 +33,13 @@ export class FamilyMemberService implements FamilyMember {
     }
 
 
-    get webToken() { return this.token; }
-    get familyMemberID() { return this.family_member_id };
-    get userName() { return this.username; }
-    get firstName() { return this.first_name; }
-    get lastName() { return this.last_name; } 
-    get colorID() { return this.color.color_id; }
-    get colorName() { return this.color.name; } 
+    // get webToken() { return this.token; }
+    // get familyMemberID() { return this.family_member_id };
+    // get userName() { return this.username; }
+    // get firstName() { return this.first_name; }
+    // get lastName() { return this.last_name; } 
+    // get colorID() { return this.color.color_id; }
+    // get colorName() { return this.color.name; } 
 
     set isAuthenticated(value : boolean){
         this.is_authenticated = value;

@@ -15,6 +15,7 @@ export interface ShoppingListInventory {
             quantity: string,             // "quantity": "7.00"
             first_name : string,
             last_name : string,
+            family_member_id: number
         }
     ]
 }    

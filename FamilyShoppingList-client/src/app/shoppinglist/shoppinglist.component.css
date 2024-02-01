@@ -69,19 +69,78 @@
     width: 3em;
 }
 
+.inventory-picture-edit{
+    max-height: 4em;
+    width: 4em;
+}
+
+.inventory-input-edit{
+    max-height: 2em;
+    width: 20%;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.inventory-select-box{
+    text-align: center;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;    
+}
+
+.inventory-item-accordion{
+    width: 100%; 
+    /* background-color : rgb(151, 169, 232);   */
+    color:navy;
+    text-align: left;
+}
+
 .category-item-accordion{
     width: 100%; 
-    /* --bs-accordion-bg : red; */
     color:navy;
     border: 1pt;
     text-align: left; 
     
 }
 
-.category-item-accordion-flush{
-    width: 80%; 
-    /* background-color : rgb(151, 169, 232);  */
+/* this is used to display individual quantities for each 
+   family member when more than one have entered the same 
+   item on the shopping list */
+ .category-item-accordion-flush{
+    width: 90%; 
     color:navy;
     font-size: small;
+ }
+
+.invetory-select-accordion{
+    /* background-color: rgb(230, 229, 229); */
+    background-color: rgb(238, 236, 236);
+    border: 0;
 }
 
+.inventory-input-button-box{
+    width: 100%;
+    font-size: 1em;
+}
+
+.inventory-input-button{
+    width: 1.5em;
+    font-size: 1.5em;
+    text-align: justify;
+    border: 0;
+    
+}
+
+
+.ng-select .ng-select-container {
+    min-height: 40px;
+  }
+  
+  .ng-select.ng-select-single .ng-select-container {
+    height: 40px;
+  }
+
+  ::ng-deep .ng-select-container {
+    height: 40px !important;
+    font-size: 1em!important;
+  }  
