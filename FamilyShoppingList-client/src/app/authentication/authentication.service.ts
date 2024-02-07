@@ -10,10 +10,13 @@ import { FamilyMember } from '../models/family_member.model';
 import { Color } from '../models/color.model';
 
 import {  ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { AppConfiguration } from "read-appsettings-json";
 
-
-const baseUrl = 'http://localhost:8080/api/family_member';
+//const baseUrl = 'http://192.168.1.193:8080/api/family_member';
+//const baseUrl = 'http://localhost:8080/api/family_member'; 
 //const baseUrl = 'http://127.0.0.1:3000/api/family_member';
+
+const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/family_member";
 
 @Injectable({
     providedIn: 'root',
@@ -64,6 +67,7 @@ export class AuthenticationService {
     login(username:string, password:string) {
         console.log("AuthenticationService: login");
         console.log("AuthenticationService: login --> this.familyMemberSubject.value : ", this.familyMemberSubject.value);
+        console.log("AuthenticationService: baseUrl", baseUrl);
         return this.http.post<FamilyMember>(`${baseUrl}/login`, {
             username, 
             password

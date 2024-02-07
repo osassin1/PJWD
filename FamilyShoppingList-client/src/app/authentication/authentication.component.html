@@ -1,6 +1,6 @@
 <div *ngIf="!getSignup()">
     <div class="col-md-6 offset-md-3 mt-5">
-        <div class="card" style="width: 24rem;">
+        <div class="card" style="width: 20rem; align-content:center">
             <h4 class="card-header" style="background-color:lightskyblue">FamilyShoppingList</h4>
             <div class="card-body">
                 <form [formGroup]="loginForm">
@@ -81,13 +81,14 @@
 					<div>
 						<label for="signupForm">Select color</label>
 						<ng-select [items]="colorsToSelectFrom" bindLabel="name" bindValue="name" placeholder="Select color"
+						    class="custom"
 							labelForId="colorsToSelectFrom" [virtualScroll]="true" formControlName="color_fm"
 							[ngStyle]="{ 'color': 'name' }" [ngClass]="{ 'is-invalid': submittedSignup && fs['color_fm'].errors}">
-							<ng-template ng-label-tmp let-item="item">
+							<ng-template ng-label-tmp let-item="item" >
 								<span class="d-inline-block rounded-circle p-2" [ngStyle]="{ 'background-color': item.name }"></span>
 								<span class="label-text" [ngStyle]="{ 'color': item.name }">{{item.name}}</span>
 							</ng-template>
-							<ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+							<ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm" >
 								<span class="d-inline-block rounded-circle p-2" [ngStyle]="{ 'background-color': item.name }"></span>
 								<span class="label-text" [ngStyle]="{ 'color': item.name }"
 									[ngOptionHighlight]="search">{{item.name}}</span>

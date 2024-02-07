@@ -5,9 +5,15 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 
+import { AppConfiguration } from "read-appsettings-json";
 
 
-const baseUrl = 'http://localhost:8080/api/inventory';
+//const baseUrl = 'http://localhost:8080/api/inventory';
+//const baseUrl = 'http://192.168.1.193:8080/api/inventory';
+
+//const baseUrl = 
+
+const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/inventory";
 
 @Injectable({
     providedIn: 'root',
@@ -46,8 +52,7 @@ export class InventoryService  {
 
     getInventoryByStore(store_id : number): Observable<any>{
         return this.http.get<any>
-             (`${baseUrl}/inventory_by_store?store_id=${store_id}`
-             );
+             (`${baseUrl}/inventory_by_store?store_id=${store_id}`);
     }
 
 
@@ -55,6 +60,10 @@ export class InventoryService  {
         return this.http.get<any>
              (`${baseUrl}/inventory_by_category?store_id=${store_id}&list_category_id=${list_category_id}`
              );
+    }
+
+    getAllUnits(): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/units`);
     }
 
     getInventoryByID(inventory_id: number){
@@ -73,16 +82,6 @@ export class InventoryService  {
     }
 
 
-    // loadInventory(store_id : number, list_category_id: number){
-    //     if(!this.categoryInventory.has(list_category_id)){
-    //         this.getInventoryByCategory(store_id, list_category_id)
-    //         .subscribe(inventory => {
-    //             console.log('InventoryService::loadInventory --> inventory : ', inventory);
-    //             this.categoryInventory.set(list_category_id, inventory);
-    //         })
-    //     }
-    //     return this.categoryInventory.get(list_category_id) ?? [];
-    // }
     loadInventory(store_id : number, list_category_id: number) {
         if(!this.categoryInventoryNew.has(list_category_id)){
             this.getInventoryByCategory(store_id, list_category_id)
@@ -93,11 +92,6 @@ export class InventoryService  {
             })
         }
         return this.categoryInventoryNew.get(list_category_id)!;
-        // this.getInventoryByCategory(store_id, list_category_id)
-        //      .subscribe(inventory => {
-        //         console.log('InventoryService::loadInventory --> inventory : ', inventory);
-        //         return inventory;
-        //     })
     }
 
     loadPicture(inventory_id: number) : SafeUrl {
@@ -115,7 +109,16 @@ export class InventoryService  {
         return this.pictureInventory.get(inventory_id) ?? "default";    // the function needs to retunr SafeUrl
                                                                         // but Map.get() could be SafeUrl or undefined
         }
+
+        capturePicture(temp_inventory_id: number, list_category_id: number){
+            console.log('temp_inventory_id:', temp_inventory_id);
+            console.log('list_category_id:', list_category_id);
+        }
+
+        
+
     }
 
+    
 
 

@@ -8,8 +8,7 @@ export const routes: Routes = [
 
     { path: '', redirectTo: '/authentication', pathMatch: 'full'},  //canActivate: [AuthGuard]
     { path: 'shoppinglist', component: ShoppinglistComponent, canActivate: [AuthGuard]},  //canActivate: [AuthGuard]
-//    { path: 'shoppinglist', component: ShoppinglistComponent },
     { path: 'authentication', component: AuthenticationComponent },
     { path: 'inventory', component: InventoryComponent },
-    { path: '**', redirectTo:'/'}
+    { path: '**', redirectTo:'/authentication'}
 ];

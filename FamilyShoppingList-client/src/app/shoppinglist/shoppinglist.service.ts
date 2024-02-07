@@ -7,7 +7,13 @@ import { ShoppingListStore } from '../models/shopping_list_store.model';
 import { ListCategory } from '../models/list_category.model';
 import { ShoppingListItems } from '../models/shopping_list_items.model';
 
-const baseUrl = 'http://localhost:8080/api/shopping_list';
+import { AppConfiguration } from "read-appsettings-json";
+
+// const baseUrl = 'http://localhost:8080/api/shopping_list';
+//const baseUrl = 'http://192.168.1.193:8080/api/shopping_list';
+
+const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/shopping_list";
+
 
 @Injectable({
     providedIn: 'root',
@@ -26,6 +32,10 @@ export class ShoppingListService {
 
 
     getAllDates(): Observable<ShoppingListDates[]>{
+
+        console.log('AppConfiguration.Setting().Application.mybase',AppConfiguration.Setting().Application.mybase)
+        console.log('AppConfiguration.Setting().Application.serverUrl',AppConfiguration.Setting().Application.serverUrl)
+        console.log('baseUrl',baseUrl)
         return this.http.get<ShoppingListDates[]>(`${baseUrl}/shopping_dates`);
     }
 

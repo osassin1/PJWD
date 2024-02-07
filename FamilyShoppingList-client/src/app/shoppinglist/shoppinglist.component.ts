@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 import { SafeUrl } from '@angular/platform-browser';
 
+
 // import { Observable } from 'rxjs';
 
 import { NavigationComponent } from '../navigation/navigation.component';
@@ -24,14 +25,11 @@ import { AuthenticationService } from '../authentication/authentication.service'
 //import { FamilyMemberService } from '../family_member/family_member.service';
 
 import { Observable } from 'rxjs';
-import { BehaviorSubject } from 'rxjs';
 import { Subject } from 'rxjs';
 
 // import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { WebcamModule } from 'ngx-webcam';
 
-import {WebcamImage} from 'ngx-webcam'; 
 
 @Component({
   selector: 'app-shoppinglist',
@@ -40,7 +38,6 @@ import {WebcamImage} from 'ngx-webcam';
             NgSelectModule, NgStyle, NgOptionHighlightModule, NavigationComponent,
             // NgbModule,
             NgbAccordionModule,
-            WebcamModule,
             
              ],
   templateUrl: './shoppinglist.component.html',
@@ -81,6 +78,18 @@ export class ShoppinglistComponent implements OnInit {
   storeName : string = "";
   categoryId : number = 0;
 
+  // ok to take a picture to add to inventory
+  takePicture : boolean = true;
+
+  // either uploaded or taken picture (mobil)
+  selectedPicture : any;
+
+  newInventoryName: any[] = [];
+  newInventoryQuantity: any[] = [];
+  newInventoryUnit: any[] = [];
+
+  // determine if a store was selected
+  hasStore : boolean = false;
   
   // this contains all inventory items on the shopping lisy by 
   // category, which is the key (string) for the Map<string, 
@@ -99,12 +108,33 @@ export class ShoppinglistComponent implements OnInit {
   //public webcamImage: WebcamImage = new WebcamImage("","", new ImageData(0,0,undefined) ); 
   public webcamImage : any;
   private trigger: Subject<void> = new Subject<void>(); 
-  triggerSnapshot(): void { 
+
+  triggerSnapshot(list_category_id:number): void { 
+  this.categoryId = list_category_id; 
    this.trigger.next(); 
   } 
-  handleImage(webcamImage: WebcamImage): void { 
-   console.info('Saved webcam image', webcamImage); 
-   this.webcamImage = webcamImage; 
+
+//  handleImage(webcamImage: WebcamImage): void { 
+   handleImage(event :any): void { 
+      console.info('handleImage', event.target.files[0]); 
+   //this.webcamImage = webcamImage; 
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      this.selectedPicture = reader.result as string;
+    }
+   
+   
+   event.target.files[0];
+   this.takePicture = false;
+
+   console.log('this.shoppingDate',this.shoppingDate);
+   console.log('this.storeId',this.storeId);
+   console.log('this.storeName',this.storeName);
+   console.log('this.categoryId',this.categoryId);
+ 
+
   } 
    
   public get triggerObservable(): Observable<void> { 
@@ -197,6 +227,8 @@ export class ShoppinglistComponent implements OnInit {
       console.log('shoppingDate:' + this.shoppingDate);
       console.log('storeId:' + this.storeId);
       console.log('store name:' + this.storeName);
+
+      this.hasStore = true;
       
       for (let item in this.listCategories){
         const list_category_id = this.listCategories[item]['list_category_id'];

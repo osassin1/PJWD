@@ -11,6 +11,8 @@ var whitelist = ['http://localhost',
                  'http://localhost:8081',
                  'http://172.23.165.147:8081',
                  'http://172.23.165.147',
+                 'http://192.168.1.193:8081',
+                 'http://192.168.1.195:8081',
                 ]
 var corsOptions = {
   origin: function (origin, callback) {
