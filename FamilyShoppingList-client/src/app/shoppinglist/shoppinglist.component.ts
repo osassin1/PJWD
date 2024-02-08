@@ -257,7 +257,8 @@ export class ShoppinglistComponent implements OnInit {
   }
 
   getPicture(inventory_id:number):SafeUrl{
-    return this.inventoryService.pictureInventory.get(inventory_id) ??  this.inventoryService.loadPicture(inventory_id);
+    //return this.inventoryService.pictureInventory.get(inventory_id) ??  this.inventoryService.loadPicture(inventory_id);
+    return this.inventoryService.pictureInventory.get(inventory_id) ?? "no picture";
   }
 
 

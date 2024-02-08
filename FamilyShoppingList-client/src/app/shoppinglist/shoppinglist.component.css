@@ -55,6 +55,9 @@
 .category-total-display{
     color: navy;
     font-weight: bold;
+    /* border: 0.1pt;  */
+    border-style:dotted;
+    background-color: rgb(236, 244, 244);
 }
 
 .category-item-display{
@@ -69,8 +72,8 @@
 }
 
 .inventory-picture{
-    max-height: 3em;
-    width: 3em;
+    height: 4em;
+    width: 4em;
 }
 
 .inventory-picture-edit{
