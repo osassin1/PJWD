@@ -23,7 +23,7 @@ const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/sh
 
 export class ShoppingListService {
 
-    private authenticated=false;
+    private authenticated = false;
 
     constructor(
         private http: HttpClient
@@ -31,15 +31,15 @@ export class ShoppingListService {
     }
 
 
-    getAllDates(): Observable<ShoppingListDates[]>{
+    getAllDates(): Observable<ShoppingListDates[]> {
 
-        console.log('AppConfiguration.Setting().Application.mybase',AppConfiguration.Setting().Application.mybase)
-        console.log('AppConfiguration.Setting().Application.serverUrl',AppConfiguration.Setting().Application.serverUrl)
-        console.log('baseUrl',baseUrl)
+        console.log('AppConfiguration.Setting().Application.mybase', AppConfiguration.Setting().Application.mybase)
+        console.log('AppConfiguration.Setting().Application.serverUrl', AppConfiguration.Setting().Application.serverUrl)
+        console.log('baseUrl', baseUrl)
         return this.http.get<ShoppingListDates[]>(`${baseUrl}/shopping_dates`);
     }
 
-    getList(shopping_date: string, store_id : string): Observable<ShoppingListStore[]>{
+    getList(shopping_date: string, store_id: string): Observable<ShoppingListStore[]> {
         return this.http.get<ShoppingListStore[]>(`${baseUrl}/list?shopping_date=${shopping_date}&store_id=${store_id}`);
     }
 
@@ -49,12 +49,12 @@ export class ShoppingListService {
     //          );
     // }
 
-    getListByCategoryByGroup(shopping_date: string, store_id : number, list_category_id : number): Observable<any>{
+    getListByCategoryByGroup(shopping_date: string, store_id: number, list_category_id: number): Observable<any> {
         return this.http.get<any>
-             (`${baseUrl}/list_by_category_groupby?shopping_date=${shopping_date}&store_id=${store_id}&list_category_id=${list_category_id}`
-             );
+            (`${baseUrl}/list_by_category_groupby?shopping_date=${shopping_date}&store_id=${store_id}&list_category_id=${list_category_id}`
+            );
     }
-    getListCatgory(): Observable<ListCategory[]>{
+    getListCatgory(): Observable<ListCategory[]> {
         return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
     }
 }

@@ -1,5 +1,3 @@
-
-
 .categorydisplay {
     font-weight: bold;
     color: darkslateblue;
@@ -32,15 +30,15 @@
 /* Shopping list accordion with all categories 
    when a main catgeory is select and opens
    then the background is a lightblue */
-.category-accordion{
-    width: 100%; 
+.category-accordion {
+    width: 100%;
     --bs-accordion-active-color: blue;
     --bs-accordion-active-bg: rgb(222, 245, 253);
     --bs-accordion-bg: rgb(255, 255, 255);
     color: navy;
-    text-align: left; 
+    text-align: left;
     margin: 0px;
-    
+
 }
 
 /* .family_member_dot {
@@ -52,121 +50,133 @@
 
 
 
-.category-total-display{
+.category-total-display {
     color: navy;
     font-weight: bold;
     /* border: 0.1pt;  */
-    border-style:dotted;
+    border-style: dotted;
     background-color: rgb(236, 244, 244);
 }
 
-.category-item-display{
+.category-item-display {
     color: navy;
     /* font-weight: bold; */
 }
 
-.category-item-notes{
+.category-item-notes {
     color: navy;
     font-size: .7em;
     /* font-weight: bold; */
 }
 
-.inventory-picture{
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.inventory-picture {
+    height: 4em;
+    width: 4em;
+    min-width: 4em;
+}
+
+.inventory-picture-edit {
     height: 4em;
     width: 4em;
 }
 
-.inventory-picture-edit{
-    height: 4em;
-    width: 4em;
-}
-
-.inventory-input-edit{
+.inventory-input-edit {
     max-height: 2em;
     width: 20%;
     margin-left: 1em;
     margin-right: 1em;
 }
 
+.bg-red {
+    background-color: red;
+}
+
+
 /* when adding a new inventory item in shopping list */
-.inventory-input-name{
+.inventory-input-name {
     max-height: 2em;
     width: 40%;
     margin-left: 1em;
     margin-right: 1em;
 }
 
-.inventory-input-unit{
+.inventory-input-unit {
     max-height: 2em;
     width: 20%;
     margin-left: 1em;
     margin-right: 1em;
 }
 
-.inventory-select-box{
+.inventory-select-box {
     text-align: center;
     display: block;
     margin-right: auto;
-    margin-left: auto;    
+    margin-left: auto;
 }
 
 /* when clicking the plus-circle icon the items
    displayed are defined here; selecting an
    item from the inventory select 
 */
-.inventory-item-accordion{
-    width: 100%; 
+.inventory-item-accordion {
+    width: 100%;
     /* background-color : rgb(151, 169, 232);   */
-    background-color : rgb(244, 241, 241);  
-    color:navy;
+    background-color: rgb(244, 241, 241);
+    color: navy;
     text-align: left;
 }
 
-.category-item-accordion{
-    width: 100%; 
-    color:navy;
+.category-item-accordion {
+    width: 100%;
+    color: navy;
     border: 1pt;
-    text-align: left; 
-    
+    text-align: left;
+
 }
 
 /* this is used to display individual quantities for each 
    family member when more than one have entered the same 
    item on the shopping list */
- .category-item-accordion-flush{
+.category-item-accordion-flush {
     background-color: rgb(255, 255, 255);
     /* background-color: rgb(230, 229, 229); */
-    width: 100%; 
-    color:navy;
+    width: 100%;
+    color: navy;
     font-size: small;
- }
+}
 
- /* display of category section when plus-circle icon
+/* display of category section when plus-circle icon
     is pressed */
-.inventory-select-accordion{
+.inventory-select-accordion {
     background-color: rgb(255, 255, 255);
     border: 0;
 }
 
 /* display of the camera section when camera icon
    is pressed */
-.inventory-camera-accordion{
+.inventory-camera-accordion {
     background-color: rgb(255, 255, 255);
     border: 0;
 }
 
 
-.inventory-input-button-box{
+.inventory-input-button-box {
     width: 20%;
     font-size: 1em;
 }
 
-.inventory-input-button{
+.inventory-input-button {
     width: 1.5em;
     font-size: 1.5em;
     text-align: justify;
     border: 0;
-    
+
 }
 
 /* 
