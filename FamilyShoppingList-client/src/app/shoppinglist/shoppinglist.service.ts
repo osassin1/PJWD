@@ -76,15 +76,6 @@ export class ShoppingListService {
         }));
     }
     
-    logShoppingList(log: string){
-        return this.http.post<any>(`${baseUrl}/log`, {
-            log
-        }).pipe(map(sl => {
-            console.log('logShoppingList : ', sl);
-            return sl;            
-        }));
-
-    }    
     
     
     
