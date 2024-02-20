@@ -30,7 +30,7 @@ https://jasonwatmore.com/post/2022/12/22/angular-14-role-based-authorization-tut
 */
 
 
-export class AuthenticationService {
+export class AuthenticationService  {
     private familyMemberSubject: BehaviorSubject<FamilyMember | null>;
     public familyMember: Observable<FamilyMember | null>;
 

@@ -39,7 +39,7 @@ export class AuthenticationComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private authenticationService:AuthenticationService,
+    private authenticationService: AuthenticationService,
     private familyMemberServcice: FamilyMemberService,
     private route: ActivatedRoute,
     private router: Router,
