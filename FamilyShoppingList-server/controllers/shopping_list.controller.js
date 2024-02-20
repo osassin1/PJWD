@@ -1,6 +1,7 @@
 const { QueryTypes } = require("sequelize");
 const db = require("../models");
 const { Map, List } = require('immutable');
+const logFile = require('fs');
 
 //const color = db.color;
 
@@ -13,6 +14,86 @@ const list_category = db.list_category;
 
 const Op = db.Sequelize.Op;
 const sequelize = db.sequelize
+
+exports.logShoppingList = (req, res) => {
+
+  var logEntry = "{ \"entry\" : { \"date\" : \"" + 
+                 new Date().toISOString() + "\" } ,  " +  req.body.log + " }\n";
+
+  logFile.appendFileSync('shoppinglist.log', logEntry, function(err) {
+    if( err ) {
+      res.status(500).send({message: err.message || "logShoppingList error"});
+    }
+    else {
+      res.status(200).send();
+    }
+  })
+}
+
+
+exports.updateShoppingList = (req, res) => {
+  // if quantity is 0 then remove the item from
+  // the shopping list otherwise update the quantity
+  // or insert a new item
+  if( req.body.quantity == 0 ){
+    shopping_list.destroy({
+      where : {
+        shopping_date: req.body.shopping_date,
+        family_member_id: req.body.family_member_id,
+        inventory_id : req.body.inventory_id
+      }
+    }).then( result => {
+      console.log('destroy result',result);
+      res.status(200).send();
+
+    }).catch(error_find_one => {
+      console.log('error_find_one',error_find_one);
+      res.status(500).send({
+        message: error_find_one.message || "error while destroying during updating shopping list."      
+      }) 
+    })
+
+  }
+  else {
+    shopping_list.update({
+        quantity: req.body.quantity
+      },{
+        where: {
+          shopping_date: req.body.shopping_date,
+          family_member_id: req.body.family_member_id,
+          inventory_id : req.body.inventory_id
+        }
+      }).then( result =>{
+        console.log('result', result);
+        res.send( String(result) );
+
+        // no updates performed, so enter it
+        if( result == 0 ){
+          shopping_list.build({
+            shopping_date: req.body.shopping_date,
+            family_member_id: req.body.family_member_id,
+            inventory_id : req.body.inventory_id,
+            quantity: req.body.quantity,
+            created_at: new Date(),
+            updated_at : new Date()
+          }).save().then(insertResult =>{
+            console.log('shopping_list.build --> insertResult', insertResult);
+          }).catch(error_insert => {
+            console.log('error_insert',error_insert);
+            res.status(500).send({
+              message: error_insert.message || "error while inserting during updating shopping list."      
+            })
+          })
+        }
+      }).catch(error_update => {
+        console.log('error_update',error_update);
+        res.status(500).send({
+          message: error_update.message || "error while updating shopping list."      
+        }) 
+      })
+  }
+
+};
 
 exports.getShoppingDates = (req, res) => {
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
@@ -27,7 +108,6 @@ exports.getShoppingDates = (req, res) => {
     
 
   }).then(data => {
-    //console.log(data);
     res.send(data);
   })
     .catch(err => {
@@ -44,7 +124,6 @@ exports.getListCategory = (req, res) => {
     attributes: ['list_category_id', 'name'],
     order: [['list_category_id', 'ASC']]
   }).then(data => {
-    //console.log(data);
     res.send(data);
   })
     .catch(err => {
@@ -74,15 +153,14 @@ exports.getList = (req, res) => {
         store_id: req.query.store_id
       }
     }],
+    order : [['name', 'ASC']],
     where: {
       shopping_date: req.query.shopping_date
     }
   }).then(data => {
-    //console.log(data);
     res.send(data);
   })
     .catch(err => {
-      //console.error( err );
       res.status(500).send({
         message:
           err.message || "error while retrieving shopping_list."
@@ -92,7 +170,7 @@ exports.getList = (req, res) => {
 
 exports.getListByCategoryGroupBy = (req, res) => {
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
-    attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id'],
+    attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id',  '`shopping_list_to_inventory`.`name`'],
     include: [{
       association: 'shopping_list_to_family_member', attributes: ['first_name', 'last_name', 'color_id'],
       include: { association: 'family_member_to_color', attribute: ['name', 'color_id'] }
@@ -113,7 +191,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
       shopping_date: req.query.shopping_date
     },
     order: [
-      ['inventory_id', 'ASC'] 
+      [ 'shopping_list_to_inventory', 'name', 'ASC'] 
     ]
   }).then(data => {
 
@@ -172,15 +250,16 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'inventory_unit' : y['inventory_unit'],
           'family_members' : family_member_array });
       }
+      
      });
 
     var categoryTotal = {
       'category_name' : categoryName,
       'total_num_of_items' : categoryTotalNumOfItems,
-      'family_members': colorForCategory.toSet().toList() // this makes it unique colors
+      'family_members': colorForCategory.toOrderedSet().toList() // this makes it unique colors
     };
     var returnData = {'category' : categoryTotal,
-                      'inventory' : newInventoryData.toSet().toArray()
+                      'inventory' : newInventoryData.toOrderedSet().toArray()
     };
 
     res.send(returnData);

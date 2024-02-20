@@ -173,7 +173,7 @@ module.exports = {
       updated_at : new Date()
     }, {
       name: 'Chicken (breast), organic',
-      picture: "no picture yet",
+      picture: "no_picture.jpg",
       notes: 'Package of three chicken breast',
       store_id: parseInt(storeCosto.store_id),
       list_category_id: 3,
@@ -182,7 +182,7 @@ module.exports = {
       updated_at : new Date()
     }, {
       name: 'Chicken (legs), organic',
-      picture: "no picture yet",
+      picture: "no_picture.jpg",
       notes: 'Package of two legs',
       store_id: parseInt(storeWholeFoods.store_id),
       list_category_id: 3,

@@ -10,12 +10,12 @@ const cors = require("cors");
 var allowedlist = ['http://localhost',
   'http://localhost:8081',
   'http://localhost:8089',
-  'http://192.168.1.30:8089',
-  'http://192.168.1.30',
   'http://172.23.165.147:8081',
   'http://172.23.165.147',
   'http://192.168.1.193:8081',
   'http://192.168.1.195:8081',
+  'http://192.168.1.193:8089',
+  'http://192.168.1.195:8089',
 ]
 var corsOptions = {
   origin: function (origin, callback) {
@@ -45,7 +45,7 @@ app.get('/', function (req, res) {
   res.send("Welcome to FamilyShoppingList!");
 });
 
-
+require("./routes/logging.routes")(app);
 require("./routes/family_member.routes")(app);
 require("./routes/inventory.routes")(app);
 require("./routes/shopping_list.routes")(app);

@@ -7,6 +7,7 @@ import { ShoppingListStore } from '../models/shopping_list_store.model';
 import { ListCategory } from '../models/list_category.model';
 import { ShoppingListItems } from '../models/shopping_list_items.model';
 
+import { map } from 'rxjs/operators';
 import { AppConfiguration } from "read-appsettings-json";
 
 // const baseUrl = 'http://localhost:8080/api/shopping_list';
@@ -57,6 +58,36 @@ export class ShoppingListService {
     getListCatgory(): Observable<ListCategory[]> {
         return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
     }
+
+    updateShoppingList(shopping_date: string, family_member_id: number, inventory_id: number, quantity: number ){
+        console.log('updateShoppingList');
+        console.log('`${baseUrl}/update_shopping_list`', `${baseUrl}/update_shopping_list`);
+
+        return this.http.post<any>(`${baseUrl}/update_shopping_list`, {
+            shopping_date, 
+            family_member_id,
+            inventory_id,
+            quantity
+        }).pipe(map(sl => {
+            console.log('shoppingList : ', sl);
+           
+            //console.log("AuthenticationService: login.familyMember --> this.familyMemberSubject.value : ", this.familyMemberSubject.value);
+            return sl;            
+        }));
+    }
+    
+    logShoppingList(log: string){
+        return this.http.post<any>(`${baseUrl}/log`, {
+            log
+        }).pipe(map(sl => {
+            console.log('logShoppingList : ', sl);
+            return sl;            
+        }));
+
+    }    
+    
+    
+    
 }
 
 

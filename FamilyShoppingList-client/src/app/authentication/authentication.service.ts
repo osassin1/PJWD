@@ -23,7 +23,11 @@ const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/fa
 })
 
 
+/*
 
+https://jasonwatmore.com/post/2022/12/22/angular-14-role-based-authorization-tutorial-with-example
+
+*/
 
 
 export class AuthenticationService {
@@ -38,7 +42,7 @@ export class AuthenticationService {
     ) {
         console.log('AuthenticationService::in constructor');
         this.familyMemberSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('familyMember')!));
-        console.log('AuthenticationService::BehaviorSubject :' + JSON.parse(localStorage.getItem('familyMember')!) );
+        console.log('AuthenticationService::BehaviorSubject :', localStorage.getItem('familyMember')  );
         this.familyMember = this.familyMemberSubject.asObservable();
     }
 
@@ -74,6 +78,7 @@ export class AuthenticationService {
         }).pipe(map(fm => {
             console.log('login : ', fm);
             localStorage.setItem('familyMember', JSON.stringify(fm));
+            //this.familyMemberSubject.
             this.familyMemberSubject.next(fm);
             console.log("AuthenticationService: login.familyMember --> this.familyMemberSubject.value : ", this.familyMemberSubject.value);
             return fm;            
@@ -83,12 +88,13 @@ export class AuthenticationService {
     logout(){
         console.log("AuthenticationService: logout");
         console.log(localStorage.getItem('familyMember'));
-        localStorage.clear();
         localStorage.removeItem('familyMember');
+        //localStorage.clear();
+        
 
         // This make re-login impossible
         // need to investigate more
-        //this.familyMemberSubject.next(null);
+        this.familyMemberSubject.next(null);
         //this.familyMemberSubject.closed;
         this.router.navigate(['/']);
     }
@@ -115,6 +121,8 @@ export class AuthenticationService {
 
 export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
     console.log('AuthGuard: CanActivateFn');
+    console.log('AuthGuard: CanActivateFn -> next', next);
+    console.log('AuthGuard: CanActivateFn -> state', state);
     return inject(AuthenticationService).canActivate(next, state);
 }
 

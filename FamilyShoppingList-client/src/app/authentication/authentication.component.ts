@@ -106,7 +106,8 @@ export class AuthenticationComponent implements OnInit {
           this.familyMemberServcice.isAuthenticated = true;
           //return this.familyMemberServcice.familyMember;
           //this.router.navigate(['/shoppinglist']);
-          this.router.navigate([returnUrl]);
+          //before ==> this.router.navigate(['returnUrl]);
+          this.router.navigateByUrl(returnUrl);
         },
         error: (e) => {
           this.error = e.error.message;
@@ -129,7 +130,7 @@ export class AuthenticationComponent implements OnInit {
 onLogin() {
   this.submittedLogin = true;
 
-  // stop here if form is invalid
+  
   if (this.loginForm.invalid) {
       return;
   }

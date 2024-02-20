@@ -21,6 +21,10 @@ module.exports = function(app) {
     //router.get("/list_by_category", shopping_list.getListByCategory);
 
     router.get("/list_by_category_groupby", shopping_list.getListByCategoryGroupBy);
+
+    router.post("/update_shopping_list", shopping_list.updateShoppingList);
+
+    router.post("/log", shopping_list.logShoppingList)
     
     app.use('/api/shopping_list', router);
   };

@@ -1,12 +1,116 @@
 const db = require("../models");
 const { Map, List } = require('immutable');
+const logging = require("../controllers/logging.controller.js");
 
 const inventory = db.inventory;
+const shopping_list = db.shopping_list;
 //const color = db.color;
 
 const Op = db.Sequelize.Op;
 
 
+exports.createInventoryItem = (req, res) => {
+  logging.logEntryLocal('createInventoryItem', req );
+
+  inventory.create({
+    name : req.body.name,
+    picture : req.body.picture,
+    store_id : req.body.store_id,
+    list_category_id : req.body.list_category_id,
+    quantity_id : req.body.quantity_id,
+    created_at: new Date(),
+    updated_at : new Date()    
+  }).then( createResult => {
+    res.send( String(createResult['inventory_id']) );
+    logging.logEntryLocal('createInventoryItem --> createResult', res );
+    logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
+
+    console.log('createInventoryItem --> createResult', createResult);
+  }).catch(error => {
+    console.log('error',error);
+    res.status(500).send({
+      message: error.message || "error while creating new inventory item."      
+    })
+  })
+}
+
+
+
+exports.createInventoryItemAddToShoppingList = (req, res) => {
+  logging.logEntryLocal('createInventoryItemAddToShoppingList', req );
+
+  var inventory_id = 0;
+
+  inventory.create({
+    name : req.body.name,
+    picture : req.body.picture,
+    store_id : req.body.store_id,
+    list_category_id : req.body.list_category_id,
+    quantity_id : req.body.quantity_id,
+    created_at: new Date(),
+    updated_at : new Date()    
+  }).then( createResult => {
+    logging.logEntryLocal('createInventoryItem --> createResult', res );
+    logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
+    console.log('createInventoryItem --> createResult', createResult);
+
+    inventory_id = createResult['inventory_id'];
+
+    shopping_list.build({
+      shopping_date: req.body.shopping_date,
+      family_member_id: req.body.family_member_id,
+      inventory_id : inventory_id,
+      quantity: req.body.quantity,
+      created_at: new Date(),
+      updated_at : new Date()
+    }).save().then(insertResult =>{
+      console.log('shopping_list.build --> insertResult', insertResult);
+      res.send(insertResult);
+    }).catch(error_insert => {
+      console.log('error_insert',error_insert);
+      res.status(500).send({
+        message: error_insert.message || "error while inserting during updating shopping list."      
+      })
+    })
+
+
+
+  }).catch(error => {
+    console.log('error',error);
+    res.status(500).send({
+      message: error.message || "error while creating new inventory item."      
+    })
+  })
+}
+
+
+
+
+/*
+
+          shopping_list.build({
+            shopping_date: req.body.shopping_date,
+            family_member_id: req.body.family_member_id,
+            inventory_id : req.body.inventory_id,
+            quantity: req.body.quantity,
+            created_at: new Date(),
+            updated_at : new Date()
+          }).save().then(insertResult =>{
+            console.log('shopping_list.build --> insertResult', insertResult);
+          }).catch(error_insert => {
+            console.log('error_insert',error_insert);
+            res.status(500).send({
+              message: error_insert.message || "error while inserting during updating shopping list."      
+            })
+          })
+
+
+
+
+
+
+
+*/
 
 exports.getInventoryByStore = (req, res) => {
   inventory.scope('excludeCreatedAtUpdateAt').findAll({

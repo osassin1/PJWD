@@ -2,11 +2,11 @@
     <app-navigation></app-navigation>
 </div>
 
-<div class="bg-light row col-md-7 py-1">
+<div class="bg-light row col-md-5 py-1">
     <!-- select an existing shopping list by <date> <store name> -->
     <form [formGroup]="selectShoppingListForm">
         <ng-select [items]="shoppingToSelectFrom" placeholder="Select Shopping List" labelForId="shoppingToSelectFrom"
-            formControlName="shopping_list_form" [tabIndex]=0 (change)="selectedShoppingList"
+            formControlName="shopping_list_form" [tabIndex]=0 (change)="selectedShoppingList" [clearable]="false"
             aria-label="SelectShoppingList" (ngModelChange)="onSelectChange()">
             <ng-template ng-label-tmp let-item="item">
                 <span class="label-text">{{item.shopping_date}}
@@ -19,271 +19,317 @@
 
             </ng-template>
         </ng-select>
-    </form>
-
-    <!-- get the defined categories that will be populated once a shopping list has been selected -->
-    <!-- once a shopping list is selected then fill up the categories with the items -->
-    <div class="accordion" id="shopping_list_accordion">
-        @for (item of listCategories; track item) {
-        <div class="accordion-item inventory-select-accordion">
-            <div class="accordion-header" id="heading_shopping_list_accordion_{{item.list_category_id}}">
-                <button class="accordion-button collpased category-total-display d-flex collapsed" type="button"
-                    [disabled]="!hasStore" data-bs-toggle="collapse"
-                    attr.data-bs-target="#collapse_shopping_list_category_{{item.list_category_id}}"
-                    aria-expanded="false"
-                    attr.aria-controls="collapse_shopping_list_category_{{item.list_category_id}}">
-                    <!-- <category name, e.g. Fruit>  <who has items in this category by color of the family member> <the total number of inventory items, eg. #14 items in Fruit 
-                    -->
-                    <div class="flex-grow-1">{{item['name']}}</div>
-                    <div class="" *ngIf="shoppingListAllTotal.size>0 && 
+        <!-- get the defined categories that will be populated once a shopping list has been selected -->
+        <!-- once a shopping list is selected then fill up the categories with the items -->
+        <div class="accordion" id="shopping_list_accordion">
+            @for (item of listCategories; track item) {
+            <div class="accordion-item inventory-select-accordion">
+                <div class="accordion-header" id="heading_shopping_list_accordion_{{item.list_category_id}}">
+                    <button class="accordion-button category-total-display d-flex collapsed" type="button"
+                        [disabled]="!hasStore" data-bs-toggle="collapse"
+                        attr.data-bs-target="#collapse_shopping_list_category_{{item.list_category_id}}"
+                        aria-expanded="false"
+                        attr.aria-controls="collapse_shopping_list_category_{{item.list_category_id}}">
+                        <!-- <category name, e.g. Fruit>  <who has items in this category by color of the 
+                         family member> <the total number of inventory items, eg. #14 items in Fruit 
+                        -->
+                        <div class="flex-grow-1">{{item['name']}}</div>
+                        <div class="" *ngIf="shoppingListAllTotal.size>0 && 
                                                 shoppingListAllTotal.get(item.list_category_id)">
-                        @for (inventoryItem of shoppingListAllTotal.get(item.list_category_id)?.family_members;
-                        track inventoryItem){
-                        <div class="d-inline-block family_member_dot p-2"
-                            [ngStyle]="{ 'background-color': inventoryItem  }">
+                            @for (inventoryItem of shoppingListAllTotal.get(item.list_category_id)?.family_members;
+                            track inventoryItem){
+                            <div class="d-inline-block family_member_dot p-2"
+                                [ngStyle]="{ 'background-color': inventoryItem  }">
+                            </div>
+                            }
                         </div>
-                        }
-                    </div>
-                    <div class="p-2"
-                        *ngIf="shoppingListAllTotal.size>0 && 
+                        <div class="p-2"
+                            *ngIf="shoppingListAllTotal.size>0 && 
                                                     shoppingListAllTotal.get(item.list_category_id) &&
                                                     shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items">
-                        #{{shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items}}
-                    </div>
-                </button>
-            </div>
-            <!-- main shooping list section with the list of inventory items,
+                            #{{shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items}}
+                        </div>
+                    </button>
+                </div>
+                <!-- main shooping list section with the list of inventory items,
                 adding inventory items, and creating a new one - incl.
                 either selecting a picture or taking a photo via camera (mobil)
-            -->
-            <!-- for each category build the list of items on the list-->
-            <div id="collapse_shopping_list_category_{{item.list_category_id}}" class="accordion-collapse collapse"
-                attr.aria-labelledby="heading_shopping_list_accordion_{{item.list_category_id}}"
-                data-bs-parent="#shopping_list_accordion">
-                <div *ngIf="true" class="accordion" id="addInventory_category_{{item.list_category_id}}">
-                    <div class="accordion-item inventory-select-accordion">
-                        <div class="accordion-header" id="heading_category_{{item.list_category_id}}">
-                            <span class="d-flex justify-content-center fs-4">
-                                <!-- the puls-circle button to add items from inventory -->
-                                <button class="bi bi-plus-circle inventory-select-accordion" type="button"
-                                    id="plus-circle-buuton" aria-label="plus-circle" data-bs-toggle="collapse"
-                                    attr.data-bs-target="#collapse_category_{{item.list_category_id}}"
-                                    aria-expanded="true"
-                                    attr.aria-controls="collapse_category_{{item.list_category_id}}">
-                                </button>
-                            </span>
-                            <!-- provide a select input for adding inventory items; once selected display the picture
+                 -->
+                <!-- for each category build the list of items on the list-->
+                <div id="collapse_shopping_list_category_{{item.list_category_id}}" class="accordion-collapse collapse"
+                    attr.aria-labelledby="heading_shopping_list_accordion_{{item.list_category_id}}"
+                    data-bs-parent="#shopping_list_accordion">
+                    <div *ngIf="hasStore" class="accordion" id="addInventory_category_{{item.list_category_id}}">
+                        <div class="accordion-item inventory-select-accordion">
+                            <div class="accordion-header" id="heading_category_{{item.list_category_id}}">
+                                <span class="d-flex justify-content-center fs-4">
+                                    <!-- the puls-circle button to add items from inventory -->
+                                    <button class="bi bi-plus-circle inventory-select-accordion" type="button"
+                                        id="plus-circle-button" aria-label="plus-circle" data-bs-toggle="collapse"
+                                        attr.data-bs-target="#collapse_category_{{item.list_category_id}}"
+                                        aria-expanded="true"
+                                        attr.aria-controls="collapse_category_{{item.list_category_id}}">
+                                    </button>
+                                </span>
+                                <!-- provide a select input for adding inventory items; once selected display the picture
                                                 the items already on the list or 0 if not and provide a cancel and check icon  -->
-                            <div id="collapse_category_{{item.list_category_id}}" class="accordion-collapse collapse"
-                                attr.aria-labelledby="heading_category_{{item.list_category_id}}"
-                                attr.data-bs-parent="#addInventory_category_{{item.list_category_id}}">
-                                <div class=""> <!-- accordion-body -->
-                                    <div class="inventory-item-accordion"> <!-- removed flex-fill-->
-                                        <!-- <div class="flex-fill"> -->
-                                        <div>
-                                            <ng-select [items]="getInventoryByCategory(item.list_category_id)"
-                                                height="40" bindLabel="inventory_name" bindValue="inventory_id"
-                                                placeholder="Select inventory item"
-                                                [(ngModel)]="selectedInventoryItem[item.list_category_id]"
+                                <div id="collapse_category_{{item.list_category_id}}"
+                                    class="accordion-collapse collapse"
+                                    attr.aria-labelledby="heading_category_{{item.list_category_id}}"
+                                    attr.data-bs-parent="#addInventory_category_{{item.list_category_id}}">
+                                    <div class=""> <!-- accordion-body -->
+                                        <div class="inventory-item-accordion bg-light">
+                                            <ng-select formControlName="select_shopping_category"
+                                                [items]="selectInventoryByCategory[item.list_category_id]"
+                                                bindLabel="inventory_name" placeholder="Select inventory item"
                                                 class="ng-select-container" name="mySelectBox"
-                                                (change)="onSelectInventoryItem(item.list_category_id)">
+                                                (change)="onSelectInventoryItem(item.list_category_id)"
+                                                (clear)="onClearQuantityChanges(item.list_category_id)">
 
                                                 <ng-template ng-label-tmp let-item="item">
                                                     <span>{{item.inventory_name}}</span>
                                                 </ng-template>
                                                 <ng-template ng-option-tmp let-item="item" let-index="index"
                                                     let-search="searchTerm">
-                                                    <img class="inventory-picture-edit"
+                                                    <img class="inventory-picture-edit me-1" height="40" width="40"
                                                         [src]="getPicture(item.inventory_id)" />
                                                     <span [ngOptionHighlight]="search">{{item.inventory_name}}</span>
                                                 </ng-template>
                                             </ng-select>
-                                        </div>
-                                        <!-- (Add To Shopping List) read from the existing inventory and get what quantity is already
-                                                            on the list from the family member using it  --->
-                                        <div *ngIf="selectedInventoryItem[item.list_category_id]">
-                                            <div class="d-flex bg-red align-items-center py-1">
-                                                <div>
-                                                    <img class="inventory-picture-edit"
-                                                        [src]="getPicture(selectedInventoryItem[item.list_category_id])">
-                                                </div>
-                                                <div class="inventory-input-edit">
-                                                    <input type="number" min="1" max="20" step="1" height="1em"
-                                                        class="form-control"
-                                                        [(ngModel)]="selectedInventoryQuantity[item.list_category_id]"
-                                                        name="selectedInventoryQuantity">
-                                                </div>
-                                                <div>
-                                                    <label>{{getInventoryByID(selectedInventoryItem[item.list_category_id])['inventory_symbol']}}</label>
-                                                </div>
-                                                <div class="d-flex bg-red justify-content-end">
-                                                    <div class="inventory-input-button-box flex-fill">
-                                                        <button type="button"
-                                                            class="inventory-input-button bi bi-x-circle"
-                                                            (click)="onCancelInventoryItem()">
-                                                        </button>
-                                                        <button type="button"
-                                                            class="inventory-input-button bi bi-check-circle"
-                                                            (click)="onOkInventoryItem( item.list_category_id)">
-                                                        </button>
+                                            <!-- (Add To Shopping List) read from the existing inventory and get what quantity is already
+                                             on the list from the family member using it  --->
+                                            <div *ngIf="!selectedInventoryFlag[item.list_category_id]">
+                                                <div class="d-flex">
+                                                    <div class="d-flex align-items-center">
+                                                        <img class="inventory-picture-edit"
+                                                            [src]="selectedInventoryPicture[item.list_category_id]" />
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- take/load a picture and define what it is-->
-                                <div class="accordion" id="addInventory_camera_category_{{item.list_category_id}}">
-                                    <div class="accordion-item inventory-select-accordion">
-                                        <div class="accordion-header"
-                                            id="heading_camera_category_{{item.list_category_id}}">
-                                            <span class="d-flex justify-content-center fs-4">
-                                                <button class="bi bi-camera inventory-camera-accordion" type="button"
-                                                    id="camera-buuton" aria-label="camera" data-bs-toggle="collapse"
-                                                    attr.data-bs-target="#collapse_camera_category_{{item.list_category_id}}"
-                                                    aria-expanded="true"
-                                                    attr.aria-controls="collapse_camera_category_{{item.list_category_id}}">
-                                                </button>
-                                            </span>
-                                        </div>
-                                        <div id="collapse_camera_category_{{item.list_category_id}}"
-                                            class="accordion-collapse collapse"
-                                            attr.aria-labelledby="heading_camera_category_{{item.list_category_id}}"
-                                            attr.data-bs-parent="#addInventory_camera_category_{{item.list_category_id}}">
-                                            <div class=""> <!-- accordion-body -->
-                                                <div class="inventory-item-accordion"> <!-- removed flex-fill-->
-                                                    <!-- <div class="flex-fill"> -->
-                                                    <!-- (Add To Shopping List) to add new items to the shopping list and also to the inventory-->
-                                                    <div *ngIf="takePicture; else addInventory">
-                                                        <!-- <label for="cameraInput" class="form-label">Default file input example</label> -->
-                                                        <input class="form-control" type="file" accept="image/*"
-                                                            capture="camera" id="cameraInput_{{item.list_category_id}}"
-                                                            name="cameraInput_{{item.list_category_id}}"
-                                                            (change)="handleImage($event)">
-                                                    </div>
-                                                    <ng-template #addInventory>
-                                                        <div class="d-flex align-items-top py-1">
-                                                            <div>
-                                                                <img class="flex-row inventory-picture-edit me-1"
-                                                                    [src]="selectedPicture" />
+                                                    <div class="w-100">
+                                                        <div class="d-flex align-items-center m-1">
+                                                            <div class="d-flex flex-column ms-1">
+                                                                <div>
+                                                                    <label class="inventory-camera-label">Quantity</label>
+                                                                </div>
+                                                                <div class="d-flex">
+                                                                    <button type="button"
+                                                                        class="inventory-input-button-pm bg-light bi bi-dash-square p-0 my-1"
+                                                                        (click)="doDecreaseShoppingListQuantity(selectedShoppingListQuantity, item.list_category_id)">
+                                                                    </button>
+                                                                    <div class="inventory-input-edit m-1">
+                                                                        <input type="text"
+                                                                            formControlName="adjust_quantity"
+                                                                            class="form-control inventory-input-edit"
+                                                                            [max]="50" [min]="0"
+                                                                            (change)="doUpdateQuantity($event, selectedShoppingListQuantity, item.list_category_id)"
+                                                                            [value]="selectedShoppingListQuantity[item.list_category_id]"
+                                                                            name="selectedShoppingListQuantity_{{item.list_category_id}}" />
+                                                                    </div>
+                                                                    <button type="button"
+                                                                        class="inventory-input-button-pm bg-light bi bi-plus-square p-0 my-1"
+                                                                        (click)="doIncreaseShoppingListQuantity(selectedShoppingListQuantity, item.list_category_id)">
+                                                                    </button>
+                                                                    <div class="d-flex align-items-center mx-2">
+                                                                        {{selectedInventoryUnit[item.list_category_id]}}
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="inventory-input-name">
-                                                                <label>Name</label>
-                                                                <input type="text" height="1em"
-                                                                    class="form-control input-sm"
-                                                                    [(ngModel)]="newInventoryName[item.list_category_id]"
-                                                                    name="newInventoryName">
-                                                            </div>
-                                                            <div class="inventory-input-edit">
-                                                                <label>Quantity</label>
-                                                                <input type="number" min="1" max="20" step="1"
-                                                                    height="1em" class="form-control input-sm"
-                                                                    [(ngModel)]="newInventoryQuantity[item.list_category_id]"
-                                                                    name="newInventoryQuantity">
-                                                            </div>
-                                                            <div class="inventory-input-unit">
-                                                                <label>Unit</label>
-                                                                <input type="number" min="1" max="20" step="1"
-                                                                    height="1em" class="form-control input-sm"
-                                                                    [(ngModel)]="newInventoryUnit[item.list_category_id]"
-                                                                    name="newInventoryUnit">
-                                                            </div>
-                                                            <div class="inventory-input-button-box text-end">
-                                                                <button type="button"
-                                                                    class="inventory-input-button bi bi-x-circle"
-                                                                    (click)="onCancelInventoryItem()">
-                                                                    <!-- <i class="bi bi-x-circle"></i> -->
-                                                                </button>
-                                                                <button type="button"
-                                                                    class="inventory-input-button bi bi-check-circle"
-                                                                    (click)="onOkInventoryItem( item.list_category_id)">
-                                                                    <!-- <i class="bi bi-check-circle"></i> -->
-                                                                </button>
+                                                            <div
+                                                                class="d-flex flex-grow-1 align-items-center  justify-content-end">
+                                                                <div class="inventory-input-button-box ">
+                                                                    <button type="button"
+                                                                        class="inventory-input-button bg-light bi bi-x-circle"
+                                                                        (click)="doCancelQuantityChanges(item.list_category_id)">
+                                                                    </button>
+                                                                    <button type="button"
+                                                                        class="inventory-input-button bg-light bi bi-check-circle"
+                                                                        (click)="doMakeQuantityChanges(item.list_category_id)">
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </ng-template>
+                                                    </div>
                                                 </div>
+                                            </div> <!-- adjusting the quantity on the list / or added to inventory-->
+                                            <!-- take/load a picture and define what it is-->
+                                            <div class="accordion form-control"
+                                                id="addInventory_camera_category_{{item.list_category_id}}"
+                                                name="new_inventory">
+                                                <div class="accordion-item inventory-select-accordion">
+                                                    <div class="accordion-header"
+                                                        id="heading_camera_category_{{item.list_category_id}}">
+                                                        <span class="d-flex justify-content-center fs-4">
+                                                            <button class="bi bi-camera inventory-camera-accordion"
+                                                                type="button" id="camera-buuton" aria-label="camera"
+                                                                data-bs-toggle="collapse"
+                                                                attr.data-bs-target="#collapse_camera_category_{{item.list_category_id}}"
+                                                                aria-expanded="true"
+                                                                attr.aria-controls="collapse_camera_category_{{item.list_category_id}}">
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                    <div id="collapse_camera_category_{{item.list_category_id}}"
+                                                        class="accordion-collapse collapse"
+                                                        attr.aria-labelledby="heading_camera_category_{{item.list_category_id}}"
+                                                        attr.data-bs-parent="#addInventory_camera_category_{{item.list_category_id}}">
+                                                        <div class=""> <!-- accordion-body -->
+                                                            <div class="inventory-item-accordion bg-light">
+                                                                <!-- (Add To Shopping List) to add new items to the shopping list and also to the inventory-->
+                                                                <div
+                                                                    *ngIf="takePicture[item.list_category_id]; else addInventory">
+                                                                    <input class="form-control m-1" type="file"
+                                                                        accept="image/*" capture="camera"
+                                                                        id="cameraInput_{{item.list_category_id}}"
+                                                                        name="cameraInput_{{item.list_category_id}}"
+                                                                        (change)="handleImage($event, item.list_category_id)">
+                                                                </div>
+                                                                <ng-template #addInventory>
+                                                                    <div class="d-flex">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <img class="inventory-picture-edit"
+                                                                                [src]="selectedPicture[item.list_category_id]" />
+                                                                        </div>
+                                                                        <div class="d-flex flex-column w-100 pe-1">
+                                                                            <div class="inventory-input-name p-1">
+                                                                                <label
+                                                                                    class="inventory-camera-label">Name</label>
+                                                                                <input type="text"
+                                                                                    formControlName="new_inventory_item_name"
+                                                                                    class="form-control input-sm inventory-input-name"
+                                                                                    value="" name="newInventoryName">
+                                                                            </div>
+                                                                            <div class="d-flex flex-row">
+                                                                                <div class="d-flex flex-column ms-1">
+                                                                                    <div>
+                                                                                        <label class="inventory-camera-label">Quantity</label>
+                                                                                    </div>
+                                                                                    <div class="d-flex">
+                                                                                        <button type="button"
+                                                                                            class="inventory-input-button-pm bg-light bi bi-dash-square p-0 my-1"
+                                                                                            (click)="doDecreaseShoppingListQuantity(newInventoryQuantity, item.list_category_id)">
+                                                                                        </button>
+                                                                                        <div
+                                                                                            class="inventory-input-edit m-1">
+                                                                                            <input type="text"
+                                                                                                formControlName="new_inventory_item_quantity"
+                                                                                                class="form-control inventory-input-edit"
+                                                                                                [max]="50" [min]="0"
+                                                                                                (change)="doUpdateQuantity($event, newInventoryQuantity, item.list_category_id)"
+                                                                                                [value]="newInventoryQuantity[item.list_category_id]"
+                                                                                                name="newInventoryQuantity_{{item.list_category_id}}" />
+                                                                                        </div>
+                                                                                        <button type="button"
+                                                                                            class="inventory-input-button-pm bg-light bi bi-plus-square p-0 my-1"
+                                                                                            (click)="doIncreaseShoppingListQuantity(newInventoryQuantity, item.list_category_id)">
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="inventory-input-unit my-1 ms-2">
+                                                                                    <label
+                                                                                        class="inventory-camera-label">Unit</label>
+                                                                                    <select
+                                                                                        formControlName="new_inventory_item_unit"
+                                                                                        class="form-select"
+                                                                                        aria-label="unit selector">
+                                                                                        <option selected>Select one
+                                                                                        </option>
+                                                                                        <option value="1">lbs</option>
+                                                                                        <option value="2">kg</option>
+                                                                                        <option value="3">item(s)
+                                                                                        </option>
+                                                                                        <option value="4">gal</option>
+                                                                                        <option value="5">L</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex flex-row align-items-center">
+                                                                            <div class="inventory-input-button-box ">
+                                                                                <button type="button"
+                                                                                    class="inventory-input-button bg-light bi bi-x-circle"
+                                                                                    (click)="doNothing()">
+                                                                                </button>
+                                                                                <button type="button"
+                                                                                    class="inventory-input-button bg-light bi bi-check-circle"
+                                                                                    (click)="doAddNewInventoryItem(item.list_category_id)">
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </ng-template>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end of take/load a picture -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end of plus-circle to add inevntory items-->
+                    @for (inventoryItem of shoppingListAll.get(item.list_category_id);
+                    track inventoryItem) {
+                    <div class="category-item-display">
+                        <div class="accordion" id="accordionCategoryItems_{{inventoryItem.inventory_id}}">
+                            <div class="accordion-header" id="heading_inventory_{{inventoryItem.inventory_id}}">
+                                <button class="category-item-accordion inventory-select-accordion" type="button"
+                                    data-bs-toggle="collapse"
+                                    attr.data-bs-target="#flush_inventory_{{inventoryItem.inventory_id}}"
+                                    aria-expanded="false"
+                                    attr.aria-controls="flush_inventory_{{inventoryItem.inventory_id}}">
+                                    <div class="d-flex align-items-center py-1">
+                                        <div><img class="flex-row inventory-picture"
+                                                [src]='getPicture(inventoryItem.inventory_id)'>
+                                        </div>
+                                        <div class="p-1 flex-grow-1">
+                                            {{inventoryItem.inventory_name}}
+                                            @for (colorItem of inventoryItem.family_members;
+                                            track colorItem) {
+                                            <div class="d-inline-block family_member_dot p-1"
+                                                [ngStyle]="{ 'background-color': colorItem.name}">
+                                            </div>
+                                            }
+                                            <div class="p-1 category-item-notes" category-item-notes>
+                                                {{inventoryItem.inventory_notes}}
                                             </div>
                                         </div>
+                                        <div class="px-1">
+                                            {{adjustForDecimals(inventoryItem.quantity,inventoryItem.inventory_unit)}}
+                                        </div>
+                                        <div class="p-0"> {{inventoryItem.inventory_symbol}}
+                                        </div>
                                     </div>
-                                </div> <!-- end of take/load a picture -->
+                                </button>
+                            </div>
+                            <div id="flush_inventory_{{inventoryItem.inventory_id}}" class="collapse"
+                                attr.aria-labelledby="heading_inventory_{{inventoryItem.inventory_id}}"
+                                attr.data-bs-parent="#accordionCategoryItems_{{inventoryItem.inventory_id}}">
+                                <div class="category-item-accordion-flush d-flex flex-column">
+                                    @for (inventoryItemDetail of inventoryItem.family_members;
+                                    track inventoryItemDetail) {
+                                    <div class="d-flex justify-content-end">
+                                        <div class="p-0 flex-shrink-1">
+                                            {{inventoryItemDetail.first_name}}
+
+                                            <div class="d-inline-block family_member_dot p-1"
+                                                [ngStyle]="{ 'background-color': inventoryItemDetail.name}">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex px-1">
+                                            {{adjustForDecimals(inventoryItemDetail.quantity,inventoryItem.inventory_unit)}}
+                                            {{inventoryItem.inventory_symbol}}
+                                        </div>
+                                    </div>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div> <!-- end of plus-circle to add inevntory items-->
-                <!-- <div class="accordion-body"> -->
-                @for (inventoryItem of shoppingListAll.get(item.list_category_id);
-                track inventoryItem) {
-                <div class="category-item-display">
-                    <!-- <div *ngIf="inventoryItem.num_of_items>1 || true"> -->
-                    <div class="accordion" id="accordionCategoryItems_{{inventoryItem.inventory_id}}">
-                        <!-- <div class="accordion-item inventory-select-accordion"> -->
-                        <div class="accordion-header" id="heading_inventory_{{inventoryItem.inventory_id}}">
-                            <button class="category-item-accordion inventory-select-accordion" type="button"
-                                data-bs-toggle="collapse"
-                                attr.data-bs-target="#flush_inventory_{{inventoryItem.inventory_id}}"
-                                aria-expanded="false"
-                                attr.aria-controls="flush_inventory_{{inventoryItem.inventory_id}}">
-
-                                <div class="d-flex align-items-center py-1">
-                                    <div><img class="flex-row inventory-picture"
-                                            [src]='getPicture(inventoryItem.inventory_id)'>
-                                    </div>
-
-                                    <!-- <img class="inventory-picture-edit" -->
-                                    <!-- [src]="getPicture(inventoryItem.inventory_id)"> -->
-                                    <!--  -->
-
-                                    <div class="p-1 flex-grow-1">
-                                        {{inventoryItem.inventory_name}}
-                                        @for (colorItem of inventoryItem.family_members;
-                                        track colorItem) {
-                                        <div class="d-inline-block family_member_dot p-1"
-                                            [ngStyle]="{ 'background-color': colorItem.name}">
-                                        </div>
-                                        }
-                                        <div class="p-1 category-item-notes" category-item-notes>
-                                            {{inventoryItem.inventory_notes}}
-                                        </div>
-                                    </div>
-                                    <div class="px-1">
-                                        {{adjustForDecimals(inventoryItem.quantity,inventoryItem.inventory_unit)}}
-                                    </div>
-                                    <div class="p-0"> {{inventoryItem.inventory_symbol}}
-                                    </div>
-                                </div>
-                            </button>
-                        </div>
-                        <div id="flush_inventory_{{inventoryItem.inventory_id}}" class="collapse"
-                            attr.aria-labelledby="heading_inventory_{{inventoryItem.inventory_id}}"
-                            attr.data-bs-parent="#accordionCategoryItems_{{inventoryItem.inventory_id}}">
-                            <div class="category-item-accordion-flush d-flex flex-column">
-                                @for (inventoryItemDetail of inventoryItem.family_members;
-                                track inventoryItemDetail) {
-                                <div class="d-flex justify-content-end">
-                                    <div class="p-0 flex-shrink-1">
-                                        {{inventoryItemDetail.first_name}}
-
-                                        <div class="d-inline-block family_member_dot p-1"
-                                            [ngStyle]="{ 'background-color': inventoryItemDetail.name}">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex px-1">
-                                        {{adjustForDecimals(inventoryItemDetail.quantity,inventoryItem.inventory_unit)}}
-                                        {{inventoryItem.inventory_symbol}}
-                                    </div>
-                                </div>
-                                }
-                            </div>
-                        </div>
-                        <!-- </div> -->
-                    </div>
-                    <!-- </div> -->
+                    }
                 </div>
-                }
-                <!-- </div> -->
             </div>
+            }
         </div>
-        }
-    </div>
+    </form>
 </div>
