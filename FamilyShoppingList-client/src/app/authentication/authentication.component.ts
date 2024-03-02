@@ -17,7 +17,7 @@ import { FamilyMemberService } from '../family_member/family_member.service';
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, NgSelectModule, NgStyle, NgOptionHighlightModule
   ],
-  providers: [AuthenticationService],
+  providers: [],
   templateUrl: './authentication.component.html',
   styleUrl: './authentication.component.css'
   
@@ -89,7 +89,8 @@ export class AuthenticationComponent implements OnInit {
     this.authenticationService.login(
       username, 
       password
-      ).subscribe({
+      )
+      .subscribe({
         next: (v) => { 
           console.log('loginFamilyMember : ', v);
           //this.familyMemberServcice.familyMember = v; 
@@ -135,17 +136,8 @@ onLogin() {
       return;
   }
 
-  console.log('authentication.component - onLogon');
-  console.log('authentication.component - onLogon: this.loginFamilyMember');
 
   this.loginFamilyMember( this.f['username'].value, this.f['password'].value);
-
-  console.log('authentication.component - onLogon: this.loginFamilyMember : ', this.familyMemberServcice.isAuthenticated);
-
-  // if( this.familyMemberServcice.isAuthenticated ){
-  //   console.log('uthentication.component - onLogon: this.router.navigate');
-  //   this.router.navigate(['/shoppinglist']);
-  // }
 
   setTimeout(() => 
   {

@@ -50,9 +50,9 @@ exports.createInventoryItemAddToShoppingList = (req, res) => {
     created_at: new Date(),
     updated_at : new Date()    
   }).then( createResult => {
-    logging.logEntryLocal('createInventoryItem --> createResult', res );
-    logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
-    console.log('createInventoryItem --> createResult', createResult);
+    //logging.logEntryLocal('createInventoryItem --> createResult', res );
+    //logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
+    //console.log('createInventoryItem --> createResult', createResult);
 
     inventory_id = createResult['inventory_id'];
 

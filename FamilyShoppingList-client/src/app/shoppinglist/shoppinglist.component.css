@@ -140,7 +140,10 @@ img {
     margin-left: auto;
 }
 
-
+.file-input {
+    display: none;
+  }
+  
 
 /* when clicking the plus-circle icon the items
    displayed are defined here; selecting an
@@ -190,6 +193,38 @@ img {
 .inventory-camera-label{
     font-size:x-small;
 }
+
+div.disabled {
+    color: lightgray;
+}
+
+img.disabled {
+    filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+    filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
+  }
+  
+  input.large-checkbox{
+    height: 1.5em;
+    width: 1.5em;
+    margin-right: 0.5em;
+  }
+
+.btn-start-shop {
+    background-color: rgb(146, 210, 210);
+}
+
+.btn-stop-shop {
+    background-color: rgb(255, 196, 196);
+}
+
+  /* Disable grayscale on hover */
+  /* img:hover {
+    -webkit-filter: grayscale(0);
+    filter: none;
+  } */
+
+
 /* 
 .inventory-input-button-box {
     width: 20%;

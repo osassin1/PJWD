@@ -17,7 +17,7 @@ export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes),
     provideAnimations(),
     provideHttpClient(),
-    NgbAccordionDirective,
+    //NgbAccordionDirective,
     {provide: LocationStrategy, useClass: HashLocationStrategy},
     // https://stackoverflow.com/questions/71094093/angular-routing-not-working-after-running-ng-build-at-deployment
     AuthenticationService,

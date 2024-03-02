@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgStyle } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
-//import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
+//import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 import { SafeUrl } from '@angular/platform-browser';
 
 
@@ -20,25 +19,25 @@ import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 import { ShoppingListService } from './shoppinglist.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { AuthenticationService } from '../authentication/authentication.service';
-import { LoggingService } from '../logging/logging.service';
+
 
 //import { FamilyMemberService } from '../family_member/family_member.service';
 
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
+import { NgxImageCompressService } from 'ngx-image-compress';
+//import { DomSanitizer } from '@angular/platform-browser';
 
-//import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
-
+import heic2any from "heic2any";
 
 @Component({
   selector: 'app-shoppinglist',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule,
-    NgSelectModule, NgStyle, NgOptionHighlightModule, NavigationComponent,
-  //  NgbModule,
-  //  NgbAccordionModule,
-
+    NgSelectModule, 
+    NgStyle, 
+    //NgOptionHighlightModule, 
+    NavigationComponent,
   ],
   templateUrl: './shoppinglist.component.html',
   styleUrl: './shoppinglist.component.css'
@@ -47,8 +46,15 @@ import { Subject } from 'rxjs';
 
 export class ShoppinglistComponent implements OnInit {
 
+
+  isImageDisabled: boolean = false;
+  isShopping: boolean = false;
+
   selectShoppingListForm!: FormGroup;
 
+  // gray filter applied to inventory items in shopping list
+  inventoryImage: string[] = [];
+  inventoryColor: string[] = [];
  
   //selectedInventoryItem: any[] = [];
   selectedInventoryQuantity: number[] = [];
@@ -60,7 +66,7 @@ export class ShoppinglistComponent implements OnInit {
 selectInventoryByCategory: any[] = [];
 
 
-
+imageCompressMessage: string = "";
 
   // The current shopping date, store and what's on
   // the list:
@@ -118,17 +124,19 @@ selectInventoryByCategory: any[] = [];
   //selectedInventoryItemModel: string[] = [];
 
   // ok to take a picture to add to inventory
-  takePicture: boolean[] = [];
+  takePicture: string[] = [];  //"ok|no|wait"
 
   private trigger: Subject<void> = new Subject<void>();
 
   constructor(private shoppingListService: ShoppingListService,
     private inventoryService: InventoryService,
     private authenticationService: AuthenticationService,
-    private loggingService: LoggingService,
     private formBuilder: FormBuilder,
+    private imageCompress: NgxImageCompressService,
+    //private sanitizer: DomSanitizer
     ) {
   }
+
 
   ngOnInit() {
 
@@ -171,12 +179,15 @@ selectInventoryByCategory: any[] = [];
     // for the first selector <Select Shopping List>
     this.shoppingListService.getAllDates().subscribe((response: any) => {
       this.shoppingToSelectFrom = response;
-      this.selectedShoppingList = this.shoppingToSelectFrom[0];
+      this.selectedShoppingList = true; //this.shoppingToSelectFrom[0];
     });
 
     // no store is selected yet
     this.hasStore = false;
+
+    
   }
+
 
   // When a shopping list is selected from the <Select Shopping List>,
   // then extract the the shopping_date and store_id to identify the
@@ -189,8 +200,8 @@ selectInventoryByCategory: any[] = [];
   onSelectChange() {
     this.shoppingListService.getAllDates().subscribe({
       next: (v) => {
-        console.log('onSelectChange', v);
-        console.log('this.selectShoppingListForm', this.selectShoppingListForm)
+        //console.log('onSelectChange', v);
+        //console.log('this.selectShoppingListForm', this.selectShoppingListForm)
 
         
         this.hasStore = false;
@@ -205,17 +216,18 @@ selectInventoryByCategory: any[] = [];
           this.store_id = this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.store_id'];
           this.store_name = this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.name'];
 
-          console.log('shopping_date', this.shopping_date);
-          console.log('store_id', this.store_id);
-          console.log('store_name', this.store_name);
+          //console.log('shopping_date', this.shopping_date);
+          //console.log('store_id', this.store_id);
+          //console.log('store_name', this.store_name);
 
           this.hasStore = true;
+          this.selectedShoppingList = false;
 
           for (let item in this.listCategories) {
             const list_category_id = this.listCategories[item]['list_category_id'];
-            console.log('list_category_id',list_category_id);
+            //console.log('list_category_id',list_category_id);
             
-            this.takePicture[list_category_id] = true; // can take pictures of that category
+            this.takePicture[list_category_id] = "ok"; //true; // can take pictures of that category
 
             // The method performs the following:
             // (1) fills shoppingListAll contains all inventory items for a category on the shopping list
@@ -231,7 +243,7 @@ selectInventoryByCategory: any[] = [];
             this.selectedInventoryUnit[list_category_id] = "";
             //this.selectedInventoryItem[list_category_id] =  null;
 
-            // this is neede for new items to make the 
+            // this is needed for new items to make the 
             // increase and decrease buttons work
             this.newInventoryQuantity[list_category_id] = 0;
 
@@ -247,13 +259,23 @@ selectInventoryByCategory: any[] = [];
     });
   }
 
+  onShopping(){
+    if( this.isShopping ) {
+      this.isShopping=false;
+      this.selectShoppingListForm.enable();
+    }
+    else {
+      this.isShopping = true;
+      this.selectShoppingListForm.disable();
+    }
+  }
   // Load the shopping list by categories to match the accordion selector
   // and handle each section individually.
   getShoppingListByCategory(shopping_date: string, store_id: number, list_category_id: number) {
 
-    console.log('getShoppingListByCategory', shopping_date, store_id, list_category_id);
-    console.log('(1) this.shoppingListAll.get(list_category_id)', this.shoppingListAll.get(list_category_id));
-    console.log('(1) this.shoppingListAllTotal.get(list_category_id)', this.shoppingListAllTotal.get(list_category_id));
+    //console.log('getShoppingListByCategory', shopping_date, store_id, list_category_id);
+   // console.log('(1) this.shoppingListAll.get(list_category_id)', this.shoppingListAll.get(list_category_id));
+    //console.log('(1) this.shoppingListAllTotal.get(list_category_id)', this.shoppingListAllTotal.get(list_category_id));
 
 
     
@@ -275,9 +297,9 @@ selectInventoryByCategory: any[] = [];
           console.error(e.error.message);
         },
         complete: () => {
-          console.info('getShoppingListByCategory: complete')
-          console.log('(2) this.shoppingListAll.get(list_category_id)', this.shoppingListAll.get(list_category_id));
-          console.log('(2) this.shoppingListAllTotal.get(list_category_id)', this.shoppingListAllTotal.get(list_category_id));
+          //console.info('getShoppingListByCategory: complete')
+          //console.log('(2) this.shoppingListAll.get(list_category_id)', this.shoppingListAll.get(list_category_id));
+          //console.log('(2) this.shoppingListAllTotal.get(list_category_id)', this.shoppingListAllTotal.get(list_category_id));
         }
       });
 
@@ -295,6 +317,7 @@ selectInventoryByCategory: any[] = [];
           v.forEach((i:any)=>{
             var inventory_id = i['inventory_id'];
             this.inventoryService.loadPicture(inventory_id);
+            
           })
         }
       })
@@ -331,8 +354,8 @@ selectInventoryByCategory: any[] = [];
 
 
   doIncreaseShoppingListQuantity(selectedShoppingListQuantity: any[], list_category_id: number){
-    console.log('doIncreaseShoppingListQuantity', selectedShoppingListQuantity[list_category_id]);
-    console.log('doIncreaseShoppingListQuantity', selectedShoppingListQuantity);
+    //console.log('doIncreaseShoppingListQuantity', selectedShoppingListQuantity[list_category_id]);
+    //console.log('doIncreaseShoppingListQuantity', selectedShoppingListQuantity);
 
     if( selectedShoppingListQuantity[list_category_id]<=49){
       selectedShoppingListQuantity[list_category_id]++;
@@ -355,7 +378,7 @@ selectInventoryByCategory: any[] = [];
   }
 
   doCancelQuantityChanges(list_category_id: number){
-    console.log('doCancelQuantityChanges');
+    //console.log('doCancelQuantityChanges');
     //var inventory_id = this.selectedInventoryItem[list_category_id];
     var inventory_id = this.selectShoppingListForm.controls['select_shopping_category'].value['inventory_id'];
 
@@ -369,20 +392,20 @@ selectInventoryByCategory: any[] = [];
   }
 
   doMakeQuantityChanges(list_category_id: number){
-    console.log('doMakeQuantityChanges');
+    //console.log('doMakeQuantityChanges');
     var inventory_id = this.selectShoppingListForm.controls['select_shopping_category'].value['inventory_id'];
     var quantity =  this.selectedShoppingListQuantity[list_category_id];
     var store_id =  this.selectShoppingListForm.controls['shopping_list_form'].value["shopping_list_to_inventory.inventory_to_store.store_id"];
     var shopping_date =  this.selectShoppingListForm.controls['shopping_list_form'].value["shopping_date"];
     var family_member_id = this.authenticationService.familyMemberValue?.family_member_id || 0;
 
-    console.log('doMakeQuantityChanges::inventory_id', inventory_id);
-    console.log('doMakeQuantityChanges::quantity', quantity);
-    console.log('doMakeQuantityChanges::store_id', store_id);
-    console.log('doMakeQuantityChanges::shopping_date', shopping_date);
-    console.log('doMakeQuantityChanges::family_member_id', family_member_id);
+    // console.log('doMakeQuantityChanges::inventory_id', inventory_id);
+    // console.log('doMakeQuantityChanges::quantity', quantity);
+    // console.log('doMakeQuantityChanges::store_id', store_id);
+    // console.log('doMakeQuantityChanges::shopping_date', shopping_date);
+    // console.log('doMakeQuantityChanges::family_member_id', family_member_id);
 
-    console.log('doMakeQuantityChanges', this.selectShoppingListForm.controls);
+    // console.log('doMakeQuantityChanges', this.selectShoppingListForm.controls);
 
     this.shoppingListService.updateShoppingList(
       shopping_date, 
@@ -390,17 +413,19 @@ selectInventoryByCategory: any[] = [];
       inventory_id, 
       quantity ).subscribe({
         next: (v) => {
-          console.log('updateShoppingList', v);
+          // console.log('updateShoppingList', v);
         },
         error: (e) => {
-          console.log('error', e);
+          console.error('error', e);
         },
         complete: () => {
-          console.log("complete");
+          // console.log("complete");
           this.selectedInventoryFlag[list_category_id] = true;
           this.selectShoppingListForm.controls['select_shopping_category'].patchValue(null);
       
           this.getShoppingListByCategory(shopping_date, store_id, list_category_id);
+         
+
           //this.inventoryService.updateInventory(store_id, list_category_id);
       
       
@@ -416,7 +441,7 @@ selectInventoryByCategory: any[] = [];
   // the select: <Select inventory item>
   onClearQuantityChanges(list_category_id: number){
     this.selectedInventoryFlag[list_category_id] = true;
-    console.log('onClearQuantityChanges', list_category_id);
+    // console.log('onClearQuantityChanges', list_category_id);
     //console.log('onClearQuantityChanges --> selectInventoryItem',this.selectShoppingListForm.controls['select_shopping_category'])
 
   }
@@ -432,6 +457,10 @@ selectInventoryByCategory: any[] = [];
     var inventory_id: number = 0;
     var family_member_id = this.authenticationService.familyMemberValue?.family_member_id || 0;
 
+    //this.loggingService.logEntry('doAddNewInventoryItem', 'name', name);
+    //this.loggingService.logEntry('doAddNewInventoryItem', 'picture.length', picture.length );
+    console.log('doAddNewInventoryItem', 'picture.length', picture.length );
+
   this.inventoryService.createInventoryItemAddToShoppingList(
         name, 
         picture, 
@@ -444,18 +473,47 @@ selectInventoryByCategory: any[] = [];
         ).subscribe({
           next: (v) => {
             inventory_id = v['inventory_id'];
+    //this.loggingService.logEntry('doAddNewInventoryItem', 'inventory_id', inventory_id);
           },
           error: (e) => {
-            console.log('error', e);
+            console.error('error', e);
+            //this.loggingService.logEntry('doAddNewInventoryItem', 'error', JSON.stringify(e) );        
+            this.selectShoppingListForm.controls['new_inventory_item_name'].reset(null);
+            this.selectShoppingListForm.controls['new_inventory_item_unit'].reset(null);
+            this.newInventoryQuantity[list_category_id] = 0;
+            this.selectedPicture[list_category_id] = null;
           },
           complete: () => {
-            this.takePicture[list_category_id] = true;
+            this.takePicture[list_category_id] = "ok";  // true
             this.getShoppingListByCategory(shopping_date, store_id, list_category_id);
+            this.getInventoryListByCategory(store_id, list_category_id);
+            //this.loggingService.logEntry('doAddNewInventoryItem', 'complete', -1);      
+            
+
+            //formControlName="select_shopping_category"
+
+            this.selectShoppingListForm.controls['new_inventory_item_name'].reset(null);
+            this.selectShoppingListForm.controls['new_inventory_item_unit'].reset(null);
+            this.newInventoryQuantity[list_category_id] = 0;
+            this.selectedPicture[list_category_id] = null;
+           
           }
         })
+
+        this.takePicture[list_category_id] = "ok"; //false;
+        this.isImageDisabled=false;
+        
       }
 
+      doDiscardNewInventoryItem(list_category_id: number){
 
+        this.selectedPicture[list_category_id] = null;
+        this.selectShoppingListForm.controls['new_inventory_item_name'].reset(null);
+        this.selectShoppingListForm.controls['new_inventory_item_unit'].reset(null);
+        this.newInventoryQuantity[list_category_id] = 0;
+        this.takePicture[list_category_id] = "ok"; //false;
+        this.isImageDisabled=false;
+      }
 
 
   adjustForDecimals(x: any, unit: number) {
@@ -473,25 +531,6 @@ selectInventoryByCategory: any[] = [];
 
 
 
-  // onAddInventory(list_category_id: number) {
-  //   console.log('onAddInvetory :', list_category_id);
-  //   console.log('categoryId :', this.list_category_id);
-  //   if (this.list_category_id != list_category_id) {
-
-  //     this.list_category_id = list_category_id;
-  //   }
-
-  //   // const inventory =  this.inventoryService.loadInventory(this.storeId, list_category_id);
-  //   //    this.inventoryItemsToSelectFrom = inventory
-  //   //    this.inventoryItemsToSelectFromBS.next(inventory);
-  //   //    this.inventoryItemsToSelectFrom = inventory; 
-
-
-  //   // console.log('this.inventoryItemsToSelectFrom : ', this.inventoryItemsToSelectFrom);
-  // }
-
-
-
   getInventoryDefaultSelect(list_category_id: number) {
     var inventoryArray = this.inventoryService.categoryInventoryNew.get(list_category_id);
 
@@ -502,29 +541,6 @@ selectInventoryByCategory: any[] = [];
     return inventoryArray[0];
   }
 
-
-  // checkCategory(element: any, _category: string): boolean {
-  //   return (element === _category);
-  // }
-
-
-
-
-
-  // that needs refactoring
-  //
-  // This returns true if the inevntory item in on shopping list
-  // otherwise it is false (it could be used to determine if
-  // an item needs to be updated or added if not on it yet)
-  // getCategory(list_category_id: number, inventory_id: number) {
-  //   var found = false;
-  //   this.shoppingListAll.get(list_category_id)?.forEach(x => {
-  //     if (!found) {
-  //       found = (x.inventory_id == inventory_id);
-  //     }
-  //   });
-  //   return found;
-  // }
 
   getShoppingListQuantity(inventory_id: number, list_category_id: number) {
     let quantity = 0;
@@ -565,7 +581,7 @@ selectInventoryByCategory: any[] = [];
   }
 
 
-
+/*
   onOkInventoryItem(list_category_id: number) {
     console.log('onOkInventoryItem');
     //console.log('onOkInventoryItem - inventory_id:', this.selectedInventoryItem[list_category_id]);
@@ -577,9 +593,30 @@ selectInventoryByCategory: any[] = [];
     console.log('onOkInventoryItem - store name:' + this.store_name);
     console.log('onOkInventoryItem - this.authenticationService.familyMemberValue?.family_member_id:', this.authenticationService.familyMemberValue?.family_member_id);
   }
+*/
 
   doNothing(){
 
+  }
+
+
+  checkInventoryItem(inventory_id: number, value: any ){
+    console.log('(1) checkInventoryItem', this.inventoryImage[inventory_id], value);
+    if( this.inventoryImage[inventory_id]=="" || this.inventoryImage[inventory_id]==undefined){
+    this.inventoryImage[inventory_id]="disabled";
+    this.inventoryColor[inventory_id]="red";
+    } else {
+      this.inventoryImage[inventory_id]="";
+      this.inventoryColor[inventory_id]="";  
+    }
+    console.log('(2) checkInventoryItem', this.inventoryImage[inventory_id]);
+  }
+
+  checkInventoryChecked(isActiveOrDisabled: any){
+    if( isActiveOrDisabled == undefined){
+      return false;
+    }
+    return (isActiveOrDisabled=="disabled");
   }
 
 
@@ -592,17 +629,68 @@ selectInventoryByCategory: any[] = [];
     this.trigger.next();
   }
 
-  handleImage(event: any, list_category_id: number): void {
-    console.info('handleImage', event.target.files[0]);
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      this.selectedPicture[list_category_id] = reader.result as string;
-    }
 
-    event.target.files[0];
-    this.takePicture[list_category_id] = false;
+  imageLength(image: string){
+    return image.length;
+  }
+
+  /*
+  handleImage(list_category_id: number): void {
+    //console.info('handleImage', event.target.files[0]);
+    // const file = event.target.files[0];
+    // const reader = new FileReader();
+    // reader.readAsDataURL(file);
+    // reader.onload = () => {
+    //   //this.selectedPicture[list_category_id] = reader.result as string;
+    //   //this.selectedPicture[list_category_id] =image as string;
+    // }
+    if(this.takePicture[list_category_id] == "wait"){
+      return;
+    }
+    this.takePicture[list_category_id] = "wait";
+
+    // this.imageCompress.uploadFile().then(({image, orientation}) => {
+    //   console.log('Size in bytes of the uploaded image was:', this.imageCompress.byteCount(image));
+    //   let myBlob = new Blob(this.selectedPicture[list_category_id], {type: 'image/heic'});
+    //   this.selectedPicture[list_category_id] = heic2any({blob: myBlob, toType: "image/jpeg", quality: 0.5});
+    // })
+
+    // this.imageCompress.uploadAndGetImageWithMaxSize(0.07)
+    //     .then(
+    //       (result: string) => {
+    //             this.selectedPicture[list_category_id] = result;
+    //             this.takePicture[list_category_id] = "wait";
+    //             console.log(
+    //               'compression size',
+    //               this.imageCompress.byteCount(result),
+    //               'bytes'
+    //           );
+              
+    //       },
+    //             (result: string) => {
+    //                 console.log(
+    //                     'compression size',
+    //                     this.imageCompress.byteCount(result),
+    //                     'bytes',
+    //                     result
+    //                 );
+    //                 this.selectedPicture[list_category_id] = result;
+    //                 this.takePicture[list_category_id] = "wait";
+    //             }
+    //     )
+
+    //let myBlob = new Blob(this.selectedPicture[list_category_id]);        
+    //this.selectedPicture[list_category_id] = heic2any({blob: myBlob, toType: "image/jpeg", quality: 0.5});
+
+    // var iphoneImage: any = this.selectedPicture[list_category_id];
+    // var format = "JPEG";
+    // var options = { buffer: iphoneImage, format: 'JPEG', quality: 0.5  };
+
+    // //var newImage = convert(options);
+    // var newImage = convert({ buffer: iphoneImage, format: "JPEG", quality: 0.5});
+
+    
+    this.takePicture[list_category_id] = "wait";
 
     console.log('this.shoppingDate', this.shopping_date);
     console.log('this.storeId', this.store_id);
@@ -613,9 +701,115 @@ selectInventoryByCategory: any[] = [];
     
     this.selectShoppingListForm.controls['new_inventory_item_quantity'].setValue(0);
   }
+*/
+
+  imageSelectCancel(list_category_id: number){
+    //this.isImageDisabled = true;
+    this.takePicture[list_category_id] == "wait"
+  }
+
+  imageSelected($event: any, list_category_id: number){
+    console.log("imageSelected", $event);
+    this.isImageDisabled = true;
+
+    if(this.takePicture[list_category_id] == "wait"){
+      return;
+    }
+    this.imageCompressMessage = "<start>";
+    this.takePicture[list_category_id] = "wait";
+
+    const fileName = $event.target.files[0];
+    if( typeof fileName.size === undefined) {
+      return; 
+    }
+    console.log("size", fileName.size);
+    console.log("type", fileName.type);
+
+    let blob: Blob = fileName;
+    let file: File = fileName;
+
+      
+    let convProm: Promise<any>;
+
+    if (/image\/hei(c|f)/.test(fileName.type) || fileName.type == "") {
+      console.log('heic');
+      convProm = heic2any({blob:fileName, toType:"image/jpeg", quality:0 }).then( (jpgBlob: any ) => {
+            console.log('(1) jpgBlob', jpgBlob);
+            this.imageCompressMessage += "<t:heic->jpeg>,"
+            let newName = fileName.name.replace(/\.[^/.]+$/, ".jpg");
+            file = this.blobToFile(jpgBlob,newName);
+            //this.selectedPicture[list_category_id] = jpgBlob as string;
+          }).catch(err => {
+            //Handle error
+          });
+        } else {
+          console.log('type', fileName.type);
+          //This is not a HEIC image so we can just resolve
+          convProm = Promise.resolve(true);
+
+          this.imageCompressMessage += "<t:" + fileName.type + ">,";
+          const file = new FileReader();
+          file.readAsDataURL(fileName);
+          file.onload = () => {    
+            this.selectedPicture[list_category_id] = file.result as string;
+            this.imageCompress.compressFile(file.result as string, 0, 100, 100, 200, 200).then(
+              compressedImage => {
+                this.selectedPicture[list_category_id] = compressedImage;
+              }
+            )
+            this.imageCompressMessage += "<c:"+this.selectedPicture[list_category_id].length + ">,";
+          }
+          
+        }
+
+        convProm.then(() => {
+    
+          let reader = new FileReader();
+          let _thisComp = this;
+      
+          //Add file to FileReader
+          if (file) {
+            reader.readAsDataURL(file);
+          }
+          //Listen for FileReader to get ready
+          reader.onload = function () {
+            
+            //Set imageUrl. This will trigger initialization of cropper via imageLoaded() 
+            //as configured in the html img tag:
+            //<img #image id="image" [src]="imageUrl" (load)="imageLoaded($event)" class="cropper"> 
+      
+            //_thisComp.imageUrl = reader.result;
+            _thisComp.selectedPicture[list_category_id] = reader.result;    
+            _thisComp.imageCompress.compressFile(reader.result as string, 0, 100, 100, 200, 200).then(
+              compressedImage => {
+                _thisComp.selectedPicture[list_category_id] = compressedImage;
+                _thisComp.imageCompressMessage += "<c:"+_thisComp.selectedPicture[list_category_id].length + ">,";
+              }
+            )
+
+          }
+        });
+  
+        this.takePicture[list_category_id] = "wait";
+        this.imageCompressMessage += "<end>"
+    
+
+
+  }
+  private blobToFile = (theBlob: Blob, fileName:string): File => {
+    let b: any = theBlob;
+  
+    //A Blob() is almost a File() - it's just missing the two properties below which we will add
+    b.lastModified = new Date();
+    b.name = fileName;
+  
+    //Cast to a File() type
+    return <File>theBlob;
+  }
 
   public get triggerObservable(): Observable<void> {
     return this.trigger.asObservable();
   }
 
+  
 }

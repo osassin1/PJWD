@@ -8,7 +8,7 @@ import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 import { AppConfiguration } from "read-appsettings-json";
 import { catchError, map } from 'rxjs/operators';
 
-import { LoggingService } from '../logging/logging.service';
+
 
 //const baseUrl = 'http://localhost:8080/api/inventory';
 //const baseUrl = 'http://192.168.1.193:8080/api/inventory';
@@ -32,7 +32,6 @@ export class InventoryService  {
     constructor(
         private http: HttpClient,
         private domSanatizer: DomSanitizer,
-        private loggingService: LoggingService,
     ) {
 
     }
@@ -122,33 +121,9 @@ export class InventoryService  {
         }
 
 
-    // createInventoryItem(name: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ){
-    //     console.log('createInventoryItem');
-    //     this.loggingService.logEntry('createInventoryItem', 'name', name);
-    //     this.loggingService.logEntry('createInventoryItem', 'url', `${baseUrl}/create_inventory_item`);
-
-    //     console.log('`${baseUrl}/create_inventory_item`', `${baseUrl}/create_inventory_item`);
-
-    //     return this.http.post<any>(`${baseUrl}/create_inventory_item`, {
-    //         name, 
-    //         picture,
-    //         store_id,
-    //         list_category_id,
-    //         quantity_id
-    //     }).pipe(
-    //         catchError(err => {
-    //             console.log( err );
-    //         })
-            
-    //     );
-    // }       
+    
 
     createInventoryItem(name: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
-        // console.log('createInventoryItem');
-        // this.loggingService.logEntry('createInventoryItem', 'name', name);
-        // this.loggingService.logEntry('createInventoryItem', 'url', `${baseUrl}/create_inventory_item`);
-
-        // console.log('`${baseUrl}/create_inventory_item`', `${baseUrl}/create_inventory_item`);
 
         return this.http.post(`${baseUrl}/create_inventory_item`, {
             name, 
@@ -158,16 +133,6 @@ export class InventoryService  {
             quantity_id
         });
     }       
-    
-    // name, 
-    // picture, 
-    // store_id, 
-    // list_category_id,
-    // quantity_id,
-    // shopping_date, 
-    // family_member_id
-
-
 
     createInventoryItemAddToShoppingList(
         name: string, 
