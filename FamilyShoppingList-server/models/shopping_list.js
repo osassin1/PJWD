@@ -55,17 +55,25 @@ module.exports = (sequelize, DataTypes) => {
         as: 'shopping_list_to_family_member'
       }
     },
-    inventory_id : {
+    inventory_id: {
       type: DataTypes.INTEGER,
-      foreignKey: true,
-      primaryKey: true,
       allowNull: false,
+      primaryKey: true,
       refrences : {
         model: 'inventory',
         key: 'inventory_id',
         as: 'shopping_list_to_inventory'
-      },
-  
+      }
+    },
+    shopping_status_id : {
+      type: DataTypes.INTEGER,
+      foreignKey: true,
+      allowNull: true,
+      refrences : {
+        model: 'shopping_status',
+        key: 'shopping_status_id',
+        as: 'shopping_list_to_shopping_status'
+      }
     },
     quantity: DataTypes.DECIMAL(5,2),
   }, {

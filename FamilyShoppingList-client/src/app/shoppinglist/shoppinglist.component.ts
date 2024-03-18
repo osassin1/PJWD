@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef,  ChangeDetectionStrategy, } from '@angular/core';
 import { CommonModule, NgStyle } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-//import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 import { SafeUrl } from '@angular/platform-browser';
 
 
@@ -23,10 +22,11 @@ import { AuthenticationService } from '../authentication/authentication.service'
 
 //import { FamilyMemberService } from '../family_member/family_member.service';
 
+import { interval } from 'rxjs';
+
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { NgxImageCompressService } from 'ngx-image-compress';
-//import { DomSanitizer } from '@angular/platform-browser';
 
 import heic2any from "heic2any";
 
@@ -36,25 +36,35 @@ import heic2any from "heic2any";
   imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule,
     NgSelectModule, 
     NgStyle, 
-    //NgOptionHighlightModule, 
     NavigationComponent,
   ],
   templateUrl: './shoppinglist.component.html',
-  styleUrl: './shoppinglist.component.css'
+  styleUrl: './shoppinglist.component.css',
 })
 
 
-export class ShoppinglistComponent implements OnInit {
+export class ShoppinglistComponent implements OnInit, OnDestroy {
 
 
   isImageDisabled: boolean = false;
   isShopping: boolean = false;
+  isCheckout: boolean = false;
+  isCheckoutConfirm : boolean = false;
+  statusShoppingList : number = 0;
+
+  pollingTimeInSeconds : number = 5000;
+  pollingData: any;
+  pollingShoppedItems : any;
+
+  stopPolling$ = new Subject<any>();
+
+  private subChangeCategory: any;
 
   selectShoppingListForm!: FormGroup;
 
   // gray filter applied to inventory items in shopping list
   inventoryImage: string[] = [];
-  inventoryColor: string[] = [];
+  //inventoryColor: string[] = [];
  
   //selectedInventoryItem: any[] = [];
   selectedInventoryQuantity: number[] = [];
@@ -133,7 +143,6 @@ imageCompressMessage: string = "";
     private authenticationService: AuthenticationService,
     private formBuilder: FormBuilder,
     private imageCompress: NgxImageCompressService,
-    //private sanitizer: DomSanitizer
     ) {
   }
 
@@ -158,9 +167,10 @@ imageCompressMessage: string = "";
 
       // for selecting an inventory item in
       // a category
-      select_shopping_category: null
+      select_shopping_category: null,
 
-      
+      image_upload: null
+
     });
 
     // Get all defined shopping categories that can be used 
@@ -177,7 +187,8 @@ imageCompressMessage: string = "";
 
     // Get all shopping dates currently available; it's the content
     // for the first selector <Select Shopping List>
-    this.shoppingListService.getAllDates().subscribe((response: any) => {
+    
+    this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
       this.shoppingToSelectFrom = response;
       this.selectedShoppingList = true; //this.shoppingToSelectFrom[0];
     });
@@ -185,9 +196,55 @@ imageCompressMessage: string = "";
     // no store is selected yet
     this.hasStore = false;
 
+    //this.shoppingListService.shoppingListDates = 
+
+//this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id
+
+  this.pollingShoppedItems = this.shoppingListService.pollShoppedItemStatus()
+    .subscribe((v) => {
+      //console.log('getShoppedItemStatus')
+      //console.log('v', v)
+      if( v && v['inventory_id'] ) {
+        let inventoryList: number[] = v['inventory_id'];
+        this.inventoryImage = [];
+        inventoryList.forEach((inventory_id:number) =>{
+          this.inventoryImage[inventory_id]="disabled";
+          //this.inventoryColor[inventory_id]="true";
+          //console.log('this.inventoryImage[inventory_id]', this.inventoryImage[inventory_id])
+        })
+      }
+    })
+
+    this.subChangeCategory = interval(this.pollingTimeInSeconds)
+    .subscribe(()=>{
+      //console.log("subChangeCategory", this.shopping_date, this.store_id, this.store_name, this.list_category_id)
     
+      for (let item in this.listCategories) {
+        const list_category_id = this.listCategories[item]['list_category_id'];
+      
+        this.shoppingListService.getListByCategoryByGroupCached(this.shopping_date, this.store_id, list_category_id, this.authenticationService.familyMemberValue!.family_id)
+        .subscribe((res) => {
+          //console.log('res', res['inventory'].length);
+          // && res['inventory'].length !=  this.shoppingListAll.get(list_category_id)?.length
+          if( res != null && this.shoppingListAll.get(list_category_id)!=undefined 
+               ) {
+            this.shoppingListAll.delete(list_category_id);
+            this.shoppingListAllTotal.delete(list_category_id);
+            this.shoppingListAll.set(list_category_id, res['inventory']);
+            this.shoppingListAllTotal.set(list_category_id, res['category']);  
+            this.getInventoryByCategory(this.store_id, list_category_id);
+          }
+        })
+      }
+      this.loadShoppingListStatus();
+    })
   }
 
+  ngOnDestroy(){
+    this.stopPolling$.next(null);
+    this.pollingShoppedItems.unsubscribe();
+    this.subChangeCategory.unsubscribe();
+  }
 
   // When a shopping list is selected from the <Select Shopping List>,
   // then extract the the shopping_date and store_id to identify the
@@ -198,7 +255,7 @@ imageCompressMessage: string = "";
   // and array from [first_category, ..., last_category] and for each item
   // store what is on the list and what is available (or known) for that store.
   onSelectChange() {
-    this.shoppingListService.getAllDates().subscribe({
+    this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe({
       next: (v) => {
         //console.log('onSelectChange', v);
         //console.log('this.selectShoppingListForm', this.selectShoppingListForm)
@@ -235,7 +292,7 @@ imageCompressMessage: string = "";
             //     and is the accordion's button: <category name>  <family member dots> <total number of items>)
             this.getShoppingListByCategory(this.shopping_date, this.store_id, list_category_id);
             
-            this.getInventoryListByCategory(this.store_id, list_category_id);
+            this.getInventoryByCategory(this.store_id, list_category_id);
 
             this.selectedInventoryFlag[list_category_id] = true;
             this.selectedInventoryPicture[list_category_id] = "";
@@ -251,6 +308,37 @@ imageCompressMessage: string = "";
             // to be added to the shopping list
             this.selectShoppingListForm.controls['select_shopping_category'].patchValue(null);
 
+           
+
+            // uncheck all elements checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])
+            this.inventoryImage.forEach((value,index)=>{
+              this.inventoryImage.splice(index,1);
+              //this.inventoryColor.splice(index,1);
+          });
+
+          this.loadShoppingListStatus();
+
+          // this.shoppingListService.getShoppedItemStatus(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id)
+          // .subscribe({
+          //   next: (v) => {
+          //     //console.log('getShoppedItemStatus')
+          //     //console.log('v', v)
+          //     if( v && v['inventory_id'] ) {
+          //       let inventoryList: number[] = v['inventory_id'];
+          //       inventoryList.forEach((inventory_id:number) =>{
+          //         this.inventoryImage[inventory_id]="disabled";
+          //         //this.inventoryColor[inventory_id]="true";
+          //       })
+          //     }
+          //   }, error: (e) => {
+          //     console.error(e);
+          //   }, complete: () => {
+          //     //console.log('complete')
+          //   }
+          // })
+
+
+      
           }
         }
       }, error: (e) => {
@@ -259,16 +347,110 @@ imageCompressMessage: string = "";
     });
   }
 
+  setListCategoryID(list_category_id: number){
+    console.log('setListCategoryID', list_category_id)
+    this.list_category_id = list_category_id;
+    //this.newInventoryQuantity[list_category_id] = 1;
+  }
+
   onShopping(){
+    var shopping_status: string = "";
+
     if( this.isShopping ) {
       this.isShopping=false;
-      this.selectShoppingListForm.enable();
+      this.isCheckout=true;
+      shopping_status = "stop";
+      
+    } else {
+      this.isShopping=true;
+      shopping_status = "start";
+      this.selectShoppingListForm.controls['shopping_list_form'].disable();
     }
-    else {
-      this.isShopping = true;
-      this.selectShoppingListForm.disable();
-    }
+    this.saveShoppingListStatus();
   }
+
+  onCheckout(){
+    this.isCheckoutConfirm=true;
+    this.isCheckout=false;
+    this.saveShoppingListStatus();
+  }
+
+  onConfirmCheckout(){
+    this.selectShoppingListForm.controls['shopping_list_form'].enable();
+    this.isCheckoutConfirm=false;
+    this.isCheckout=false;
+    this.isCheckoutConfirm=false;
+    this.saveShoppingListStatus();
+  }
+
+  onCancelCheckout(){
+    this.selectShoppingListForm.controls['shopping_list_form'].enable();
+    this.isCheckoutConfirm=false;
+    this.isCheckout=false;
+    this.isCheckoutConfirm=false;
+    this.saveShoppingListStatus();
+  }
+
+  saveShoppingListStatus(){
+    var statusCode: number = 0;
+    if( this.isShopping && !this.isCheckout && !this.isCheckoutConfirm ) {
+      statusCode = 1;
+    } else if ( !this.isShopping && this.isCheckout && !this.isCheckoutConfirm ) {
+      statusCode = 2;
+    } else if ( !this.isShopping && !this.isCheckout && this.isCheckoutConfirm ) {
+      statusCode = 3;
+    }
+    this.shoppingListService.changeShoppingStatus(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, statusCode)
+      .subscribe({
+        next: (v) => {
+          console.log('v', v)
+        }, error: (e) => {
+          console.error(e);
+        }, complete: () => {
+          console.log('complete')
+        }
+      })
+  }
+
+  loadShoppingListStatus():number {
+    this.shoppingListService.getShoppingListStatus(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id)
+    .subscribe({
+      next: (v) => {
+        //console.log('getShoppingStatus', v)
+        //console.log('v', v)
+        this.statusShoppingList = v['status'];
+        if( this.statusShoppingList == 0) {
+          this.isShopping = false;
+          this.isCheckout = false; 
+          this.isCheckoutConfirm = false;
+        } else if( this.statusShoppingList == 1) {
+          this.isShopping = true;
+          this.isCheckout = false; 
+          this.isCheckoutConfirm = false;
+        } else if( this.statusShoppingList == 2) {
+          this.isShopping = false;
+          this.isCheckout = true; 
+          this.isCheckoutConfirm = false;
+        } else if( this.statusShoppingList == 3) {
+          this.isShopping = false;
+          this.isCheckout = false; 
+          this.isCheckoutConfirm = true;
+        }
+      }, error: (e) => {
+        console.error(e);
+      }, complete: () => {
+        console.log('complete:', this.statusShoppingList)
+        if( this.statusShoppingList > 0 ){
+          this.selectShoppingListForm.controls['shopping_list_form'].disable();
+        } else {
+          this.selectShoppingListForm.controls['shopping_list_form'].enable();
+        }
+        return this.statusShoppingList;
+      }
+    })
+    return 0;
+  }
+
   // Load the shopping list by categories to match the accordion selector
   // and handle each section individually.
   getShoppingListByCategory(shopping_date: string, store_id: number, list_category_id: number) {
@@ -282,7 +464,7 @@ imageCompressMessage: string = "";
     this.shoppingListAll.delete(list_category_id);
     this.shoppingListAllTotal.delete(list_category_id);
 
-    this.shoppingListService.getListByCategoryByGroup(shopping_date, store_id, list_category_id)
+    this.shoppingListService.getListByCategoryByGroup(shopping_date, store_id, list_category_id,this.authenticationService.familyMemberValue!.family_id)
       .subscribe({
         next: (v) => {
           this.shoppingListAll.set(list_category_id, v['inventory']);
@@ -292,6 +474,10 @@ imageCompressMessage: string = "";
           this.shoppingListAll.get(list_category_id)?.forEach((p => {
             this.inventoryService.loadPicture(p.inventory_id);
             this.inventoryService.loadInventory(store_id, p.inventory_id);
+            if(p.shopping_status_id >= 2){
+              this.inventoryImage[p.inventory_id] = "disabled";
+              //this.inventoryColor[p.inventory_id] = "true";
+            }
           }));
         }, error: (e) => {
           console.error(e.error.message);
@@ -309,7 +495,7 @@ imageCompressMessage: string = "";
 
   // initialize the inventory items by category one can select from
   // click the circle-plus to open the selection of item in that category
-  getInventoryListByCategory(store_id: number, list_category_id: number) {
+  getInventoryByCategory(store_id: number, list_category_id: number) {
     this.inventoryService.getInventoryByCategory(store_id, list_category_id)
       .subscribe({
         next: (v) => {
@@ -326,7 +512,7 @@ imageCompressMessage: string = "";
   // when an inventory item was selected then capture the following
   // what is the picture, quantity (for that family member) and unit
   onSelectInventoryItem(list_category_id: number) {
-    //console.log('onSelectInventoryItem(list_category_id: number)', list_category_id)
+    console.log('onSelectInventoryItem(list_category_id: number)', list_category_id)
 
    // console.log('this.selectShoppingListForm', this.selectShoppingListForm)
 
@@ -420,11 +606,9 @@ imageCompressMessage: string = "";
         },
         complete: () => {
           // console.log("complete");
+          this.getShoppingListByCategory(shopping_date, store_id, list_category_id);
           this.selectedInventoryFlag[list_category_id] = true;
           this.selectShoppingListForm.controls['select_shopping_category'].patchValue(null);
-      
-          this.getShoppingListByCategory(shopping_date, store_id, list_category_id);
-         
 
           //this.inventoryService.updateInventory(store_id, list_category_id);
       
@@ -486,7 +670,7 @@ imageCompressMessage: string = "";
           complete: () => {
             this.takePicture[list_category_id] = "ok";  // true
             this.getShoppingListByCategory(shopping_date, store_id, list_category_id);
-            this.getInventoryListByCategory(store_id, list_category_id);
+            this.getInventoryByCategory(store_id, list_category_id);
             //this.loggingService.logEntry('doAddNewInventoryItem', 'complete', -1);      
             
 
@@ -506,10 +690,11 @@ imageCompressMessage: string = "";
       }
 
       doDiscardNewInventoryItem(list_category_id: number){
-
+        //console.log('doDiscardNewInventoryItem')
         this.selectedPicture[list_category_id] = null;
         this.selectShoppingListForm.controls['new_inventory_item_name'].reset(null);
         this.selectShoppingListForm.controls['new_inventory_item_unit'].reset(null);
+        this.selectShoppingListForm.controls['image_upload'].reset();
         this.newInventoryQuantity[list_category_id] = 0;
         this.takePicture[list_category_id] = "ok"; //false;
         this.isImageDisabled=false;
@@ -580,43 +765,55 @@ imageCompressMessage: string = "";
     console.log('onCameraInventoryItem');
   }
 
-
-/*
-  onOkInventoryItem(list_category_id: number) {
-    console.log('onOkInventoryItem');
-    //console.log('onOkInventoryItem - inventory_id:', this.selectedInventoryItem[list_category_id]);
-    console.log('onOkInventoryItem - list_category_id:', list_category_id);
-    console.log('onOkInventoryItem - new_quantity:', this.selectedInventoryQuantity[list_category_id]);
-    //console.log('onOkInventoryItem - old_quantity():', this.getShoppingListQuantity(this.selectedInventoryItem[list_category_id], list_category_id));
-    console.log('onOkInventoryItem - shoppingDate:' + this.shopping_date);
-    console.log('onOkInventoryItem - storeId:' + this.store_id);
-    console.log('onOkInventoryItem - store name:' + this.store_name);
-    console.log('onOkInventoryItem - this.authenticationService.familyMemberValue?.family_member_id:', this.authenticationService.familyMemberValue?.family_member_id);
-  }
-*/
-
   doNothing(){
 
   }
 
 
-  checkInventoryItem(inventory_id: number, value: any ){
-    console.log('(1) checkInventoryItem', this.inventoryImage[inventory_id], value);
-    if( this.inventoryImage[inventory_id]=="" || this.inventoryImage[inventory_id]==undefined){
-    this.inventoryImage[inventory_id]="disabled";
-    this.inventoryColor[inventory_id]="red";
+  checkInventoryItem(inventory_id: number) {
+    console.log('(1) checkInventoryItem', this.inventoryImage[inventory_id], inventory_id);
+    if (this.inventoryImage[inventory_id] == "" || this.inventoryImage[inventory_id] == undefined) {
+      this.inventoryImage[inventory_id] = "disabled";
+      //this.inventoryColor[inventory_id] = "true";
+      console.log("shoppedItem incart");
+      this.shoppingListService.shoppedItem(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, inventory_id)
+        .subscribe({
+          next: (v) => {
+            console.log('v', v)
+          }, error: (e) => {
+            console.error(e);
+          }, complete: () => {
+            console.log('complete')
+          }
+        })
     } else {
-      this.inventoryImage[inventory_id]="";
-      this.inventoryColor[inventory_id]="";  
+      this.inventoryImage[inventory_id] = "";
+      //this.inventoryColor[inventory_id] = "false";
+      this.shoppingListService.unShoppedItem(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, inventory_id)
+        .subscribe({
+          next: (v) => {
+            console.log('v', v)
+          }, error: (e) => {
+            console.error(e);
+          }, complete: () => {
+            console.log('complete')
+          }
+        })
+
     }
     console.log('(2) checkInventoryItem', this.inventoryImage[inventory_id]);
   }
 
-  checkInventoryChecked(isActiveOrDisabled: any){
+ checkInventoryChecked(isActiveOrDisabled: any, inventory_id: number){
+  //console.log('isActiveOrDisabled',isActiveOrDisabled)
+  let retIsActiveOrDisabled : boolean = false;
     if( isActiveOrDisabled == undefined){
-      return false;
+      retIsActiveOrDisabled = false;
+    } else {
+      retIsActiveOrDisabled = (isActiveOrDisabled=="disabled");
     }
-    return (isActiveOrDisabled=="disabled");
+    //console.log('retIsActiveOrDisabled', inventory_id, retIsActiveOrDisabled, this.inventoryImage[inventory_id]);
+    return retIsActiveOrDisabled
   }
 
 
@@ -625,6 +822,7 @@ imageCompressMessage: string = "";
   // take a picture that will be used
 
   triggerSnapshot(list_category_id: number): void {
+    console.log('triggerSnapshot(list_category_id: number): void');
     this.list_category_id = list_category_id;
     this.trigger.next();
   }
@@ -634,85 +832,19 @@ imageCompressMessage: string = "";
     return image.length;
   }
 
-  /*
-  handleImage(list_category_id: number): void {
-    //console.info('handleImage', event.target.files[0]);
-    // const file = event.target.files[0];
-    // const reader = new FileReader();
-    // reader.readAsDataURL(file);
-    // reader.onload = () => {
-    //   //this.selectedPicture[list_category_id] = reader.result as string;
-    //   //this.selectedPicture[list_category_id] =image as string;
-    // }
-    if(this.takePicture[list_category_id] == "wait"){
-      return;
-    }
-    this.takePicture[list_category_id] = "wait";
-
-    // this.imageCompress.uploadFile().then(({image, orientation}) => {
-    //   console.log('Size in bytes of the uploaded image was:', this.imageCompress.byteCount(image));
-    //   let myBlob = new Blob(this.selectedPicture[list_category_id], {type: 'image/heic'});
-    //   this.selectedPicture[list_category_id] = heic2any({blob: myBlob, toType: "image/jpeg", quality: 0.5});
-    // })
-
-    // this.imageCompress.uploadAndGetImageWithMaxSize(0.07)
-    //     .then(
-    //       (result: string) => {
-    //             this.selectedPicture[list_category_id] = result;
-    //             this.takePicture[list_category_id] = "wait";
-    //             console.log(
-    //               'compression size',
-    //               this.imageCompress.byteCount(result),
-    //               'bytes'
-    //           );
-              
-    //       },
-    //             (result: string) => {
-    //                 console.log(
-    //                     'compression size',
-    //                     this.imageCompress.byteCount(result),
-    //                     'bytes',
-    //                     result
-    //                 );
-    //                 this.selectedPicture[list_category_id] = result;
-    //                 this.takePicture[list_category_id] = "wait";
-    //             }
-    //     )
-
-    //let myBlob = new Blob(this.selectedPicture[list_category_id]);        
-    //this.selectedPicture[list_category_id] = heic2any({blob: myBlob, toType: "image/jpeg", quality: 0.5});
-
-    // var iphoneImage: any = this.selectedPicture[list_category_id];
-    // var format = "JPEG";
-    // var options = { buffer: iphoneImage, format: 'JPEG', quality: 0.5  };
-
-    // //var newImage = convert(options);
-    // var newImage = convert({ buffer: iphoneImage, format: "JPEG", quality: 0.5});
-
-    
-    this.takePicture[list_category_id] = "wait";
-
-    console.log('this.shoppingDate', this.shopping_date);
-    console.log('this.storeId', this.store_id);
-    console.log('this.storeName', this.store_name);
-    console.log('this.categoryId', this.list_category_id);
-    console.log('list_category_id', list_category_id);
-
-    
-    this.selectShoppingListForm.controls['new_inventory_item_quantity'].setValue(0);
-  }
-*/
-
   imageSelectCancel(list_category_id: number){
     //this.isImageDisabled = true;
+    console.log('imageSelectCancel')
     this.takePicture[list_category_id] == "wait"
+    this.doDiscardNewInventoryItem(list_category_id);
   }
 
   imageSelected($event: any, list_category_id: number){
-    console.log("imageSelected", $event);
+    //console.log("imageSelected", $event);
     this.isImageDisabled = true;
 
     if(this.takePicture[list_category_id] == "wait"){
+      console.error('this.takePicture[list_category_id]', this.takePicture[list_category_id]);
       return;
     }
     this.imageCompressMessage = "<start>";
@@ -720,6 +852,7 @@ imageCompressMessage: string = "";
 
     const fileName = $event.target.files[0];
     if( typeof fileName.size === undefined) {
+      console.error('no file selected');
       return; 
     }
     console.log("size", fileName.size);
@@ -792,6 +925,10 @@ imageCompressMessage: string = "";
   
         this.takePicture[list_category_id] = "wait";
         this.imageCompressMessage += "<end>"
+        this.newInventoryQuantity[list_category_id] = 1;
+        
+        this.selectShoppingListForm.controls['new_inventory_item_quantity'].setValue(1);
+        this.selectShoppingListForm.controls['new_inventory_item_unit'].setValue(3);   // item(s)
     
 
 
@@ -811,5 +948,6 @@ imageCompressMessage: string = "";
     return this.trigger.asObservable();
   }
 
-  
+ 
+
 }

@@ -11,3 +11,8 @@
     padding: 10px;
     margin-right: 5px;    
 }
+
+:root {
+    color-scheme: only light;
+  }
+  

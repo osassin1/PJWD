@@ -46,12 +46,11 @@ export class AuthenticationService  {
         return this.familyMemberSubject.value;
     }
 
-
-    getAll(): Observable<FamilyMember[]>{
-        return this.http.get<FamilyMember[]>(baseUrl);
+    getAll(family_id: number): Observable<FamilyMember[]>{
+        return this.http.get<FamilyMember[]>(`${baseUrl}?family_id=${family_id}`);
     }
     getAllColors(): Observable<Color[]>{
-        return this.http.get<Color[]>(`${baseUrl}/colors`);
+        return this.http.get<Color[]>(`${baseUrl}/colors?family_id=${ this.familyMemberValue?.family_id}`);
     }
 
     login(username: string, password: string ) : Observable<FamilyMember> {

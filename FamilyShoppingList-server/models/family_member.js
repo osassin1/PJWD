@@ -41,6 +41,16 @@ module.exports = (sequelize, DataTypes) => {
         model: 'color',
         key: 'color_id',
       }
+    },
+
+    family_id : {
+      type: DataTypes.INTEGER,
+      foreignKey: true,
+      refrences : {
+        model: 'family',
+        key: 'family_id',
+        as: 'family_member_to_family',
+      }
     }
 
   }, {

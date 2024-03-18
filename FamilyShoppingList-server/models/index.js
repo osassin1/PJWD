@@ -84,6 +84,7 @@ db.store = require("./store")(sequelize, Sequelize);
 db.list_category = require("./list_category")(sequelize, Sequelize);
 db.color = require("./color")(sequelize, Sequelize);
 db.shopping_list = require("./shopping_list")(sequelize, Sequelize);
+db.family = require("./family")(sequelize, Sequelize);
 
 // db.inventory.hasOne(db.listcategory,{
 //     through: "inventory_list_category_id",
@@ -133,7 +134,11 @@ db.color.belongsTo(db.family_member,{
   foreignKey: "family_member_id",
 });
 
-
+// db.shopping_list.belongsTo(db.shopping_status,{
+//   through: "shopping_status_id",
+//   as: "shopping_list_to_shopping_status",
+//   foreignKey: "shopping_status_id",
+// });
 
 // C:C relationship
 
@@ -148,6 +153,12 @@ db.shopping_list.belongsTo(db.family_member,{
   as: 'shopping_list_to_family_member',
   foreignKey: "family_member_id",
 });
+
+db.family_member.belongsTo(db.family, {
+  through: "family_id",
+  as: 'family_member_to_family',
+  foreignKey: "family_id",
+})
 
 // db.inventory.belongsToMany(db.shopping_list,{
 //   through: "shopping",

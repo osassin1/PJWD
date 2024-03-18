@@ -13,6 +13,7 @@ export class FamilyMemberService implements FamilyMember {
     public last_name: string = '';
     public token: string = '';
     public authdata?: string;
+    public family_id: number=0;
     public color : {
             color_id : number,
             family_member_id: number,
@@ -27,6 +28,7 @@ export class FamilyMemberService implements FamilyMember {
         this.first_name = value.first_name;
         this.last_name = value.last_name;
         this.token = value.token;
+        this.family_id = value.family_id;
         this.color.color_id = value.color.color_id;
         this.color.family_member_id = value.color.family_member_id;
         this.color.name = value.color.name;

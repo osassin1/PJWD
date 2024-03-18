@@ -1,10 +1,10 @@
 <div class="bg-light">
     <app-navigation></app-navigation>
 </div>
-<div class="bg-light row col-md-7 py-1">
+<div class="bg-light row col-md-8 py-1">
     <!-- select an existing shopping list by <date> <store name> -->
     <form [formGroup]="selectShoppingListForm">
-        <div class="d-flex">
+        <div class="d-flex  align-items-center">
             <div class="flex-grow-1">
                 <ng-select [items]="shoppingToSelectFrom" placeholder="Select Shopping List" labelForId="shoppingToSelectFrom"
                     formControlName="shopping_list_form" [tabIndex]=0 (change)="selectedShoppingList" [clearable]="false"
@@ -22,8 +22,8 @@
                     </ng-template>
                 </ng-select>
             </div>
-            <div class="ms-2 mb-1">
-                <button type="button" class="inventory-select-accordion" [disabled]="selectedShoppingList" (click)="onShopping()">
+            <div class="d-flex">
+                <button type="button" class="btn inventory-select-accordion" [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm" (click)="onShopping()">
                     <div *ngIf="!isShopping; else stopShop">
                         <div class="btn btn-start-shop">Start Shop</div>
                     </div> 
@@ -31,8 +31,26 @@
                         <div class="btn btn-stop-shop">Stop Shop</div>
                     </ng-template>
                 </button>
+                <button type="button" class="btn inventory-select-accordion" [disabled]="!isCheckout" (click)="onCheckout()">
+                    <div class="btn btn-checkout">Checkout</div>
+                </button>
             </div>
         </div>
+            <div *ngIf="isCheckoutConfirm"> 
+                <div class="d-flex  justify-content-center">
+                    <button type="button"
+                            class="inventory-input-button bg-light bi bi-check-circle"
+                            (click)="onConfirmCheckout()">
+                    </button>
+                    <button type="button"
+                            class="inventory-input-button bg-light bi bi-x-circle"
+                            (click)="onCancelCheckout()">
+                    </button>
+                <div>
+            </div>
+        </div>
+            </div>
+        
         <!-- get the defined categories that will be populated once a shopping list has been selected -->
         <!-- once a shopping list is selected then fill up the categories with the items -->
         <div class="accordion" id="shopping_list_accordion">
@@ -43,7 +61,8 @@
                         [disabled]="!hasStore" data-bs-toggle="collapse"
                         attr.data-bs-target="#collapse_shopping_list_category_{{item.list_category_id}}"
                         aria-expanded="false"
-                        attr.aria-controls="collapse_shopping_list_category_{{item.list_category_id}}">
+                        attr.aria-controls="collapse_shopping_list_category_{{item.list_category_id}}"
+                        (click)="setListCategoryID(item.list_category_id)">
                         <!-- <category name, e.g. Fruit>  <who has items in this category by color of the 
                          family member> <the total number of inventory items, eg. #14 items in Fruit 
                         -->
@@ -171,6 +190,7 @@
                                             <p class="d-flex justify-content-center fs-4 inventory-select-accordion">
 
                                                 <input class="file-input" #imageInput type="file"
+                                                    formControlName="image_upload"
                                                     accept="image/*, .heic, .heif "
                                                     (change)="imageSelected($event, item.list_category_id)"
                                                     (cancel)="imageSelectCancel(item.list_category_id)">
@@ -192,7 +212,8 @@
                                                                 <div class="d-flex flex-column">
                                                                     <img class="inventory-picture-edit"
                                                                         [src]="selectedPicture[item.list_category_id]"
-                                                                        *ngIf="selectedPicture[item.list_category_id]" />
+                                                                        *ngIf="selectedPicture[item.list_category_id]"
+                                                                        />
                                                                     <p *ngIf="selectedPicture[item.list_category_id]"
                                                                         class="inventory-camera-label">
                                                                         {{imageLength(selectedPicture[item.list_category_id])}}
@@ -280,18 +301,22 @@
                                 </div>
                             </div>
                         </div>
-                    </div> <!-- end of plus-circle to add inevntory items-->
+                    </div> <!-- end of plus-circle to add inevntory items
+                    
+                     [checked]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])">
+                     [disabled]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])" 
+                    -->
 
                     @for (inventoryItem of shoppingListAll.get(item.list_category_id);
                     track inventoryItem) {
                         <div class="d-flex align-items-center py-1">
                             <div class="form-check" [hidden]="!isShopping">
-                                <input class="form-check-input large-checkbox" type="checkbox" value="" id="checkInventory_{{inventoryItem.inventory_id}}" (click)="checkInventoryItem(inventoryItem.inventory_id, 0)" 
-                                [checked]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])">
+                                <input class="form-check-input large-checkbox" type="checkbox" value="" id="checkInventory_{{inventoryItem.inventory_id}}" (click)="checkInventoryItem(inventoryItem.inventory_id)" 
+                                [checked]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id], inventoryItem.inventory_id)">
                            
                             </div>    
                             <button class="category-item-accordion inventory-select-accordion" 
-                                    type="button" [hidden]="false" [disabled]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])" 
+                                    type="button" [disabled]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id],inventoryItem.inventory_id)" 
                                     [ngStyle]="{background: 'white'}" 
                                     data-bs-toggle="collapse"
                                     aria-expanded="false"
@@ -299,7 +324,7 @@
                                     >
                                 <div class="d-flex align-items-center">
                                         <div>
-                                            <img attr.class="flex-row inventory-picture {{inventoryImage[inventoryItem.inventory_id]}}" for="flexCheckIndeterminate" [hidden]="false"  
+                                            <img attr.class="flex-row inventory-picture {{inventoryImage[inventoryItem.inventory_id]}}" for="flexCheckIndeterminate" 
                                                 [src]='getPicture(inventoryItem.inventory_id)'>
                                         </div>
                                         <div attr.class="p-1 flex-grow-1 {{inventoryImage[inventoryItem.inventory_id]}}" for="flexCheckIndeterminate" >

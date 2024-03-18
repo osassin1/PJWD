@@ -8,6 +8,32 @@ const shopping_list = db.shopping_list;
 
 const Op = db.Sequelize.Op;
 
+class InventoryKeyByCategory {
+  constructor(store_id, category_id){
+    this.store_id = parseInt(store_id);
+    this.category_id = parseInt(category_id);
+  }
+
+  key(){
+    return JSON.stringify(this);
+  }
+
+  // valid(){
+  //   if(this.shopping_date=="undefined" ||
+  //     this.store_id==null ||
+  //     this.family_id==null){
+  //       return false;
+  //     }
+  //     return true;
+  // }
+
+}
+
+
+
+let listInventoryByCategory = new Map();
+
+
 
 exports.createInventoryItem = (req, res) => {
   logging.logEntryLocal('createInventoryItem', req );
@@ -18,6 +44,7 @@ exports.createInventoryItem = (req, res) => {
     store_id : req.body.store_id,
     list_category_id : req.body.list_category_id,
     quantity_id : req.body.quantity_id,
+    shopping_status_id: 1,
     created_at: new Date(),
     updated_at : new Date()    
   }).then( createResult => {
@@ -61,6 +88,7 @@ exports.createInventoryItemAddToShoppingList = (req, res) => {
       family_member_id: req.body.family_member_id,
       inventory_id : inventory_id,
       quantity: req.body.quantity,
+      shopping_status_id: 1,
       created_at: new Date(),
       updated_at : new Date()
     }).save().then(insertResult =>{
@@ -83,34 +111,6 @@ exports.createInventoryItemAddToShoppingList = (req, res) => {
   })
 }
 
-
-
-
-/*
-
-          shopping_list.build({
-            shopping_date: req.body.shopping_date,
-            family_member_id: req.body.family_member_id,
-            inventory_id : req.body.inventory_id,
-            quantity: req.body.quantity,
-            created_at: new Date(),
-            updated_at : new Date()
-          }).save().then(insertResult =>{
-            console.log('shopping_list.build --> insertResult', insertResult);
-          }).catch(error_insert => {
-            console.log('error_insert',error_insert);
-            res.status(500).send({
-              message: error_insert.message || "error while inserting during updating shopping list."      
-            })
-          })
-
-
-
-
-
-
-
-*/
 
 exports.getInventoryByStore = (req, res) => {
   inventory.scope('excludeCreatedAtUpdateAt').findAll({
@@ -153,6 +153,18 @@ exports.getInventoryByStore = (req, res) => {
 
 
 exports.getInventoryByCategory = (req, res) => {
+
+  // let keyIventoryByCategory = new InventoryKeyByCategory(req.query.store_id, req.query.list_category_id);
+
+  // if (listInventoryByCategory.has(keyIventoryByCategory.key())) {
+  //   listInventoryByCategory = listInventoryByCategory.set(key.key(), shoppingInventory.get(key.key()).add(inventory_id));
+  // } else {
+  //   let inventoryList = new Set();
+  //   inventoryList = inventoryList.add(inventory_id);
+  //   shoppingInventory = shoppingInventory.set(key.key(), inventoryList);
+  // }
+
+
   inventory.scope('excludeCreatedAtUpdateAt').findAll({
       attributes: ['inventory_id', 'name', 'notes' ], 
       include: { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'], exclude : ['createdAt','updatedAt'] },
@@ -195,7 +207,7 @@ exports.getInventoryByCategory = (req, res) => {
       });
     })
 
-    console.log('inventoryDataByCategory.toArray():',inventoryDataByCategory.toArray());
+    //console.log('inventoryDataByCategory.toArray():',inventoryDataByCategory.toArray());
     res.send(inventoryDataByCategory.toArray());
   })
   .catch(err => {
