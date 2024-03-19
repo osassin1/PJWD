@@ -214,18 +214,21 @@ img.disabled {
     background-color: rgb(146, 210, 210);
     font-size:small;
     border: 1;
+    margin: -0.30rem !important;
 }
 
 .btn-stop-shop {
     background-color: rgb(255, 196, 196);
     font-size:small;
     border: 1;
+    margin: -0.30rem !important;
 }
 
 .btn-checkout {
     background-color: rgb(244, 250, 206);
     font-size:small;
     border: 1;
+    margin: -0.30rem !important;
 }
 
   /* Disable grayscale on hover */

@@ -1,10 +1,10 @@
 <div class="bg-light">
     <app-navigation></app-navigation>
 </div>
-<div class="bg-light row col-md-8 py-1">
+<div class="bg-light row col-md-8">
     <!-- select an existing shopping list by <date> <store name> -->
     <form [formGroup]="selectShoppingListForm">
-        <div class="d-flex  align-items-center">
+        <div class="d-flex  align-items-center py-1">
             <div class="flex-grow-1">
                 <ng-select [items]="shoppingToSelectFrom" placeholder="Select Shopping List" labelForId="shoppingToSelectFrom"
                     formControlName="shopping_list_form" [tabIndex]=0 (change)="selectedShoppingList" [clearable]="false"
@@ -23,17 +23,17 @@
                 </ng-select>
             </div>
             <div class="d-flex">
-                <button type="button" class="btn inventory-select-accordion" [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm" (click)="onShopping()">
-                    <div *ngIf="!isShopping; else stopShop">
-                        <div class="btn btn-start-shop">Start Shop</div>
-                    </div> 
-                    <ng-template #stopShop>
-                        <div class="btn btn-stop-shop">Stop Shop</div>
-                    </ng-template>
-                </button>
-                <button type="button" class="btn inventory-select-accordion" [disabled]="!isCheckout" (click)="onCheckout()">
-                    <div class="btn btn-checkout">Checkout</div>
-                </button>
+                    <button type="button" class="btn inventory-select-accordion" [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm" (click)="onShopping()">
+                        <div *ngIf="!isShopping; else stopShop">
+                            <div class="btn btn-start-shop">Start</div>
+                        </div> 
+                        <ng-template #stopShop>
+                            <div class="btn btn-stop-shop">Stop</div>
+                        </ng-template>
+                    </button>
+                    <button type="button" class="btn inventory-select-accordion" [disabled]="!isCheckout" (click)="onCheckout()">
+                        <div class="btn btn-checkout">Checkout</div>
+                    </button>
             </div>
         </div>
             <div *ngIf="isCheckoutConfirm"> 
