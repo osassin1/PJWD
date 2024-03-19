@@ -22,6 +22,8 @@ export class AuthenticationService  {
     private familyMemberSubject: BehaviorSubject<FamilyMember | null>;
     public familyMember: Observable<FamilyMember | null>;
 
+    family_id: number = 0;
+
     //private authenticated=false;
 
     constructor(
@@ -49,8 +51,21 @@ export class AuthenticationService  {
     getAll(family_id: number): Observable<FamilyMember[]>{
         return this.http.get<FamilyMember[]>(`${baseUrl}?family_id=${family_id}`);
     }
-    getAllColors(): Observable<Color[]>{
-        return this.http.get<Color[]>(`${baseUrl}/colors?family_id=${ this.familyMemberValue?.family_id}`);
+    getAllColors(family_id: number): Observable<Color[]>{
+        return this.http.get<Color[]>(`${baseUrl}/colors?family_id=${family_id}`);
+    }
+
+
+    getFamilyID(family_code: string): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/family_id?family_code=${family_code}`);
+    }
+
+    findFamilyCode(family_code: string): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/family_code?family_code=${family_code}`);
+    }
+
+    findUsername(username: string): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/username?username=${username}`);
     }
 
     login(username: string, password: string ) : Observable<FamilyMember> {

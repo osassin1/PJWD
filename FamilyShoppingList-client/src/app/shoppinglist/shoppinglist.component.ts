@@ -86,6 +86,11 @@ imageCompressMessage: string = "";
   list_category_id: number = 0;
 
 
+  // adding new inventory items via the 
+  // icon (bi-plus-circle) in the shopping list
+  // change it to bi-dash-circle when clicked
+  iconPlusDash: string = "bi-plus-circle";
+
   // either uploaded or taken picture (mobil)
   selectedPicture: any[] = [];
 
@@ -351,6 +356,14 @@ imageCompressMessage: string = "";
     console.log('setListCategoryID', list_category_id)
     this.list_category_id = list_category_id;
     //this.newInventoryQuantity[list_category_id] = 1;
+  }
+
+  onIconPlusDash(){
+    if( this.iconPlusDash == "bi-plus-circle" ) {
+      this.iconPlusDash = "bi-dash-circle";
+    } else {
+      this.iconPlusDash = "bi-plus-circle";
+    }
   }
 
   onShopping(){

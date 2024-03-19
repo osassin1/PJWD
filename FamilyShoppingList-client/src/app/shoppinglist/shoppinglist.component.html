@@ -97,11 +97,12 @@
                             <div class="accordion-header" id="heading_category_{{item.list_category_id}}">
                                 <span class="d-flex justify-content-center fs-4">
                                     <!-- the puls-circle button to add items from inventory -->
-                                    <button class="bi bi-plus-circle inventory-select-accordion" type="button"
+                                    <button class="bi {{iconPlusDash}} inventory-select-accordion" type="button"
                                         id="plus-circle-button" aria-label="plus-circle" data-bs-toggle="collapse"
                                         attr.data-bs-target="#collapse_category_{{item.list_category_id}}"
                                         aria-expanded="true"
-                                        attr.aria-controls="collapse_category_{{item.list_category_id}}">
+                                        attr.aria-controls="collapse_category_{{item.list_category_id}}"
+                                        (click)="onIconPlusDash()">
                                     </button>
                                 </span>
                                 <!-- provide a select input for adding inventory items; once selected display the picture

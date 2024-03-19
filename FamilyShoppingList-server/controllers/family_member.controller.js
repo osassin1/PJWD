@@ -3,6 +3,7 @@ var jwt = require("jsonwebtoken");
 const db = require("../models");
 const family_member = db.family_member;
 const color = db.color;
+const family = db.family;
 
 const Op = db.Sequelize.Op;
 
@@ -46,7 +47,73 @@ exports.findAllColors = (req, res) => {
         });
       });
   };
+
   
+
+  exports.getFamilyID = (req, res) => {
+    family.scope('excludeCreatedAtUpdateAt').findOne({
+        attribute:  ['family_id' ],
+        where: {
+            family_code: req.query.family_code
+        } 
+    })
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "some error occurred while retrieving family_code."
+        });
+      });
+  };
+
+
+
+  exports.findFamilyCode = (req, res) => {
+    family.scope('excludeCreatedAtUpdateAt').findOne({
+        attribute:  ['family_id' ],
+        where: {
+            family_code: req.query.family_code
+        } 
+    })
+      .then(data => {
+        console.log(data);
+        if( data ) {
+          res.send("");
+        } else {
+          res.send("{}");
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "some error occurred while retrieving family_code."
+        });
+      });
+  };
+
+
+  
+exports.findUsername = (req, res) => {
+  family_member.scope('excludeCreatedAtUpdateAt').findOne({
+      attribute:  ['username' ],
+      where: {
+          username: req.query.username
+      } 
+  })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "some error occurred while retrieving username."
+      });
+    });
+};
+
+
 exports.login = (req, res) => {
 
   console.log('in login:' + JSON.stringify(req.body));
