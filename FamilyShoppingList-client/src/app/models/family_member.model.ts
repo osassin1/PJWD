@@ -5,6 +5,7 @@ export interface FamilyMember {
         last_name: string,
         token: string,
         authdata?: string,
+        family_id: number,
         color : {
                 color_id : number,
                 family_member_id: number,

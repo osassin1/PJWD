@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         foreignKey: true,
-        reference:{
+        reference: {
           model: 'store',
           key: 'store_id',
           as: 'inventory_to_store'
@@ -23,17 +23,17 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         foreignKey: true,
-        reference:{
+        reference: {
           model: 'list_category',
           key: 'list_category_id',
           as: 'inventory_to_list_category'
         }
       },
-      quantity_id :
+      quantity_id:
       {
         type: DataTypes.INTEGER,
         foreignKey: true,
-        refrences : {
+        refrences: {
           model: 'quantity',
           key: 'quantity_id',
           as: 'inventory_to_quantity'
@@ -44,7 +44,7 @@ module.exports = {
         unique: true
       },
       picture: {
-        type: Sequelize.BLOB    // max size is 64 KB
+        type: Sequelize.BLOB('medium')    // max size is 64 KB
       },
       notes: {
         type: Sequelize.STRING

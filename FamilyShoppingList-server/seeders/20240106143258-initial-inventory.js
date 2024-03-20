@@ -29,6 +29,12 @@ module.exports = {
       }
     });
 
+    const storeCosto = await store.findOne({
+      where: {
+        name: 'Costco'
+      }
+    });
+
 
     await queryInterface.bulkInsert('inventory', [{
       name: 'Apple sauce, organic',
@@ -70,7 +76,7 @@ module.exports = {
       name: 'Pasta, organic',
       picture: base64Img.base64Sync('images/pasta-organic.jpg'),
       notes: 'They are egg free and they do not use eggs at all.',
-      store_id: 2,
+      store_id: parseInt(storeCosto.store_id),
       list_category_id: 7,
       quantity_id: 3,
       created_at: new Date(),
@@ -99,6 +105,87 @@ module.exports = {
       notes: '',
       store_id: parseInt(storeWholeFoods.store_id),
       list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Onion (Red), organic',
+      picture: base64Img.base64Sync('images/onion-red-organic.jpg'),
+      notes: '',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Parsely (Italian), organic',
+      picture: base64Img.base64Sync('images/parsley-italian-organic.jpg'),
+      notes: 'Italian has more flavor than curley parsely.',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Potato (Russet), organic',
+      picture: base64Img.base64Sync('images/potato-russet-organic.jpg'),
+      notes: 'Good for baking and mashed potatoes',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 1,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Scallions (Green Onions), organic',
+      picture: base64Img.base64Sync('images/scallions-green-onions-organic.jpg'),
+      notes: 'Buy in a bunch.',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Shiitake (Mushroom), organic',
+      picture: base64Img.base64Sync('images/shiitake-organic.jpg'),
+      notes: 'If no package available then take 2 bigger or 3 smaller sinle ones.',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Thyme, organic',
+      picture: base64Img.base64Sync('images/thyme-organic.jpg'),
+      notes: 'If not available look for fresh thyme.',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Tomatoes (Mix), organic',
+      picture: base64Img.base64Sync('images/tomatoes-medley-wild-wonders-organic.jpg'),
+      notes: 'This is a medley of small tomates called Wild Wonders',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 2,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Chicken (breast), organic',
+      picture: "no_picture.jpg",
+      notes: 'Package of three chicken breast',
+      store_id: parseInt(storeCosto.store_id),
+      list_category_id: 3,
+      quantity_id: 3,
+      created_at: new Date(),
+      updated_at : new Date()
+    }, {
+      name: 'Chicken (legs), organic',
+      picture: "no_picture.jpg",
+      notes: 'Package of two legs',
+      store_id: parseInt(storeWholeFoods.store_id),
+      list_category_id: 3,
       quantity_id: 3,
       created_at: new Date(),
       updated_at : new Date()

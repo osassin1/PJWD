@@ -5,32 +5,34 @@ import { FamilyMember } from '../models/family_member.model';
     providedIn: 'root',
 })
 
-export class FamilyMemberService /*implements FamilyMember*/ {
+export class FamilyMemberService implements FamilyMember {
     
-    // public family_member_id: number = 0;
-    // public username: string = '';
-    // public first_name: string = '';
-    // public last_name: string = '';
-    // public token: string = '';
-    // public authdata?: string;
-    // public color : {
-    //         color_id : number,
-    //         family_member_id: number,
-    //         name: string 
-    // } = {color_id:0, family_member_id:0, name: ''};
+    public family_member_id: number = 0;
+    public username: string = '';
+    public first_name: string = '';
+    public last_name: string = '';
+    public token: string = '';
+    public authdata?: string;
+    public family_id: number=0;
+    public color : {
+            color_id : number,
+            family_member_id: number,
+            name: string 
+    } = {color_id:0, family_member_id:0, name: ''};
     private is_authenticated : boolean = false;
 
 
-    // set familyMember( value : FamilyMember ){
-    //     this.family_member_id = value.family_member_id;
-    //     this.username = value.username;
-    //     this.first_name = value.first_name;
-    //     this.last_name = value.last_name;
-    //     this.token = value.token;
-    //     this.color.color_id = value.color.color_id;
-    //     this.color.family_member_id = value.color.family_member_id;
-    //     this.color.name = value.color.name;
-    // }
+    set familyMember( value : FamilyMember ){
+        this.family_member_id = value.family_member_id;
+        this.username = value.username;
+        this.first_name = value.first_name;
+        this.last_name = value.last_name;
+        this.token = value.token;
+        this.family_id = value.family_id;
+        this.color.color_id = value.color.color_id;
+        this.color.family_member_id = value.color.family_member_id;
+        this.color.name = value.color.name;
+    }
 
 
     // get webToken() { return this.token; }

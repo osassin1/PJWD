@@ -1,3 +1,66 @@
 /* @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css"); */
 
+
+
+.ng-select.custom {
+    border:10px;
+    min-height: 10px;
+    border-radius: 10;
+    /* border-color: #420a11 !important; */
+}
+.ng-select.custom .ng-control  {            
+    min-height: 10px;
+    border-radius: 10;
+}
+
+.ng-select.custom .ng-select-focused  {            
+    min-height: 10px;
+    border-radius: 10;
+    border-color: #60b2f1 !important;
+}
+
+
+/* ::ng-deep.ng-select-focused {
+     border: 4px solid #60b2f1 !important; 
+    border-color: #60b2f1 !important;
+    border-radius: 2em;
+    border-style: inherit;
+} */
+
+    /* border-bottom: 1px solid red !important; */
+    /* border: 3px solid #1c6fbc !important; */
+    /* border-bottom: 3px solid #3e67eb;  */
+
+/* 
+  ::ng-deep.ng-select-container {
+    box-shadow: 2px;
+    &focus {
+        border: 3px solid #bc1c1c !important;
+    }
+
+    &.focus{
+        border-color: #86feb6;
+        border: 3px solid #bc1c1c !important;
+        outline: 10;
+        box-shadow: 10 10 10 10.25rem rgba(212, 223, 9, 0.25);
+    }
+
+ }
+
+
+ ::ng-deep.ng-select-container:focus {
+    border-color: #86b7fe;
+    border: 3px solid #1c6fbc !important;
+      outline: 10;
+      box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+ }
+
+
+ .ng-select.ng-select-focused:not(.ng-select-opened) > .ng-select-container {
+    border-color: #86feb6;
+    border: 3px solid #bc1c1c !important;
+    outline: 10;
+    box-shadow: 0 0 0 0.25rem rgba(212, 223, 9, 0.25);
+}
   
+   */

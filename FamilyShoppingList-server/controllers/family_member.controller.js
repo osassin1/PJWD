@@ -1,8 +1,11 @@
 var bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 const db = require("../models");
+const { v4:familyCode } = require("uuid");
+
 const family_member = db.family_member;
 const color = db.color;
+const family = db.family;
 
 const Op = db.Sequelize.Op;
 
@@ -10,12 +13,15 @@ const Op = db.Sequelize.Op;
 exports.findAll = (req, res) => {
 
     family_member.findAll({
-        attributes: ['family_member_id', 'username', 'first_name', 'last_name', 'color.name' ], 
-        include: { association: 'family_member_to_color', attributes : ['color_id', 'family_member_id', 'name'] } 
+        attributes: ['family_member_id', 'username', 'first_name', 'last_name', 'family_id' ], 
+        include: { association: 'family_member_to_color', attributes : ['color_id', 'family_member_id', 'name'] },
+        where: {
+          family_id: req.query.family_id   // get request
+        } 
        }
     )
     .then(data => {
-        console.log(data);
+      //console.log(data);
       res.send(data);
     })
     .catch(err => {
@@ -27,11 +33,10 @@ exports.findAll = (req, res) => {
 };
 
 exports.findAllColors = (req, res) => {
-  
     color.scope('excludeCreatedAtUpdateAt').findAll({
         attribute:  ['color_id', 'family_member_id', 'name'],
         where: {
-            family_member_id: null
+            family_id: req.query.family_id
         } 
     })
       .then(data => {
@@ -44,7 +49,84 @@ exports.findAllColors = (req, res) => {
         });
       });
   };
+
   
+
+  exports.getFamilyID = (req, res) => {
+    family.scope('excludeCreatedAtUpdateAt').findOne({
+        attribute:  ['family_id' ],
+        where: {
+            family_code: req.query.family_code
+        } 
+    })
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "some error occurred while retrieving family_code."
+        });
+      });
+  };
+
+
+
+  exports.getNewFamilyCode = (req, res) => {
+    family.scope('excludeCreatedAtUpdateAt').create({
+      family_code : familyCode(),
+      created_at: new Date(),
+      updated_at : new Date()    
+    }).then( createResult => {    
+      console.log('createResult', createResult)
+      res.send(createResult);
+    });
+}  
+
+  exports.findFamilyCode = (req, res) => {
+    family.scope('excludeCreatedAtUpdateAt').findOne({
+        attribute:  ['family_id' ],
+        where: {
+            family_code: req.query.family_code
+        } 
+    })
+      .then(data => {
+        console.log(data);
+        if( data ) {
+          res.send("");
+        } else {
+          res.send("{}");
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "some error occurred while retrieving family_code."
+        });
+      });
+  };
+
+
+  
+exports.findUsername = (req, res) => {
+  family_member.scope('excludeCreatedAtUpdateAt').findOne({
+      attribute:  ['username' ],
+      where: {
+          username: req.query.username
+      } 
+  })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "some error occurred while retrieving username."
+      });
+    });
+};
+
+
 exports.login = (req, res) => {
 
   console.log('in login:' + JSON.stringify(req.body));
@@ -53,7 +135,7 @@ exports.login = (req, res) => {
 
 
    family_member.scope('excludeCreatedAtUpdateAt').findOne({
-      attributes: ['family_member_id', 'username', 'password', 'first_name', 'last_name' ], 
+      attributes: ['family_member_id', 'username', 'password', 'first_name', 'last_name', 'family_id' ], 
       include: { association: 'family_member_to_color', attributes : ['color_id', 'family_member_id', 'name'] }, 
       where: {
         username: req.body.username
@@ -96,6 +178,7 @@ exports.login = (req, res) => {
           username: family_member.username,
           first_name: family_member.first_name,
           last_name: family_member.last_name,
+          family_id: family_member.family_id,
           color : { color_id: family_member.family_member_to_color.color_id,
                     name: family_member.family_member_to_color.name },
           token
