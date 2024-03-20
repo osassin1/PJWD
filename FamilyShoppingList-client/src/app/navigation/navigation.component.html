@@ -41,7 +41,9 @@
                 <button class="nav-link" type="button" href="#" (click)="logout()">logout</button>
             </li>
         </ul> -->
+        
         <div style="display:flex; flex-direction: row; justify-content: center; align-items: center; font-size:0.75em">
+            {{familyCode}}
             <span class="d-inline-block family_member_dot p-1" [ngStyle]="{ 'background-color': color() }"></span>
             <label> {{firstName()}} {{lastName()}}</label>
         </div>

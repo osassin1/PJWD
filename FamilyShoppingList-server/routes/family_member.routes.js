@@ -32,7 +32,12 @@ module.exports = function(app) {
 
     // retrieve one family_members with 'password'
     router.post("/login", family_member.login);
+
+    // create new family_member
+    router.post("/create", family_member.createFamilyMember);
     
+    
+
     app.use('/api/family_member', router);
   };
   

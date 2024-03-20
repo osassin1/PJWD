@@ -46,6 +46,13 @@ export class NavigationComponent {
     }
     return "";
   }
+  get familyCode() {
+    if( this.authenticationService.familyMemberValue ) {
+      return this.authenticationService.familyMemberValue.family_code;
+    }
+    return "";
+  }
+
   color() {
     if( this.authenticationService.familyMemberValue ) {
       return this.authenticationService.familyMemberValue.color.name;

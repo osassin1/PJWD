@@ -72,6 +72,22 @@ export class AuthenticationService  {
         return this.http.get<any>(`${baseUrl}/username?username=${username}`);
     }
 
+    createNewFamilyMember(username: string,
+                          password: string,
+                          first_name: string,
+                          last_name: string,
+                          color_id: number,
+                          family_id: number) : Observable<FamilyMember> {
+        return this.http.post<FamilyMember>(`${baseUrl}/create`, {
+            username, 
+            password,
+            first_name,
+            last_name,
+            color_id,
+            family_id
+        });
+    };
+
     login(username: string, password: string ) : Observable<FamilyMember> {
         return this.http.post<FamilyMember>(`${baseUrl}/login`, {
             username, 

@@ -42,7 +42,11 @@ export class AuthenticationComponent implements OnInit {
   family_id: number = 0;
   newFamilyCode: string = "";
 
+  buttonSignup: string = "";
+
   colorsToSelectFrom: any[] = [];
+
+  selectColorError = true;
 
   //isAuthenticated = 0;
 
@@ -61,20 +65,6 @@ export class AuthenticationComponent implements OnInit {
     }
 
   ngOnInit() {
-    // this.loginForm = this.formBuilder.group({
-    //   username: ['', Validators.required],
-    //   password: ['', Validators.required]
-    // });
-
-    // this.signupForm = this.formBuilder.group({
-    //   username: ['', [Validators.required,Validators.minLength(6), Validators.maxLength(20)] ],
-    //   password: ['', [Validators.required,Validators.minLength(6), Validators.maxLength(20)] ],
-    //   firstName: ['', Validators.required],
-    //   lastName: ['', Validators.required],
-    //   color_fm: ['', Validators.required],
-    //   select_color: null
-    // });
-
 
     this.formLoginSignup = this.formBuilder.group({
       username: ['', {
@@ -91,28 +81,11 @@ export class AuthenticationComponent implements OnInit {
       }]
     });
 
-    //this.signupForm.controls['select_color'].disable();
-
-    // just login for testing purposes 
-    //this.loginFamilyMember("osassin","mysecret");
-
-    // this is for testing when signup is true from the start
-    // the 'signup' button will not be pressed, so load colors now
-    // if (this.signup) {
-    //   this.loadColors();
-    // }
+    this.buttonSignup = "Next";
   }
 
 
-  
-  // (control: AbstractControl) : ValidationErrors | null {
-  //   const value = control.value as string;
-  //   if( value == "***" ) {
-  //     return null;
-  //   } else {
-  //     return { valid: false };
-  //   }
-  // }
+
 
 
   familyCode(){
@@ -135,6 +108,7 @@ export class AuthenticationComponent implements OnInit {
     this.authenticationService.getAllColors(family_id).subscribe((response:any) => {
       console.log('response:',response);
       this.colorsToSelectFrom = response;
+      this.formLoginSignup.controls['color_select'].enable();
     });
   }
 
@@ -195,28 +169,17 @@ export class AuthenticationComponent implements OnInit {
     return false;
   }
 
-  // getFamilyIDByCode(family_code: string){
-  //   this.authenticationService.getFamilyID(family_code).subscribe((response:any) => {
-  //     console.log('response:',response);
-  //     this.family_id = response['family_id'];
-  //   });
-  // }
-
+  
 onLogin() {
   this.submittedLogin = true;
 
-  console.log("this.f['username'].valid", this.f['username'].valid)
-
-  // if ( !(this.f['username'].valid && this.f['password'].valid) ) {
-  //     return;
-  // }
+  //console.log("this.f['username'].valid", this.f['username'].valid)
 
   this.loginFamilyMember( this.f['username'].value, this.f['password'].value);
 
   setTimeout(() => 
   {
     this.loading = false;
-    //this.authenticationService.setAuthenticated(true); 
   }, 2000);
 
 }
@@ -227,46 +190,69 @@ getSignup()
 }
 
   onSignup() {
-    console.log("onSignUp");
     this.formLoginSignup.controls['color_select'].disable();
-
-
-    // if( this.getFamilyID( )) {
-    //   this.loadColors();
-    // } else {
-
-    // }
-    
-    console.log('authentication.component: after this.authenticationService.getAllColors().subscribe((response:any) => {');
-  
-
+    this.formLoginSignup.controls['username'].setValue("");
+    this.formLoginSignup.controls['password'].setValue("");
     this.signup = true;
-    console.log("onSignUp done");
   }
 
   onSubmitSignup() {
-    console.log('onSubmitSignup');
-    this.submittedSignup = true;
+    if( this.buttonSignup == "Next" ) {
+      this.submittedSignup = true;
+      if (this.formLoginSignup.invalid ) {
+          return;
+      }
 
-    if (this.formLoginSignup.invalid ) {
+      this.authenticationService.getFamilyID(this.formLoginSignup.controls['familyCode'].value)
+      .subscribe((response:any) => {
+          console.log('response:',response);
+          this.family_id = response['family_id'];
+          console.log('family_id', this.family_id);
+
+          this.loadColors(this.family_id);
+
+          this.buttonSignup = "Submit";
+        });
+    } else {
+
+      if( this.formLoginSignup.controls['color_select'].value == null ){
+        // const errRequired: ValidationErrors = {'required':true};
+        // this.formLoginSignup.controls['color_select'].setErrors(errRequired);
+        this.selectColorError = true;
         return;
+      } else {
+        this.selectColorError = false;
+        this.loading = true;
+        this.authenticationService.createNewFamilyMember(
+          this.formLoginSignup.controls['username'].value,
+          this.formLoginSignup.controls['password'].value,
+          this.formLoginSignup.controls['firstName'].value,
+          this.formLoginSignup.controls['lastName'].value,
+          this.formLoginSignup.controls['color_select'].value,
+          this.family_id).subscribe(fm => {
+
+            // let's wait 2 seconds before we continue
+            setTimeout(() => 
+            {
+              this.loading = false;
+              this.formLoginSignup.reset();
+              this.onSignupCancel();            
+            }, 2000);
+          
+          });
+      }
     }
-
-    this.authenticationService.getFamilyID(this.formLoginSignup.controls['familyCode'].value)
-    .subscribe((response:any) => {
-        console.log('response:',response);
-        this.family_id = response['family_id'];
-        console.log('family_id', this.family_id);
-
-        this.loadColors(this.family_id);
-      });
-
-
-
   }
 
   onSignupCancel(){
     this.signup = false;
+    this.buttonSignup = "Next";
+  }
+
+  onColorSelection($event: any){
+    if($event && $event['color_id']>0){
+      this.selectColorError = false;
+    }
   }
 
 }
@@ -286,27 +272,4 @@ export function codeExistsValidator(auth: AuthenticationService): AsyncValidator
      return auth.findFamilyCode(control.value)
       .pipe(map(fc => fc ? {codeInValid: true} : null )
       );
-
-
-    // .pipe(
-    //     map(auth => auth ? {codeValid: true } : null )
-    //   );
-
-
-    // const value = control.value;
-
-    // if( !value ) {
-    //   return null;
-    // }
-
-    // const familyCodeValid = false;
-
-    //return !familyCodeValid ? { codeValid: true } : null;
   }};
-
-  // private loadColors(){
-  //   this.authenticationService.getAllColors().subscribe((response:any) => {
-  //     console.log('response:',response);
-  //     this.colorsToSelectFrom = response;
-  //   });
-  // }
