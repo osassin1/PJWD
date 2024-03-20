@@ -1,6 +1,8 @@
 var bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 const db = require("../models");
+const { v4:familyCode } = require("uuid");
+
 const family_member = db.family_member;
 const color = db.color;
 const family = db.family;
@@ -69,6 +71,17 @@ exports.findAllColors = (req, res) => {
   };
 
 
+
+  exports.getNewFamilyCode = (req, res) => {
+    family.scope('excludeCreatedAtUpdateAt').create({
+      family_code : familyCode(),
+      created_at: new Date(),
+      updated_at : new Date()    
+    }).then( createResult => {    
+      console.log('createResult', createResult)
+      res.send(createResult);
+    });
+}  
 
   exports.findFamilyCode = (req, res) => {
     family.scope('excludeCreatedAtUpdateAt').findOne({

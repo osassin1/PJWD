@@ -40,6 +40,7 @@ export class AuthenticationComponent implements OnInit {
   error = '';
 
   family_id: number = 0;
+  newFamilyCode: string = "";
 
   colorsToSelectFrom: any[] = [];
 
@@ -121,6 +122,14 @@ export class AuthenticationComponent implements OnInit {
     return "<empty>";
   }
 
+  onNewFamilyCode(){
+    this.authenticationService.getNewFamilyCode().subscribe((response:any) => {
+      console.log('getNewFamilyCode response:',response);
+      this.newFamilyCode = response['family_code'];
+      this.formLoginSignup.controls['familyCode'].setValue(response['family_code']);
+    });
+
+  }
 
   private loadColors(family_id: number){
     this.authenticationService.getAllColors(family_id).subscribe((response:any) => {

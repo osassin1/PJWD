@@ -128,11 +128,11 @@ db.family_member.belongsTo(db.color,{
   foreignKey: "color_id",
 });
 
-db.color.belongsTo(db.family_member,{
-  through: "family_member_id",
-  as: "family_member",  // database table name
-  foreignKey: "family_member_id",
-});
+// db.color.belongsTo(db.family_member,{
+//   through: "family_member_id",
+//   as: "family_member",  // database table name
+//   foreignKey: "family_member_id",
+// });
 
 // db.shopping_list.belongsTo(db.shopping_status,{
 //   through: "shopping_status_id",

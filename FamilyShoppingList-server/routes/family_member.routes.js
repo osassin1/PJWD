@@ -24,6 +24,9 @@ module.exports = function(app) {
     router.get("/family_code", family_member.findFamilyCode);
     router.get("/family_id", family_member.getFamilyID);
 
+    router.get("/new_family_code", family_member.getNewFamilyCode);
+    
+
     // retrieve username based on family_code
     router.get("/username", family_member.findUsername);
 

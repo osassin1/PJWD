@@ -48,18 +48,18 @@ module.exports = {
       console.log(error);
     });
 
-    const updatedInfo = await color.update(
-      {
-        family_member_id: colorOne.family_member_id 
-      },
-      {
-        where: {
-          color_id: parseInt(colorOne.color_id) 
-        }
-      }
-    ).catch(function(error){
-      console.log('Update error:' + error);
-    });
+    // const updatedInfo = await color.update(
+    //   {
+    //     family_member_id: colorOne.family_member_id 
+    //   },
+    //   {
+    //     where: {
+    //       color_id: parseInt(colorOne.color_id) 
+    //     }
+    //   }
+    // ).catch(function(error){
+    //   console.log('Update error:' + error);
+    // });
 
 
     const colorOne2 = await color.findOne({
@@ -83,18 +83,18 @@ module.exports = {
       console.log(error);
     });
 
-    const updatedInfo2 = await color.update(
-      {
-        family_member_id: colorOne2.family_member_id 
-      },
-      {
-        where: {
-          color_id: parseInt(colorOne2.color_id) 
-        }
-      }
-    ).catch(function(error){
-      console.log('Update error:' + error);
-    });
+    // const updatedInfo2 = await color.update(
+    //   {
+    //     family_member_id: colorOne2.family_member_id 
+    //   },
+    //   {
+    //     where: {
+    //       color_id: parseInt(colorOne2.color_id) 
+    //     }
+    //   }
+    // ).catch(function(error){
+    //   console.log('Update error:' + error);
+    // });
 
 
 
@@ -119,18 +119,18 @@ module.exports = {
       console.log(error);
     });
 
-    const updatedInfo3 = await color.update(
-      {
-        family_member_id: colorOne3.family_member_id 
-      },
-      {
-        where: {
-          color_id: parseInt(colorOne3.color_id) 
-        }
-      }
-    ).catch(function(error){
-      console.log('Update error:' + error);
-    });
+    // const updatedInfo3 = await color.update(
+    //   {
+    //     family_member_id: colorOne3.family_member_id 
+    //   },
+    //   {
+    //     where: {
+    //       color_id: parseInt(colorOne3.color_id) 
+    //     }
+    //   }
+    // ).catch(function(error){
+    //   console.log('Update error:' + error);
+    // });
 
 
 
@@ -161,18 +161,18 @@ module.exports = {
       console.log(error);
     });
 
-    const updatedInfo4 = await color.update(
-      {
-        family_member_id: colorFour.family_member_id 
-      },
-      {
-        where: {
-          color_id: parseInt(colorFour.color_id) 
-        }
-      }
-      ).catch(function(error){
-        console.log('Update error:' + error);
-      });
+    // const updatedInfo4 = await color.update(
+    //   {
+    //     family_member_id: colorFour.family_member_id 
+    //   },
+    //   {
+    //     where: {
+    //       color_id: parseInt(colorFour.color_id) 
+    //     }
+    //   }
+    //   ).catch(function(error){
+    //     console.log('Update error:' + error);
+    //   });
   
   // async down (queryInterface, Sequelize) {
   //   /**

@@ -64,6 +64,10 @@ export class AuthenticationService  {
         return this.http.get<any>(`${baseUrl}/family_code?family_code=${family_code}`);
     }
 
+    getNewFamilyCode(): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/new_family_code`);
+    }
+
     findUsername(username: string): Observable<any>{
         return this.http.get<any>(`${baseUrl}/username?username=${username}`);
     }
