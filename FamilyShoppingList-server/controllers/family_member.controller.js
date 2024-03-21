@@ -184,7 +184,7 @@ exports.login = (req, res) => {
       attributes: ['family_member_id', 'username', 'password', 'first_name', 'last_name', 'family_id' ], 
       include: [
                   { association: 'family_member_to_family', attributes : ['family_code'] }, 
-                  { association: 'family_member_to_color', attributes : ['color_id', 'family_member_id', 'name'] }
+                  { association: 'family_member_to_color', attributes : ['color_id', 'name'] }
                ], 
       where: {
         username: req.body.username

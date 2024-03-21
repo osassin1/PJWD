@@ -14,6 +14,8 @@ import { AuthenticationService } from '../authentication/authentication.service'
 })
 export class NavigationComponent {
 
+  toggleNameFamilyCodeBoolean = false;
+
   //constructor(private familyMemberService:FamilyMemberService){}
   constructor(private authenticationService:AuthenticationService){}
 
@@ -62,5 +64,9 @@ export class NavigationComponent {
 
   noOfItemsOnList(){
     return 0;
+  }
+
+  toggleNameFamilyCode(){
+    this.toggleNameFamilyCodeBoolean = !this.toggleNameFamilyCodeBoolean;
   }
 }

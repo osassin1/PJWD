@@ -42,11 +42,17 @@
             </li>
         </ul> -->
         
-        <div style="display:flex; flex-direction: row; justify-content: center; align-items: center; font-size:0.75em">
-            {{familyCode}}
-            <span class="d-inline-block family_member_dot p-1" [ngStyle]="{ 'background-color': color() }"></span>
-            <label> {{firstName()}} {{lastName()}}</label>
-        </div>
+        <button class="nav-link" type="button" href="#" (click)="toggleNameFamilyCode()">
+            <div style="display:flex; flex-direction: row; justify-content: center; align-items: center; font-size:0.75em">
+                <div *ngIf="toggleNameFamilyCodeBoolean; else familyMemberName">
+                    {{familyCode}}
+                </div>
+                <ng-template #familyMemberName>
+                    <span class="d-inline-block family_member_dot p-1" [ngStyle]="{ 'background-color': color() }"></span>
+                    <label> {{firstName()}} {{lastName()}}</label>
+                </ng-template>
+            </div>
+        </button>
         <!-- <ul class="nav navbar-nav navbar-right">
             <li *ngIf="isAuthenticated() && noOfItemsOnList()" routerLinkActive="active">
                 <a class="nav-link" routerLink="shoppinglist">
