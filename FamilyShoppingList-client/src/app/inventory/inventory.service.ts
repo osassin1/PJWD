@@ -36,6 +36,9 @@ export class InventoryService  {
 
     }
 
+    getListOfStores(): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/list_of_stores`);
+    }
 
     getPicture(inventory_id : number): Observable<any>{
         // const httpOptions: Object = {

@@ -60,6 +60,8 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
   private subChangeCategory: any;
 
+  dateToday = new Date();
+
   selectShoppingListForm!: FormGroup;
 
   // gray filter applied to inventory items in shopping list
@@ -101,6 +103,8 @@ imageCompressMessage: string = "";
   // determine if a store was selected
   hasStore: boolean = false;
 
+  // get all stores that family/members can shop from
+  storesToSelectFrom: any[] = [];
 
   // get all dates and store as existing shopping list
   shoppingToSelectFrom: any[] = [];  
@@ -174,9 +178,26 @@ imageCompressMessage: string = "";
       // a category
       select_shopping_category: null,
 
-      image_upload: null
+      image_upload: null,
+
+      newShoppingListDate: null,
+
+      storesToSelectFrom: null
 
     });
+
+
+    const year =  this.dateToday.getFullYear()
+
+    let month: number | string =  this.dateToday.getMonth() + 1
+    let day: number | string =  this.dateToday.getDate()
+    
+    if (month < 10) month = '0' + month
+    if (day < 10) day = '0' + day    
+
+    var today = year + "-" + month + "-" + day;  
+
+    this.selectShoppingListForm.controls['newShoppingListDate'].setValue( today );
 
     // Get all defined shopping categories that can be used 
     // for a list. The identifier is list_category_id within
@@ -196,7 +217,20 @@ imageCompressMessage: string = "";
     this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
       this.shoppingToSelectFrom = response;
       this.selectedShoppingList = true; //this.shoppingToSelectFrom[0];
+      console.log('(1) this.shoppingToSelectFrom ', this.shoppingToSelectFrom )
     });
+
+
+    // get all shops that can be shoppedn from
+    
+    this.inventoryService.getListOfStores().subscribe((response: any) => {
+      this.storesToSelectFrom = response;
+      console.log('this.inventoryService.getListOfStores', this.storesToSelectFrom )
+    });
+
+
+    // this.shoppingToSelectFrom.push('new');
+    // console.log('(2) this.shoppingToSelectFrom ', this.shoppingToSelectFrom )
 
     // no store is selected yet
     this.hasStore = false;
@@ -251,6 +285,9 @@ imageCompressMessage: string = "";
     this.subChangeCategory.unsubscribe();
   }
 
+  get fb(){
+    return this.selectShoppingListForm;
+  }
   // When a shopping list is selected from the <Select Shopping List>,
   // then extract the the shopping_date and store_id to identify the
   // list for that store + date.
@@ -365,6 +402,11 @@ imageCompressMessage: string = "";
       this.iconPlusDash = "bi-plus-circle";
     }
   }
+
+  onStoreSelectChange(){
+
+  }
+
 
   onShopping(){
     var shopping_status: string = "";

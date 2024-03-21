@@ -4,6 +4,8 @@ const logging = require("../controllers/logging.controller.js");
 
 const inventory = db.inventory;
 const shopping_list = db.shopping_list;
+const store = db.store;
+
 //const color = db.color;
 
 const Op = db.Sequelize.Op;
@@ -239,4 +241,19 @@ exports.getPicture = (req,res) => {
   });;
 }
 
+//inventory.getListOfStores
 
+exports.getListOfStores = (req,res) => {
+  store.scope('excludeCreatedAtUpdateAt').findAll()
+  .then(data => {
+    if( data ) {
+        res.send(data);
+    }
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "error while retrieving list of stores."
+    });
+  });;
+}
