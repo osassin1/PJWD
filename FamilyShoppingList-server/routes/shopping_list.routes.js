@@ -39,6 +39,7 @@ module.exports = function(app) {
     router.post("/un_shopped_item", shopping_list.unShoppedItem);
     router.get("/get_shopping_list_status", shopping_list.getShoppingListStatus);
     router.get("/get_shopped_item_status", shopping_list.getShoppedItemStatus);
+    router.get("/get_all_shopping_list_status", shopping_list.getAllShoppingListStatus);
 
     
     app.use('/api/shopping_list', router);

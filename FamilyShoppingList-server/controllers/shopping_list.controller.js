@@ -97,6 +97,9 @@ exports.checkoutShoppingList = (req, res) => {
   family_id = parseInt(req.body.family_id); 
   //shopping_status_id = req.body.shopping_status_id;
 
+  let key = new ShoppingKey(shopping_date, store_id, family_id);
+  shoppingMap = shoppingMap.delete(key.key());
+
   shopping_list.update({
     shopping_status_id: 3
   },{
@@ -166,6 +169,13 @@ exports.getShoppingListStatus = (req, res) => {
 }
 
 
+exports.getAllShoppingListStatus = (req, res) => {
+  
+  //let response = `{ "key": ${shoppingMap}, "status": ${status}}`
+  let response = shoppingMap.toJSON();
+  console.log('getShoppingListStatus response', response);
+  res.send(response);
+}
 
 
 

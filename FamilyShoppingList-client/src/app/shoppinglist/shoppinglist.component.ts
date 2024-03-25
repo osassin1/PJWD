@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit  } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, NgStyle } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -64,6 +64,14 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   dateToday = new Date();
 
   selectShoppingListForm!: FormGroup;
+
+  // Take a note that a new shopping list has
+  // been created but not stored yet, it will
+  // only be stored once an inventory item is
+  // added (no race condition if another family
+  // member creates the same list - it's family
+  // member independent)
+  newShoppingListCreated = false;
 
   // gray filter applied to inventory items in shopping list
   inventoryImage: string[] = [];
@@ -190,7 +198,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
       newShoppingListDate: null,
       newShoppingListCard: null,
 
-      storesToSelectFrom: null
+      storesToSelectFrom:  [null, Validators.required],
 
     });
 
@@ -268,23 +276,30 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
         this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
           this.shoppingToSelectFrom = response;
         });
-        this.shoppingToSelectFrom.forEach(x=>{
-          console.log('x',x,'removeShoppingList',removeShoppingList);
-          console.log("this.selectShoppingListForm.controls['shopping_list_form'].value",this.selectShoppingListForm.controls['shopping_list_form'].value);
 
-          if( this.selectShoppingListForm.controls['shopping_list_form'].value && this.selectShoppingListForm.controls['shopping_list_form'].value == x ) {
-            console.log('found shopping date');
+        // it needs to to be synced amongst all family_members
+        // the event of checking out mut be propergated to all active
+        // sessions
+
+        this.shoppingToSelectFrom.forEach(x=>{
+          if( this.selectShoppingListForm.controls['shopping_list_form'].value && 
+              this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_date'] == x['shopping_date'] &&
+              this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_list_to_inventory.inventory_to_store.store_id'] == 
+              x['shopping_list_to_inventory.inventory_to_store.store_id'] ) {
+
             removeShoppingList = false;
+            if(this.newShoppingListCreated) {  
+              this.newShoppingListCreated = false;  // a new shopping list that was created, is now stored
+            }
+
           }
         })
 
-        if( removeShoppingList ) {
-          console.log('removeShoppingList')
-          //this.selectShoppingListForm.controls['shopping_list_form'].reset();
-          //this.onSelectShoppingList()
+        if( !this.newShoppingListCreated && removeShoppingList ) {
+          this.resetShoppingState();
+          this.selectShoppingListForm.controls['shopping_list_form'].reset();
+          this.onSelectShoppingList()
         }
-
-
         this.loadShoppingListStatus();
       })
   }
@@ -299,7 +314,23 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     return this.selectShoppingListForm;
   }
 
+// after checkout or synced checkout, reset
+// state of the shopping app  
+resetShoppingState(){
 
+  // no store has been selected
+  this.hasStore = false;
+
+  // no shopping list has been selected
+  // and the selector is active
+  this.selectedShoppingList = true;
+
+  // current selection needs to be reset
+  this.shopping_date = "";
+  this.store_id = 0;
+  this.store_name = "";
+  this.list_category_id = 0;
+}
 
   // When a shopping list is selected from the <Select Shopping List>,
   // then extract the the shopping_date and store_id to identify the
@@ -379,16 +410,25 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   // When confirming or cancel a new shopping list
   // execute the following event 
   onConfirmAddNewShoppingList() {
+
+    if(this.selectShoppingListForm.controls['storesToSelectFrom'].invalid ||
+    this.selectShoppingListForm.controls['newShoppingListDate'].invalid ) {
+      this.onIconPlusMinus();
+      return;
+    }
+
     const [year, month, day] = this.selectShoppingListForm.controls['newShoppingListDate'].value.split("-")
     const newDateString = `${month}/${day}/${year}`;
-
     const newShoppingList = JSON.parse('{ "shopping_date": "' + newDateString +
       '", "shopping_list_to_family_member.family_id": "' + this.authenticationService.familyMemberValue!.family_id +
       '", "shopping_list_to_inventory.inventory_to_store.store_id": "' + this.selectShoppingListForm.controls['storesToSelectFrom'].value['store_id'] +
       '", "shopping_list_to_inventory.inventory_to_store.name": "' + this.selectShoppingListForm.controls['storesToSelectFrom'].value['name'] +
       '" } ');
 
+    this.newShoppingListCreated = true;  
     this.selectShoppingListForm.controls['shopping_list_form'].setValue(newShoppingList);
+    this.selectShoppingListForm.controls['storesToSelectFrom'].reset();
+    this.selectShoppingListForm.controls['newShoppingListDate'].reset();
     this.onIconPlusMinus();
   }
 
@@ -418,7 +458,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
           this.onSelectShoppingList()
           this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
             this.shoppingToSelectFrom = response;
-            //this.selectedShoppingList = true;
+            this.selectedShoppingList = true;
           });
       
         }
@@ -558,6 +598,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   }
 
   loadShoppingListStatus(): number {
+    //console.log('loadShoppingListStatus')
     this.shoppingListService.getShoppingListStatus(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id)
       .subscribe({
         next: (v) => {
@@ -587,6 +628,8 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
           } else {
             this.selectShoppingListForm.controls['shopping_list_form'].enable();
           }
+          //console.log('loadShoppingListStatus', this.statusShoppingList)
+
           return this.statusShoppingList;
         }
       })
@@ -596,7 +639,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   // Load the shopping list by categories to match the accordion selector
   // and handle each section individually.
   getShoppingListByCategory(shopping_date: string, store_id: number, list_category_id: number) {
-
     this.shoppingListAll.delete(list_category_id);
     this.shoppingListAllTotal.delete(list_category_id);
 
@@ -783,23 +825,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   }
 
 
-  // logout() {
-  //   console.log('shoppinglist.component : logout');
-  // }
-
-
-
-  // getInventoryDefaultSelect(list_category_id: number) {
-  //   var inventoryArray = this.inventoryService.categoryInventoryNew.get(list_category_id);
-
-  //   if (inventoryArray == undefined || !inventoryArray) {
-  //     return "Select inventory item";
-  //   }
-  //   console.log('inventoryArray[0]:', inventoryArray[0]);
-  //   return inventoryArray[0];
-  // }
-
-
   getShoppingListQuantity(inventory_id: number, list_category_id: number) {
     let quantity = 0;
 
@@ -816,90 +841,87 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
         }
       })
     }
-
-    //this.selectedInventoryQuantity[list_category_id] = quantity;
-
     return quantity;
   }
 
-  // onSelectItem(itemId: string) {
-  //   console.log('onSelectItem: ' + itemId);
-  // }
 
+// --- Shopping ---
+// The list is ready to be shopped, for that purpose, items can be checked-off
+// on the list, indicating that they are in the cart now. If the checkmark is
+// removed then the item is no longer in the cart. Items that are in the cart 
+// will be grayed out.
 
+// Update the status of items being in the process of being shopped and
+// set variables according to that status. With inventoryImage[inventory_id] = "disabled"
+// the item will be grayed out.
 
+checkInventoryItem(inventory_id: number) {
+  if (this.inventoryImage[inventory_id] == "" || this.inventoryImage[inventory_id] == undefined) {
+    this.inventoryImage[inventory_id] = "disabled";
+    this.shoppingListService.shoppedItem(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, inventory_id)
+      .subscribe({
+        next: (v) => {
+        }, error: (e) => {
+          console.error(e);
+        }, complete: () => {
+        }
+      })
+  } else {
+    this.inventoryImage[inventory_id] = "";
+    this.shoppingListService.unShoppedItem(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, inventory_id)
+      .subscribe({
+        next: (v) => {
+        }, error: (e) => {
+          console.error(e);
+        }, complete: () => {
+        }
+      })
 
-  onCancelInventoryItem() {
-    console.log('onCancelInventoryItem');
   }
+}
 
-
-  onCameraInventoryItem() {
-    console.log('onCameraInventoryItem');
+// A helper function that goes along with checkInventoryItem
+// the status is kept in inventoryImage[inventory_id]
+checkInventoryChecked(isActiveOrDisabled: any, inventory_id: number) {
+  let retIsActiveOrDisabled: boolean = false;
+  if (isActiveOrDisabled == undefined) {
+    retIsActiveOrDisabled = false;
+  } else {
+    retIsActiveOrDisabled = (isActiveOrDisabled == "disabled");
   }
-
-  // doNothing(){
-
-  // }
-
-
-  checkInventoryItem(inventory_id: number) {
-    if (this.inventoryImage[inventory_id] == "" || this.inventoryImage[inventory_id] == undefined) {
-      this.inventoryImage[inventory_id] = "disabled";
-      this.shoppingListService.shoppedItem(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, inventory_id)
-        .subscribe({
-          next: (v) => {
-          }, error: (e) => {
-            console.error(e);
-          }, complete: () => {
-          }
-        })
-    } else {
-      this.inventoryImage[inventory_id] = "";
-      this.shoppingListService.unShoppedItem(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, inventory_id)
-        .subscribe({
-          next: (v) => {
-          }, error: (e) => {
-            console.error(e);
-          }, complete: () => {
-          }
-        })
-
-    }
-  }
-
-  checkInventoryChecked(isActiveOrDisabled: any, inventory_id: number) {
-    let retIsActiveOrDisabled: boolean = false;
-    if (isActiveOrDisabled == undefined) {
-      retIsActiveOrDisabled = false;
-    } else {
-      retIsActiveOrDisabled = (isActiveOrDisabled == "disabled");
-    }
-    return retIsActiveOrDisabled
-  }
+  return retIsActiveOrDisabled
+}
 
 
 
-  // Either upload a picture from your computer or if mobile
-  // take a picture that will be used
+// --- Pictures / Upload ----
+//
+// This entire section handles the upload of pictures incl.
+// converting them (e.g., from iOS HEIC to JPEG) and compressing
+// them with the goal to stay under 100kB.
+//
 
-  triggerSnapshot(list_category_id: number): void {
-    console.log('triggerSnapshot(list_category_id: number): void');
-    this.list_category_id = list_category_id;
-    this.trigger.next();
-  }
+// Either upload a picture from your computer or if mobile
+// take a picture that will be used
+
+triggerSnapshot(list_category_id: number): void {
+  console.log('triggerSnapshot(list_category_id: number): void');
+  this.list_category_id = list_category_id;
+  this.trigger.next();
+}
 
 
-  imageLength(image: string) {
-    return image.length;
-  }
+// this was used for debugging 
+imageLength(image: string) {
+  return image.length;
+}
 
-  imageSelectCancel(list_category_id: number) {
-    //this.isImageDisabled = true;
-    console.log('imageSelectCancel')
-    this.takePicture[list_category_id] == "wait"
-    this.doDiscardNewInventoryItem(list_category_id);
-  }
+imageSelectCancel(list_category_id: number) {
+  //this.isImageDisabled = true;
+  //console.log('imageSelectCancel')
+  this.takePicture[list_category_id] == "wait"
+  this.doDiscardNewInventoryItem(list_category_id);
+}
 
   imageSelected($event: any, list_category_id: number) {
     //console.log("imageSelected", $event);
@@ -969,11 +991,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
       //Listen for FileReader to get ready
       reader.onload = function () {
 
-        //Set imageUrl. This will trigger initialization of cropper via imageLoaded() 
-        //as configured in the html img tag:
-        //<img #image id="image" [src]="imageUrl" (load)="imageLoaded($event)" class="cropper"> 
-
-        //_thisComp.imageUrl = reader.result;
         _thisComp.selectedPicture[list_category_id] = reader.result;
         _thisComp.imageCompress.compressFile(reader.result as string, 0, 100, 100, 200, 200).then(
           compressedImage => {
@@ -991,9 +1008,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
     this.selectShoppingListForm.controls['new_inventory_item_quantity'].setValue(1);
     this.selectShoppingListForm.controls['new_inventory_item_unit'].setValue(3);   // item(s)
-
-
-
   }
   private blobToFile = (theBlob: Blob, fileName: string): File => {
     let b: any = theBlob;
@@ -1009,7 +1023,4 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   public get triggerObservable(): Observable<void> {
     return this.trigger.asObservable();
   }
-
-
-
 }

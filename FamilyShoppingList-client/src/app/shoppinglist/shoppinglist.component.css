@@ -80,10 +80,16 @@ img.disabled {
     filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
 }
 
+/* item in cart are grayed out*/
+div.disabled {
+    color: lightgray;
+}
+
 /* uploading a picture - don't display it*/
 .file-input {
     display: none;
 }  
+
 
 input.large-checkbox{
     height: 1.5em;
@@ -91,7 +97,38 @@ input.large-checkbox{
     margin-right: 0.5em;
 }
 
+.icon-checkout {
+    position: relative;
+}
 
+.icon-checkout::after {
+    content: "checkout";
+    display: block;
+    text-align: center;
+    font-size: x-small;
+}
+
+.icon-start-shopping {
+    position: relative;
+}
+
+.icon-start-shopping::after {
+    content: "start";
+    display: block;
+    text-align: center;
+    font-size: x-small;
+}
+
+.icon-stop-shopping {
+    position: relative;
+}
+
+.icon-stop-shopping::after {
+    content: "stop";
+    display: block;
+    text-align: center;
+    font-size: x-small;
+}
 
 /* - end of clases ----------------------------------------------------------- */
 

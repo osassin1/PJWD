@@ -40,14 +40,23 @@
                     <button type="button" class="shoppinglist-card"
                         [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm" (click)="onShopping()">
                         <div *ngIf="!isShopping; else stopShop">
-                            <i class="bi bi-box-arrow-in-right ok-cancel-button"></i>
+                            <div class="icon-start-shopping">
+                                <i class="bi bi-box-arrow-in-right ok-cancel-button"></i>
+                                <label></label>
+                            </div>
                         </div>
                         <ng-template #stopShop>
-                            <i class="bi bi-check-square ok-cancel-button"></i>
+                            <div class="icon-stop-shopping">
+                                <i class="bi bi-check-square ok-cancel-button"></i>
+                                <label></label>
+                            </div>
                         </ng-template>
                     </button>
-                    <button type="button" class="shoppinglist-card" [disabled]="!isCheckout" (click)="onCheckout()">
-                        <i class="bi bi-box-arrow-right ok-cancel-button"></i>
+                    <button type="button"  class="shoppinglist-card" [disabled]="!isCheckout" (click)="onCheckout()">
+                        <div class="icon-checkout">
+                            <i class="bi bi-box-arrow-right ok-cancel-button"></i>
+                            <label></label>
+                        </div>
                     </button>
                 </div>
             </div>
@@ -55,11 +64,11 @@
             <div *ngIf="isCheckoutConfirm">
                 <div class="d-flex justify-content-center">
                     <br>
-                    <button type="button" class="ok-cancel-button shoppinglist-card bi bi-check-circle"
-                        (click)="onConfirmCheckout()">
-                    </button>
                     <button type="button" class="ok-cancel-button shoppinglist-card bi bi-x-circle"
                         (click)="onCancelCheckout()">
+                    </button>
+                    <button type="button" class="ok-cancel-button shoppinglist-card bi bi-check-circle"
+                        (click)="onConfirmCheckout()">
                     </button>
                 </div>
             </div>
@@ -76,7 +85,8 @@
                             <label for="storesToSelectFrom" class="input-label">Store</label>
                             <ng-select class="store-selector" [items]="storesToSelectFrom" placeholder="Select Store"
                                 labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0
-                                [clearable]="false" (ngModelChange)="onStoreSelectChange()" required>
+                                [clearable]="false" (ngModelChange)="onStoreSelectChange()" required
+                                [ngClass]="{ 'is-invalid': fb.controls['storesToSelectFrom'].errors }">
                                 <ng-template ng-label-tmp let-item="item">
                                     <span class="label-text">{{item.name}}</span>
                                 </ng-template>
@@ -84,19 +94,23 @@
                                     <span class="label-text">{{item.name}}</span>
                                 </ng-template>
                             </ng-select>
+                            <div *ngIf="fb.controls['storesToSelectFrom'].errors" class="invalid-feedback">
+                                store is required
+                            </div>
                         </div>
                         <div class="d-flex flex-grow-1 justify-content-end">
-                            <div class="d-flex align-items-center">
-                                <button type="button" class="ok-cancel-button bg-light bi bi-check-circle"
-                                    data-bs-toggle="collapse" data-bs-target="#collapseNewShoppingList"
-                                    (click)="onConfirmAddNewShoppingList()">
-                                </button>
-                            </div>
                             <div class="d-flex align-items-center">
                                 <button type="button" class="ok-cancel-button bg-light bi bi-x-circle"
                                         data-bs-toggle="collapse" data-bs-target="#collapseNewShoppingList" 
                                         (click)="onCancelAddNewShoppingList()">
                                 </button>
+                                <div class="d-flex align-items-center">
+                                    <button type="button" class="ok-cancel-button bg-light bi bi-check-circle"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseNewShoppingList"
+                                        [disabled]="fb.controls['storesToSelectFrom'].invalid || fb.controls['newShoppingListDate'].invalid"
+                                        (click)="onConfirmAddNewShoppingList()">
+                                    </button>
+                                </div>
                             </div>
                             <div>
                             </div>
@@ -379,6 +393,7 @@
                                             [ngStyle]="{ 'background-color': colorItem.name}">
                                         </div>
                                         }
+                                        {{inventoryImage[inventoryItem.inventory_id]}}
                                         <div attr.class="p-1 category-item-notes {{inventoryImage[inventoryItem.inventory_id]}}"
                                             category-item-notes>
                                             {{inventoryItem.inventory_notes}}
