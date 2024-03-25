@@ -89,6 +89,18 @@ export class ShoppingListService {
         }));
     }    
 
+
+    checkoutShoppingList(shopping_date: string, store_id: number, family_id: number){
+        return this.http.post<any>(`${baseUrl}/checkout_shopping_list`, {
+            shopping_date, 
+            store_id,
+            family_id
+        }).pipe(map(sl => {
+            return sl;            
+        }));
+    }    
+
+
 /*
     stopShopping(shopping_date: string, store_id: number, family_id: number){
         return this.http.post<any>(`${baseUrl}/stop_shopping`, {

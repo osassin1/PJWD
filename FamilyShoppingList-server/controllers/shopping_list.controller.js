@@ -82,12 +82,65 @@ exports.changeShoppingStatus = (req, res) => {
   //console.log('startShopping::shoppingMap', [...shoppingMap.entries()])
   let key = new ShoppingKey(shopping_date, store_id, family_id);
   
-  // console.log('key', key.key())
+  console.log('key', key.key())
 
   shoppingMap = shoppingMap.set( key.key(), shopping_status);
 
- // console.log('startShopping::shoppingMap', [...shoppingMap.entries()])
+  console.log('startShopping::shoppingMap', [...shoppingMap.entries()])
 }  
+
+
+
+exports.checkoutShoppingList = (req, res) => {
+  shopping_date = req.body.shopping_date;
+  store_id = parseInt(req.body.store_id);
+  family_id = parseInt(req.body.family_id); 
+  //shopping_status_id = req.body.shopping_status_id;
+
+  shopping_list.update({
+    shopping_status_id: 3
+  },{
+    where : {
+      shopping_date: shopping_date,
+      shopping_status_id: 2,
+      family_member_id: {
+        [Op.in]:  Sequelize.literal(`(select family_member_id from family_member where family_id=${family_id})`)
+      }
+    }
+  }).then( f1 => {
+    console.log('f1',JSON.stringify(f1));
+    if( f1 ) {
+      res.status(200).send();
+    } else {
+      res.status(500).send({
+        message: "error while checkout shopping list."      
+      });
+    }
+  })
+
+  shopping_list.update({
+    shopping_status_id: 4
+  },{
+    where : {
+      shopping_date: shopping_date,
+      shopping_status_id: 1,
+      family_member_id: {
+        [Op.in]:  Sequelize.literal(`(select family_member_id from family_member where family_id=${family_id})`)
+      }
+    }
+  }).then( f1 => {
+    console.log('f1',JSON.stringify(f1));
+    if( f1 ) {
+      res.status(200).send();
+    } else {
+      res.status(500).send({
+        message: "error while checkout shopping list."      
+      });
+    }
+  })
+
+
+}
 
 
 
@@ -260,6 +313,27 @@ exports.getShoppedItemStatus = (req, res) => {
 
 
 
+// exports.createShoppingList = (req, res) => {
+//   shopping_list.build({
+//     shopping_date: req.body.shopping_date,
+//     family_member_id: req.body.family_member_id,
+//     inventory_id : req.body.inventory_id,
+//     quantity: req.body.quantity,
+//     created_at: new Date(),
+//     updated_at : new Date()
+//   }).save().then(insertResult =>{
+//     console.log('shopping_list.build --> insertResult', insertResult);
+//   }).catch(error_insert => {
+//     console.log('error_insert',error_insert);
+//     res.status(500).send({
+//       message: error_insert.message || "error while inserting during updating shopping list."      
+//     })
+//   })
+// }
+
+
+
+
 exports.updateShoppingList = (req, res) => {
   // if quantity is 0 then remove the item from
   // the shopping list otherwise update the quantity
@@ -293,8 +367,8 @@ exports.updateShoppingList = (req, res) => {
           inventory_id : req.body.inventory_id
         }
       }).then( result =>{
-        //console.log('result', result);
-        res.send( String(result) );
+        console.log('result', result);
+        //res.send( String(result) );
 
         // no updates performed, so enter it (create a new record)
         if( result == 0 ){
@@ -303,16 +377,20 @@ exports.updateShoppingList = (req, res) => {
             family_member_id: req.body.family_member_id,
             inventory_id : req.body.inventory_id,
             quantity: req.body.quantity,
+            shopping_status_id: 1,  // status is 'open'
             created_at: new Date(),
             updated_at : new Date()
           }).save().then(insertResult =>{
-            //console.log('shopping_list.build --> insertResult', insertResult);
+            console.log('shopping_list.build --> insertResult', insertResult);
+            res.send( insertResult );
           }).catch(error_insert => {
             console.log('error_insert',error_insert);
             res.status(500).send({
               message: error_insert.message || "error while inserting during updating shopping list."      
             })
           })
+        }else{
+          res.send( result );
         }
       }).catch(error_update => {
         console.log('error_update',error_update);
@@ -337,11 +415,17 @@ exports.getShoppingDates = (req, res) => {
       association: 'shopping_list_to_inventory', attributes: [], exclude: ['inventory_id', 'store_id'],
       include: { association: 'inventory_to_store', attributes: ['name'], exclude: ['store_id'] }
     }],
+    where: {
+      shopping_status_id: {
+        [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
+      }
+    },
     order : [['shopping_date', 'ASC']],
     group: ['shopping_date', 'shopping_list_to_inventory->inventory_to_store.store_id'],
     
 
   }).then(data => {
+    console.log('getShoppingDates', JSON.stringify(data) )
     res.send(data);
   })
     .catch(err => {
@@ -432,7 +516,12 @@ exports.getListByCategoryGroupBy = (req, res) => {
       }
     }],
     where: {
-      shopping_date: req.query.shopping_date
+      shopping_date: req.query.shopping_date,
+      shopping_status_id: {
+        [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
+      }
+
+
     },
     order: [
       [ 'shopping_list_to_inventory', 'name', 'ASC'] 
@@ -515,6 +604,8 @@ exports.getListByCategoryGroupBy = (req, res) => {
 
     let listByCategoryKey = new ListByCategoryKey(req.query.shopping_date, req.query.store_id, req.query.family_id, req.query.list_category_id);
     listByCategory = listByCategory.set(listByCategoryKey.key(), returnData);
+
+    console.log('getListByCategoryGroupBy', JSON.stringify(returnData) )
 
     res.send(returnData);
   })

@@ -4,6 +4,21 @@
 
 @import "../node_modules/@ng-select/ng-select/themes/default.theme.css";
 
+
+/* these need to removed  */
+.bg-red {
+    background-color: red;
+}
+
+.bg-blue {
+    background-color: blue;
+}
+
+/* ------------------------------------------------------- */
+
+/* Each family member gets a color assigned and is displayed
+   as a dot.
+*/
 .family_member_dot {
     width: 10px;
     height: 10px;
@@ -11,6 +26,28 @@
     padding: 10px;
     margin-right: 5px;    
 }
+
+
+.input-frame-color {
+    border: 1px solid  #ccc;
+    color: black;
+    border-radius: 4px;
+    min-height: 36px;
+    outline-color: #007eff;
+    outline-width: 0;
+    border-width: 1px;
+    
+    &:focus{
+        border-color: #007eff;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);
+    }
+    &:invalid{
+        border-color: #ff0000;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);
+
+    }
+}
+
 
 :root {
     color-scheme: only light;

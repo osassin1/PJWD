@@ -1,55 +1,45 @@
-.categorydisplay {
-    font-weight: bold;
-    color: darkslateblue;
-    /* font-size: large; */
-    /* padding-left: 2em;
-    padding-right: 2em; */
-    /* padding: 10px; */
-}
-
-
-
-.small {
-    font-size: .6em;
-}
-
-.itemTitle {
-    font-weight: bold;
-    /* text-align-last: center; */
-    text-align: block;
-    color: black;
-}
-
-/* .componentparts {
-    max-height: 2em;
-    width: 2em;
-    align-self: right;
-    flex: 110 100 450px;
-} */
-
-/* Shopping list accordion with all categories 
-   when a main catgeory is select and opens
-   then the background is a lightblue */
-.category-accordion {
+/* this is used to display individual quantities for each 
+   family member when more than one have entered the same 
+   item on the shopping list */
+   .category-item-accordion {
+    background-color: rgb(255, 255, 255);
     width: 100%;
-    --bs-accordion-active-color: blue;
-    --bs-accordion-active-bg: rgb(222, 245, 253);
-    --bs-accordion-bg: rgb(255, 255, 255);
     color: navy;
     text-align: left;
-    margin: 0px;
-
 }
 
-/* .family_member_dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin: 2px;
-} */
+
+/* display of category section when plus-circle icon
+    is pressed */
+.shoppinglist-card {
+    background-color: rgb(255, 255, 255);
+    border: 0;
+}
+
+/* to be deleted */
+.inventory-select-accordion {
+    background-color: rgb(254, 2, 2);
+    border: 0;
+}
 
 
+/* used for circle check or circle x icons
+   thar are used to ok or cancel an input
+*/   
+.ok-cancel-button {
+    font-size: 1.25em;
+    text-align: justify;
+    border: 0;
+    padding: 0.2em;
+}
 
+
+/* Style for the shopping list categories in format:
+   <category name>  <family member dots> <# total family member entries>
+
+   For example, two family members need <fruits> then there are 
+   two entries
+*/
 .category-total-display {
     color: navy;
     font-weight: bold;
@@ -58,231 +48,50 @@
     background-color: rgb(236, 244, 244);
 }
 
-.category-item-display {
-    color: navy;
-    /* font-weight: bold; */
-}
-
 .category-item-notes {
     color: navy;
     font-size: .7em;
-    /* font-weight: bold; */
+    text-align: left;
 }
 
-
-img {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-
-
-
-/* Inventory */
-
-/* the picture taken or uploaded */
-.inventory-picture-edit {
-    height: 4em;
-    min-width: 4em;
-}
-
-/* when adding a new inventory item in shopping list */
-.inventory-input-name {
-    width: 100%;
-}
-
-.inventory-input-edit {
-    width: 4em;
-}
-
-.inventory-input-unit {
-    width: 8em;
-}
-
-.inventory-input-button-box {
-    font-size: 1em;
-    width: 4em;
-}
-
-.inventory-input-button {
-    font-size: 1.25em;
-    text-align: justify;
-    border: 0;
-    padding: 0.2em;
-}
-
-.inventory-camera-label{
+.input-label{
     font-size:small;
 }
 
+/* the picture taken or uploaded */
 .inventory-picture {
     height: 4em;
     width: 4em;
     min-width: 4em;
 }
 
-.inventory-input-button-pm {
-    border: 0;
+.inventory-input-edit {
+    width: 3em;
 }
 
-.bg-red {
-    background-color: red;
+.inventory-input-unit {
+    width: 5em;
 }
 
-.bg-blue {
-    background-color: blue;
-}
-
-.inventory-select-box {
-    text-align: center;
-    display: block;
-    margin-right: auto;
-    margin-left: auto;
-}
-
-.file-input {
-    display: none;
-  }
-  
-
-/* when clicking the plus-circle icon the items
-   displayed are defined here; selecting an
-   item from the inventory select 
-*/
-.inventory-item-accordion {
-    width: 100%;
-    /* background-color : rgb(151, 169, 232);   */
-    /* background-color: gray-100; */
-    color: navy;
-    text-align: left;
-}
-
-.category-item-accordion {
-    width: 100%;
-    color: navy;
-    border: 1pt;
-    text-align: left;
-
-}
-
-/* this is used to display individual quantities for each 
-   family member when more than one have entered the same 
-   item on the shopping list */
-.category-item-accordion-flush {
-    background-color: rgb(255, 255, 255);
-    /* background-color: rgb(230, 229, 229); */
-    width: 100%;
-    color: navy;
-    font-size: small;
-}
-
-/* display of category section when plus-circle icon
-    is pressed */
-.inventory-select-accordion {
-    background-color: rgb(255, 255, 255);
-    border: 0;
-}
-
-/* display of the camera section when camera icon
-   is pressed */
-.inventory-camera-accordion {
-    background-color: rgb(255, 255, 255);
-    border: 0;
-}
-
-.inventory-camera-label{
-    font-size:x-small;
-}
-
-div.disabled {
-    color: lightgray;
-}
-
+/* once an item is in the cart, display it in gray */
 img.disabled {
     filter: gray; /* IE6-9 */
     -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
     filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
-  }
-  
-  input.large-checkbox{
+}
+
+/* uploading a picture - don't display it*/
+.file-input {
+    display: none;
+}  
+
+input.large-checkbox{
     height: 1.5em;
     width: 1.5em;
     margin-right: 0.5em;
-  }
-
-.btn-start-shop {
-    background-color: rgb(146, 210, 210);
-    font-size:small;
-    border: 1;
-    margin: -0.30rem !important;
-}
-
-.btn-stop-shop {
-    background-color: rgb(255, 196, 196);
-    font-size:small;
-    border: 1;
-    margin: -0.30rem !important;
-}
-
-.btn-checkout {
-    background-color: rgb(244, 250, 206);
-    font-size:small;
-    border: 1;
-    margin: -0.30rem !important;
-}
-
-.date-picker {
-    border: 0.1rem solid lightgray;
-    color: black;
-    border-radius: 2px;
-    height: 2.2rem;
-    outline-color: lightgray;
-    &:focus{
-        outline-color: rgb(62, 163, 230);
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px #e6f0fd;    
-    }
 }
 
 
-.store-selector{
-    height: 2rem;
-}
 
-  /* Disable grayscale on hover */
-  /* img:hover {
-    -webkit-filter: grayscale(0);
-    filter: none;
-  } */
+/* - end of clases ----------------------------------------------------------- */
 
-
-/* 
-.inventory-input-button-box {
-    width: 20%;
-    font-size: 1em;
-}
-
-.inventory-input-button {
-    width: 1.5em;
-    font-size: 1.5em;
-    text-align: justify;
-    border: 0;
-
-}
-
-
- */
-
-
-/* 
-.ng-select .ng-select-container {
-    min-height: 40px;
-  }
-  
-  .ng-select.ng-select-single .ng-select-container {
-    height: 40px;
-  }
-
-  ::ng-deep .ng-select-container {
-    height: 40px !important;
-    font-size: 1em!important;
-  }   */
