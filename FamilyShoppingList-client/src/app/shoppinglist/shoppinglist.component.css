@@ -99,36 +99,35 @@ input.large-checkbox{
 
 .icon-checkout {
     position: relative;
-}
-
-.icon-checkout::after {
-    content: "checkout";
-    display: block;
-    text-align: center;
-    font-size: x-small;
+    &::after {
+        content: "done";
+        display: block;
+        text-align: center;
+        font-size: x-small;
+    }
 }
 
 .icon-start-shopping {
     position: relative;
-}
-
-.icon-start-shopping::after {
-    content: "start";
-    display: block;
-    text-align: center;
-    font-size: x-small;
+    &::after {
+        content: "shop";
+        display: block;
+        text-align: center;
+        font-size: x-small;
+    }
 }
 
 .icon-stop-shopping {
     position: relative;
+    &::after {
+        content: "check";
+        display: block;
+        text-align: center;
+        font-size: x-small;
+    }
 }
 
-.icon-stop-shopping::after {
-    content: "stop";
-    display: block;
-    text-align: center;
-    font-size: x-small;
-}
+
 .icon-add-shopping{
     position: relative;
     &::after{
@@ -136,7 +135,7 @@ input.large-checkbox{
         display: block;
         text-align: center;
         font-size: x-small;
-    }    
+    }
 }
 
 /* - end of clases ----------------------------------------------------------- */

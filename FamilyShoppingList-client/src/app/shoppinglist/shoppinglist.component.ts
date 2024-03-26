@@ -426,11 +426,10 @@ resetShoppingState(){
       '", "shopping_list_to_inventory.inventory_to_store.name": "' + this.selectShoppingListForm.controls['storesToSelectFrom'].value['name'] +
       '" } ');
 
-    this.newShoppingListCreated = true;  
+    this.newShoppingListCreated = true; 
     this.selectShoppingListForm.controls['shopping_list_form'].setValue(newShoppingList);
     this.selectShoppingListForm.controls['storesToSelectFrom'].reset();
     this.selectShoppingListForm.controls['newShoppingListDate'].reset();
-    //this.selectShoppingListForm.controls['newShoppingListDate'].;
   }
 
   onCancelAddNewShoppingList() {

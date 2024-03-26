@@ -1,9 +1,9 @@
 <!-- Vanilla Datepicker JS -->
 <script src='https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/js/datepicker-full.min.js'></script>
 
-<div>
+<!-- <div>
     <app-navigation></app-navigation>
-</div>
+</div> -->
 <div class="container-fluid">
     <div class="col-md-6">
         <!-- select an existing shopping list by <date> <store name> -->
@@ -24,12 +24,6 @@
                         labelForId="shoppingToSelectFrom" formControlName="shopping_list_form" [tabIndex]=0
                         (change)="selectedShoppingList" [clearable]="false" aria-label="SelectShoppingList"
                         (ngModelChange)="onSelectShoppingList()">
-                        <!-- <ng-select [items]="shoppingToSelectFrom" placeholder="Select Shopping List"
-                        labelForId="shoppingToSelectFrom" formControlName="shopping_list_form" [tabIndex]=0
-                        (ngModelChange)="onSelectShoppingList()" [clearable]="false" aria-label="SelectShoppingList"
-                        (change)="selectedShoppingList"
-                        > -->
-                       
                         <ng-template ng-label-tmp let-item="item">
                             <span class="label-text">
                                 {{item['shopping_list_to_inventory.inventory_to_store.name']}} </span>
@@ -40,28 +34,24 @@
                         </ng-template>
                         
                     </ng-select>
-                    <!-- <div style="font-size: x-small;">
+                    <div style="font-size: xx-small;">
                         {{shopping_date}}
-                    </div> -->
+                    </div>
                 </div>
                 <div class="d-flex">
                     <button type="button" class="shoppinglist-card"
-                        [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm" (click)="onShopping()">
-                        <!-- <div *ngIf="!isShopping; else stopShop"> -->
+                        [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm || isShopping" (click)="onShopping()">
                             <div class="icon-start-shopping">
                                 <i class="bi bi-box-arrow-in-right ok-cancel-button"></i>
                                 <label></label>
                             </div>
                             </button>
-                        <!-- </div> -->
-                        <!-- <ng-template #stopShop> -->
                             <button type="button" class="shoppinglist-card"
-                            [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm" (click)="onShopping()">
+                            [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm || !isShopping" (click)="onShopping()">
                                 <div class="icon-stop-shopping">
                                 <i class="bi bi-check-square ok-cancel-button"></i>
                                 <label></label>
                             </div>
-                        <!-- </ng-template> -->
                     </button>
                     <button type="button"  class="shoppinglist-card" [disabled]="!isCheckout" (click)="onCheckout()">
                         <div class="icon-checkout">
@@ -84,13 +74,14 @@
                 </div>
             </div>
             <!-- Create a new shopping list -->
-            <div class="collapse" id="collapseNewShoppingList">
+            <div class="collapse" id="collapseNewShoppingList" >
                 <div class="card card-body bg-light ">
                     <div class="d-flex flex-row">
                         <div class="d-flex flex-column">
                             <label for="shoppingDateInput" class="input-label">Shopping Date</label>
                             <input class="input-frame-color" type="date" id="shoppingDateInput" name="input"
-                                formControlName="newShoppingListDate" placeholder="dd/MM/yyyy" required />
+                                formControlName="newShoppingListDate" placeholder="dd/MM/yyyy" required 
+                                style="width: 7rem;"/>
                         </div>
                         <div class="d-flex flex-column ms-2">
                             <label for="storesToSelectFrom" class="input-label">Store</label>
@@ -263,9 +254,7 @@
                                                     </div>
                                                 </div>
                                                 <!-- adjusting the quantity on the list / or added to inventory / (click)="handleImage(item.list_category_id)" -->
-
                                                 <p class="d-flex justify-content-center fs-4 shoppinglist-card">
-
                                                     <input class="file-input" #imageInput type="file"
                                                         formControlName="image_upload" accept="image/*, .heic, .heif "
                                                         (change)="imageSelected($event, item.list_category_id)"
@@ -373,8 +362,6 @@
                                 </div>
                             </div>
                         </div> <!-- end of plus-circle to add inevntory items -->
-                    
-
                         <!-- displaying the items of the shopping list -->
                         @for (inventoryItem of shoppingListAll.get(item.list_category_id);
                         track inventoryItem) {
