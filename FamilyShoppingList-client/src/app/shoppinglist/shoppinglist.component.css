@@ -129,6 +129,15 @@ input.large-checkbox{
     text-align: center;
     font-size: x-small;
 }
+.icon-add-shopping{
+    position: relative;
+    &::after{
+        content: "add";
+        display: block;
+        text-align: center;
+        font-size: x-small;
+    }    
+}
 
 /* - end of clases ----------------------------------------------------------- */
 

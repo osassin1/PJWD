@@ -416,6 +416,7 @@ resetShoppingState(){
       this.onIconPlusMinus();
       return;
     }
+    this.onIconPlusMinus();
 
     const [year, month, day] = this.selectShoppingListForm.controls['newShoppingListDate'].value.split("-")
     const newDateString = `${month}/${day}/${year}`;
@@ -429,7 +430,7 @@ resetShoppingState(){
     this.selectShoppingListForm.controls['shopping_list_form'].setValue(newShoppingList);
     this.selectShoppingListForm.controls['storesToSelectFrom'].reset();
     this.selectShoppingListForm.controls['newShoppingListDate'].reset();
-    this.onIconPlusMinus();
+    //this.selectShoppingListForm.controls['newShoppingListDate'].;
   }
 
   onCancelAddNewShoppingList() {
