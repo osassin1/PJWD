@@ -27,6 +27,9 @@
     margin-right: 5px;    
 }
 
+.input-label{
+    font-size:small;
+}
 
 .input-frame-color {
     border: 1px solid  #ccc;

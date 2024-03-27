@@ -218,7 +218,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     // Get all defined shopping categories that can be used 
     // for a list. The identifier is list_category_id within
     // this component (and also database)
-    this.shoppingListService.getListCatgory().subscribe((response: any) => {
+    this.inventoryService.getListCatgory().subscribe((response: any) => {
       this.listCategories = response;
 
       // trying to initialize the accordion
@@ -237,7 +237,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
 
     // get all shops that can be shoppedn from
-
     this.inventoryService.getListOfStores().subscribe((response: any) => {
       this.storesToSelectFrom = response;
       console.log('this.inventoryService.getListOfStores', this.storesToSelectFrom)

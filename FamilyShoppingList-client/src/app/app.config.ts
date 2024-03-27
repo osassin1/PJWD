@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     {provide: LocationStrategy, useClass: HashLocationStrategy},
     // https://stackoverflow.com/questions/71094093/angular-routing-not-working-after-running-ng-build-at-deployment
-    provideRouter(routes,  withDebugTracing(), withHashLocation()),
+    provideRouter(routes,  withHashLocation()),  // withDebugTracing(),
     provideAnimations(),
     provideHttpClient(),
     AuthenticationService,

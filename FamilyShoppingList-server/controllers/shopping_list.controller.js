@@ -10,7 +10,7 @@ const inventory = db.inventory;
 const store = db.store;
 const family_member = db.store;
 const quantity = db.store;
-const list_category = db.list_category;
+//const list_category = db.list_category;
 
 const Op = db.Sequelize.Op;
 const sequelize = db.sequelize
@@ -445,22 +445,6 @@ exports.getShoppingDates = (req, res) => {
       });
     });
 };
-
-
-exports.getListCategory = (req, res) => {
-  list_category.scope('excludeCreatedAtUpdateAt').findAll({
-    attributes: ['list_category_id', 'name'],
-    order: [['list_category_id', 'ASC']]
-  }).then(data => {
-    res.send(data);
-  })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "error while retrieving list categories."
-      });
-    });;
-}
 
 
 exports.getList = (req, res) => {

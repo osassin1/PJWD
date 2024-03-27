@@ -8,7 +8,7 @@ import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 import { AppConfiguration } from "read-appsettings-json";
 import { catchError, map } from 'rxjs/operators';
 
-
+import{ ListCategory } from '../models/list_category.model';
 
 //const baseUrl = 'http://localhost:8080/api/inventory';
 //const baseUrl = 'http://192.168.1.193:8080/api/inventory';
@@ -38,6 +38,11 @@ export class InventoryService  {
 
     getListOfStores(): Observable<any>{
         return this.http.get<any>(`${baseUrl}/list_of_stores`);
+    }
+
+    // get all categories that are defined in list_category
+    getListCatgory(): Observable<ListCategory[]> {
+        return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
     }
 
     getPicture(inventory_id : number): Observable<any>{

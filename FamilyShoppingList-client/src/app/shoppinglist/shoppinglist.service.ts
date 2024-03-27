@@ -61,9 +61,6 @@ export class ShoppingListService {
     // }
 
 
-    getListCatgory(): Observable<ListCategory[]> {
-        return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
-    }
 
     updateShoppingList(shopping_date: string, family_member_id: number, inventory_id: number, quantity: number ){
         return this.http.post<any>(`${baseUrl}/update_shopping_list`, {

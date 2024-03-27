@@ -20,7 +20,8 @@ export class FamilyMemberService implements FamilyMember {
             family_member_id: number,
             name: string 
     } = {color_id:0, family_member_id:0, name: ''};
-    private is_authenticated : boolean = false;
+    
+    //private is_authenticated : boolean = false;
 
 
     set familyMember( value : FamilyMember ){
@@ -45,11 +46,11 @@ export class FamilyMemberService implements FamilyMember {
     // get colorID() { return this.color.color_id; }
     // get colorName() { return this.color.name; } 
 
-    set isAuthenticated(value : boolean){
-        this.is_authenticated = value;
-    }
+    // set isAuthenticated(value : boolean){
+    //     this.is_authenticated = value;
+    // }
 
-    get isAuthenticated(){
-        return this.is_authenticated;
-    }
+    // get isAuthenticated(){
+    //     return this.is_authenticated;
+    // }
 };

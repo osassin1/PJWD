@@ -5,6 +5,7 @@ const logging = require("../controllers/logging.controller.js");
 const inventory = db.inventory;
 const shopping_list = db.shopping_list;
 const store = db.store;
+const list_category = db.list_category;
 
 //const color = db.color;
 
@@ -257,3 +258,21 @@ exports.getListOfStores = (req,res) => {
     });
   });;
 }
+
+
+exports.getListCategory = (req, res) => {
+  list_category.scope('excludeCreatedAtUpdateAt').findAll({
+    attributes: ['list_category_id', 'name'],
+    order: [['list_category_id', 'ASC']]
+  }).then(data => {
+    res.send(data);
+  })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "error while retrieving list categories."
+      });
+    });;
+}
+
+

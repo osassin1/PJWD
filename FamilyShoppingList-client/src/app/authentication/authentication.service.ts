@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {  Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 
 import { FamilyMember } from '../models/family_member.model';
@@ -18,13 +18,11 @@ const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/fa
 @Injectable({
     providedIn: 'root',
 })
-export class AuthenticationService  {
+export class AuthenticationService {
     private familyMemberSubject: BehaviorSubject<FamilyMember | null>;
     public familyMember: Observable<FamilyMember | null>;
 
-    family_id: number = 0;
-
-    //private authenticated=false;
+    //family_id: number = 0;
 
     constructor(
         private router: Router,
@@ -34,52 +32,50 @@ export class AuthenticationService  {
         this.familyMember = this.familyMemberSubject.asObservable();
     }
 
-    // public getAuthenticated(){
-    //     console.log('AuthenticationService::getAuthenticate=' + this.authenticated);
-    //     return this.authenticated;
-    // }
-
-    // public setAuthenticated(value:boolean){
-    //     console.log('AuthenticationService::setAuthenticated=' + value);
-    //     this.authenticated = value;
-    // }
+    public get isAuthenticated() {
+        if (this.familyMemberSubject.value) {
+            // logged in so return true
+            return true;
+        }
+        return false;
+    }
 
     public get familyMemberValue() {
         return this.familyMemberSubject.value;
     }
 
-    getAll(family_id: number): Observable<FamilyMember[]>{
+    getAll(family_id: number): Observable<FamilyMember[]> {
         return this.http.get<FamilyMember[]>(`${baseUrl}?family_id=${family_id}`);
     }
-    getAllColors(family_id: number): Observable<Color[]>{
+    getAllColors(family_id: number): Observable<Color[]> {
         return this.http.get<Color[]>(`${baseUrl}/colors?family_id=${family_id}`);
     }
 
 
-    getFamilyID(family_code: string): Observable<any>{
+    getFamilyID(family_code: string): Observable<any> {
         return this.http.get<any>(`${baseUrl}/family_id?family_code=${family_code}`);
     }
 
-    findFamilyCode(family_code: string): Observable<any>{
+    findFamilyCode(family_code: string): Observable<any> {
         return this.http.get<any>(`${baseUrl}/family_code?family_code=${family_code}`);
     }
 
-    getNewFamilyCode(): Observable<any>{
+    getNewFamilyCode(): Observable<any> {
         return this.http.get<any>(`${baseUrl}/new_family_code`);
     }
 
-    findUsername(username: string): Observable<any>{
+    findUsername(username: string): Observable<any> {
         return this.http.get<any>(`${baseUrl}/username?username=${username}`);
     }
 
     createNewFamilyMember(username: string,
-                          password: string,
-                          first_name: string,
-                          last_name: string,
-                          color_id: number,
-                          family_id: number) : Observable<FamilyMember> {
+        password: string,
+        first_name: string,
+        last_name: string,
+        color_id: number,
+        family_id: number): Observable<FamilyMember> {
         return this.http.post<FamilyMember>(`${baseUrl}/create`, {
-            username, 
+            username,
             password,
             first_name,
             last_name,
@@ -88,37 +84,33 @@ export class AuthenticationService  {
         });
     };
 
-    login(username: string, password: string ) : Observable<FamilyMember> {
+    login(username: string, password: string): Observable<FamilyMember> {
         return this.http.post<FamilyMember>(`${baseUrl}/login`, {
-            username, 
+            username,
             password
         }).pipe(map(familyMember => {
-            console.log('login : ', familyMember);
+            // login was successful
             localStorage.setItem('familyMember', JSON.stringify(familyMember));
             this.familyMemberSubject.next(familyMember);
-            return familyMember;            
+            return familyMember;
         }));
     };
 
 
-
-    logout(){
-        console.log("AuthenticationService: logout");
-        console.log(localStorage.getItem('familyMember'));
-
+    // logout the current family member; remove data from local storage
+    // and navigate back to login screen
+    logout() {
         localStorage.removeItem('familyMember');
         this.familyMemberSubject.next(JSON.parse(localStorage.getItem('familyMember')!));
-        
         this.router.navigate(['/authentication']);
     }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) : boolean {
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
 
         if (this.familyMemberSubject.value) {
             // logged in so return true
             return true;
         }
-        console.log('AuthenticationService: canActivate --> no');
 
         // not logged in so redirect to login page with the return url
         //console.log('AuthenticationService: canActivate --> no : ', state.url);
