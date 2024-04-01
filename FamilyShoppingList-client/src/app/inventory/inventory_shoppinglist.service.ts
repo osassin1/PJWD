@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
-@Injectable({
-    providedIn: 'root',
-})
+// @Injectable({
+//     providedIn: 'root',
+// })
 
 
 
-
+/*
 export class ShoppingListInventoryService implements ShoppingListInventory {
 
     public num_of_items : number =0 ;                // "num_of_items": 1,
@@ -49,3 +49,4 @@ export class ShoppingListInventoryService implements ShoppingListInventory {
     // get colorName() { return this.color.name; } 
 
 };
+*/

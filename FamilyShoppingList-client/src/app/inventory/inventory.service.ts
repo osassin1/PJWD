@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
+import { Inventory } from '../models/inventory.model';
 
 import { AppConfiguration } from "read-appsettings-json";
 import { catchError, map } from 'rxjs/operators';
@@ -63,6 +64,18 @@ export class InventoryService  {
     getInventoryByStore(store_id : number): Observable<any>{
         return this.http.get<any>
              (`${baseUrl}/inventory_by_store?store_id=${store_id}`);
+    }
+
+    getInventoryByStoreForEdit(store_id : number): Observable<any>{
+        //  const httpOptions: Object = {
+        //      headers: new HttpHeaders({'Accept': 'image/png'}),
+        //      responseType: 'text' 
+        //    };        
+        const httpOptions: Object = {
+            responseType: 'text'
+        };
+        return this.http.get<any>
+             (`${baseUrl}/inventory_by_store_for_edit?store_id=${store_id}`,httpOptions);
     }
 
 

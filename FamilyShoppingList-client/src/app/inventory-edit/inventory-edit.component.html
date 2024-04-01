@@ -1,0 +1,81 @@
+
+<div *ngIf="source.length">
+<gui-grid #grid id="inventory-grid" [theme]="'generic'" [source]="source" [rowColoring]="'none'" [paging]="paging"
+    [verticalGrid]="false" [horizontalGrid]="true" [cellEditing]="true" [rowHeight]="80" [infoPanel]="false"
+    (selectedRows)="onSelectedRows($event)"
+    [loading]="loading" 
+    [sorting]="sorting"
+    [columns]="columns">
+<!--
+    <gui-grid-column header="Category" [field]="'inventory_to_list_category'" type="string" view="text" width="80"
+            [cellEditing]="true" [sorting]="columnMatcher">
+
+            <ng-template let-value="value" let-index="index" let-item="item">
+                <ng-container>
+                    <div style="white-space: pre-wrap;">
+                        {{item.inventory_to_list_category['name']}}
+                    </div>
+                </ng-container>
+                     
+            </ng-template>
+    </gui-grid-column>
+
+    <gui-grid-column header="Picture" type="string" width="70" [cellEditing]="false">
+        <ng-template let-value="value" let-index="index" let-item="item">
+            <span >
+                <img src="{{item.picture}}" width="60" height="60"  />
+            </span>
+        </ng-template>
+    </gui-grid-column>
+
+    <gui-grid-column header="Name" [field]="'name'" type="string" view="text" width="200"
+            [cellEditing]="true">
+            <ng-template let-value="value"> 
+                <ng-container>
+                    <div style="white-space: pre-wrap;" class>
+                        {{value}}
+                    </div>
+                </ng-container>
+                     
+            </ng-template>
+    </gui-grid-column>
+
+    <gui-grid-column header="Notes" [field]="'notes'" type="string" view="text" width="200"
+            [cellEditing]="true" [sorting]="false">
+
+            <ng-template let-value="value"> 
+                <ng-container>
+                    <div style="white-space: pre-wrap;">
+                        {{value}}
+                    </div>
+                </ng-container>
+                     
+            </ng-template>
+    </gui-grid-column>
+
+    <gui-grid-column header="Unit" field="'inventory_to_quantity'" type="string" width="160" [sorting]="false"
+    [cellEditing]="false" >
+    <ng-template let-value="value" let-index="index" let-item="item">
+
+        <select
+        formControlName="new_inventory_item_unit"
+        class="form-select input-frame-color"
+        aria-label="unit selector"
+        [selectedIndex]="item.inventory_to_quantity['quantity_id']">
+        <option selected>Select 
+        </option>
+        <option value="1">lbs</option>
+        <option value="2">kg</option>
+        <option value="3">item(s)
+        </option>
+        <option value="4">gal</option>
+        <option value="5">L</option>
+    </select>
+
+    </ng-template>
+    </gui-grid-column>
+-->
+
+</gui-grid>
+</div>
+

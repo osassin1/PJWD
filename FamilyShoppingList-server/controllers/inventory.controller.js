@@ -154,6 +154,37 @@ exports.getInventoryByStore = (req, res) => {
 };
 
 
+// Get all inventory items for a store, so it can be
+// modified.
+exports.getInventoryByStoreForEdit = (req, res) => {
+  inventory.scope('excludeCreatedAtUpdateAt').findAll({
+      attributes: ['inventory_id', 'picture', 'name', 'notes' ], 
+      include: [
+      { association: 'inventory_to_quantity',attribues: ['name', 'unit', 'symbol'], exclude : ['createdAt','updatedAt'] },
+      { association: 'inventory_to_list_category',attribues: ['name', ], exclude : ['createdAt','updatedAt'] },
+      ],
+      exclude: ['createdAt','updatedAt'],
+      where: {
+        store_id: req.query.store_id
+      }
+     }
+  )
+  .then(data => {
+    //console.log(data);
+    res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "error while retrieving inventory by store for edit."
+    });
+  });
+};
+
+
+
+
+
 
 exports.getInventoryByCategory = (req, res) => {
 

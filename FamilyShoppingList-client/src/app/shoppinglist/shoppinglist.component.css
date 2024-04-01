@@ -34,19 +34,7 @@
 }
 
 
-/* Style for the shopping list categories in format:
-   <category name>  <family member dots> <# total family member entries>
 
-   For example, two family members need <fruits> then there are 
-   two entries
-*/
-.category-total-display {
-    color: navy;
-    font-weight: bold;
-    /* border: 0.1pt;  */
-    border-style: dotted;
-    background-color: rgb(236, 244, 244);
-}
 
 .category-item-notes {
     color: navy;
@@ -56,12 +44,6 @@
 
 
 
-/* the picture taken or uploaded */
-.inventory-picture {
-    height: 4em;
-    width: 4em;
-    min-width: 4em;
-}
 
 .inventory-input-edit {
     width: 3em;

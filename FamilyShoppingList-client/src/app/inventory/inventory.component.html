@@ -18,21 +18,70 @@
         store is required
     </div> -->
 
+<br>
 
+<div *ngIf="fbc['storesToSelectFrom'].value">
+    <app-inventory-edit [store]="fbc['storesToSelectFrom'].value"></app-inventory-edit>
+</div>
+
+
+<br>
+<div *ngIf="fbc['storesToSelectFrom'].value" class="text-start d-flex flex-column col-lg-8">
     @for (item of listCategories; track item) {
-        <div>{{item['list_category_id']}}  {{item['name']}}  
-            @for (inventory of storeInventory[item['list_category_id']]; track inventory) {
-                <div>
-                    {{inventory['inventory_name']}}
-                    <div>
-                        <img class="flex-row inventory-picture"
-                            for="flexCheckIndeterminate" [src]="getPicture(inventory['inventory_id'])">
-                    </div>
+            <div class="row align-items-start category-inventory-display">
+                <div class="col">
+                    {{item['name']}} 
                 </div>
-            }
-        </div>
-    }
+                <div class="col text-end">
+                    <button (click)="onAddInvetoryItem(item['list_category_id'])" style="border:none;" class="category-inventory-display">
+                        <i class="bi bi-plus-circle"></i>
+                    </button>
+                </div>
+            </div> 
+            
 
+
+
+            <div *ngIf="storeInventory[item['list_category_id']] && storeInventory[item['list_category_id']].length">
+                <div class="">
+                    <div class="row align-items-start " style="font-size: small; height: 2rem;;" >
+                        <div class="col col-picture inventory-picture" style="font-weight:400;">Picture</div> 
+                        <div class="col col-name" style="font-weight:400;">Name</div> 
+                        <div class="col col-notes" style="font-weight:400;">Notes</div> 
+                        <div class="col" style="font-weight:400; width:5%;" >Action</div>
+                    </div>
+                    
+                    @for (inventory of storeInventory[item['list_category_id']]; track inventory) {
+                        <div class="row align-items-start" style="width:100%;">
+                            <div class="col col-picture">
+                                <img class="inventory-picture" 
+                                     for="flexCheckIndeterminate" [src]="getPicture(inventory['inventory_id'])">
+                            </div>
+                            <div class="col col-name text-start" style="font-weight:400" *ngIf="!inventoryEdit[inventory['inventory_id']]; else editName">
+                                <div>{{inventory['inventory_name']}}</div>
+                            </div>    
+                            <ng-template #editName>
+                                <input type="text" formControlName="editName"  >
+                            </ng-template>
+                            <div class="col col-notes" >{{inventory['inventory_notes']}}</div>
+                            <div class="col">
+                                <button (click)="onPenEdit(inventory['inventory_id'])" style="border:none; background-color: white;">
+                                    <div *ngIf="!inventoryEdit[inventory['inventory_id']]; else onPenEditIcon">
+                                        <i class="bi bi-pencil"></i>
+                                    </div>
+                                    <ng-template #onPenEditIcon>
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </ng-template>
+                                </button>
+                            </div>
+                        </div>
+                    }
+            </div>
+        </div>
+        <br>
+
+    }
+</div>
 
     <!-- <div class="d-flex align-items-center">
         <div>

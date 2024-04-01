@@ -36,9 +36,9 @@ module.exports = (sequelize, DataTypes) => {
     picture: {
       type: DataTypes.BLOB('medium'),
       allowNull: true,
-      // get(){
-      //   return this.getDataValue('picture').toString('utf8');
-      // }
+      get(){
+        return this.getDataValue('picture').toString('utf8');
+      }
     }, 
     notes: DataTypes.STRING,
 
