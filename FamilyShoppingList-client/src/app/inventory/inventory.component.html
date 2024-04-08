@@ -6,7 +6,6 @@
     <ng-select  [items]="storesToSelectFrom" placeholder="Select Store" style="max-width: 12rem;"
         labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0
         [clearable]="false" (ngModelChange)="onStoreSelectChange()" required>
-        <!--  [ngClass]="{ 'is-invalid': fb.controls['storesToSelectFrom'].errors }" -->
         <ng-template ng-label-tmp let-item="item">
             <span class="label-text">{{item.name}}</span>
         </ng-template>
@@ -14,137 +13,101 @@
             <span class="label-text">{{item.name}}</span>
         </ng-template>
     </ng-select>
-    <!-- <div *ngIf="fb.controls['storesToSelectFrom'].errors" class="invalid-feedback">
-        store is required
+<br>
+
+<!-- <div *ngIf="fbc['storesToSelectFrom'].value">
+    <app-inventory-edit [store]="fbc['storesToSelectFrom'].value"></app-inventory-edit>
+</div> -->
+
+
+<br>
+
+<div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0" class="col-lg-8">
+
+    <!-- <div class="d-flex" style="font-size: small; height: 2rem; width: 100%; font-weight:400;" >
+        <div class="picture">Picture</div>
+        <div class="name">Name</div>
+        <div class="notes">Notes</div>
+        <div class="action">Action</div>
     </div> -->
 
-<br>
+    @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
+        <div class="d-flex {{getBG(e)}} pb-1">
 
-<div *ngIf="fbc['storesToSelectFrom'].value">
-    <app-inventory-edit [store]="fbc['storesToSelectFrom'].value"></app-inventory-edit>
-</div>
-
-
-<br>
-<div *ngIf="fbc['storesToSelectFrom'].value" class="text-start d-flex flex-column col-lg-8">
-    @for (item of listCategories; track item) {
-            <div class="row align-items-start category-inventory-display">
-                <div class="col">
-                    {{item['name']}} 
-                </div>
-                <div class="col text-end">
-                    <button (click)="onAddInvetoryItem(item['list_category_id'])" style="border:none;" class="category-inventory-display">
-                        <i class="bi bi-plus-circle"></i>
-                    </button>
-                </div>
-            </div> 
-            
-
-
-
-            <div *ngIf="storeInventory[item['list_category_id']] && storeInventory[item['list_category_id']].length">
-                <div class="">
-                    <div class="row align-items-start " style="font-size: small; height: 2rem;;" >
-                        <div class="col col-picture inventory-picture" style="font-weight:400;">Picture</div> 
-                        <div class="col col-name" style="font-weight:400;">Name</div> 
-                        <div class="col col-notes" style="font-weight:400;">Notes</div> 
-                        <div class="col" style="font-weight:400; width:5%;" >Action</div>
-                    </div>
-                    
-                    @for (inventory of storeInventory[item['list_category_id']]; track inventory) {
-                        <div class="row align-items-start" style="width:100%;">
-                            <div class="col col-picture">
-                                <img class="inventory-picture" 
-                                     for="flexCheckIndeterminate" [src]="getPicture(inventory['inventory_id'])">
-                            </div>
-                            <div class="col col-name text-start" style="font-weight:400" *ngIf="!inventoryEdit[inventory['inventory_id']]; else editName">
-                                <div>{{inventory['inventory_name']}}</div>
-                            </div>    
-                            <ng-template #editName>
-                                <input type="text" formControlName="editName"  >
-                            </ng-template>
-                            <div class="col col-notes" >{{inventory['inventory_notes']}}</div>
-                            <div class="col">
-                                <button (click)="onPenEdit(inventory['inventory_id'])" style="border:none; background-color: white;">
-                                    <div *ngIf="!inventoryEdit[inventory['inventory_id']]; else onPenEditIcon">
-                                        <i class="bi bi-pencil"></i>
-                                    </div>
-                                    <ng-template #onPenEditIcon>
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </ng-template>
-                                </button>
-                            </div>
-                        </div>
-                    }
-            </div>
+        <div class="picture" >
+            <img class="inventory-picture" for="flexCheckIndeterminate" [src]="inventory.picture">
         </div>
-        <br>
 
+        <div class="flex-fill">
+        <div class="d-inline-flex flex-column">
+            <button (click)="onPenEdit(inventory.inventory_id)" style="border:none; text-align: left;" class="{{getBG(e)}}">
+            <div class="pb-2" style="color: navy; font-weight:600;">
+                {{inventory.name}}
+            </div>    
+
+            <div class="pb-2">
+                {{inventory.notes}}
+            </div>
+            </button>
+        </div>
+        </div>
+
+        <!-- <div class="d-inline-flex ">
+            <button (click)="onPenEdit(inventory.inventory_id)" style="border:none; " class="{{getBG(e)}}">
+                <div>
+                    @if (!inventoryEdit[inventory.inventory_id]){
+                        <i class="bi bi-pencil icon-style"></i>
+                    } @else {
+                        <i class="bi bi-pencil-fill icon-style"></i>
+                    }
+                </div>
+            </button>
+            <button (click)="onTrash(inventory.inventory_id)" style="border:none; " class="{{getBG(e)}}">
+                @if (!inventoryTrash[inventory.inventory_id]){
+                    <i class="bi bi-trash icon-style"></i>
+                } @else {
+                    <i class="bi bi-trash-fill icon-style"></i>
+                }
+            </button>
+        </div> -->
+        </div>
+        <div *ngIf="inventoryEdit[inventory.inventory_id]">
+            EDIT: inventory.inventory_id: {{inventory.inventory_id}} inventory.name: {{inventory.name}} <br>
+            <button (click)="onTrash(inventory.inventory_id)" style="border:none; " class="{{getBG(e)}}">
+                @if (!inventoryTrash[inventory.inventory_id]){
+                    <i class="bi bi-trash icon-style"></i>
+                } @else {
+                    <i class="bi bi-trash-fill icon-style"></i>
+                }
+            </button>
+        </div>
+        <div *ngIf="inventoryTrash[inventory.inventory_id]">
+            @if (inventoryReferences[inventory.inventory_id]>0){
+                <div class="invalid-feedback d-block">
+                    item cannot be deleted since it is still on someone's shopping list
+                </div>
+            } @else {
+
+                    <div class="d-flex align-items-center  justify-content-center {{getBG(e)}} category-inventory-display">
+
+                        <div class="ok-cancel-button-box ">
+                            <button type="button"
+                                class="ok-cancel-button {{getBG(e)}} bi bi-x-circle "
+                                (click)="doCancelDeletion(inventory.inventory_id)"
+                                >
+                            </button>
+                            <button type="button"
+                                class="ok-cancel-button {{getBG(e)}} bi bi-check-circle"
+                                (click)="doExecuteDeletion(inventory.inventory_id)">
+                            </button>
+                        </div>
+                </div>
+
+            }
+        </div>
     }
 </div>
-
-    <!-- <div class="d-flex align-items-center">
-        <div>
-            <img attr.class="flex-row inventory-picture {{inventoryImage[inventoryItem.inventory_id]}}"
-                for="flexCheckIndeterminate" [src]='getPicture(inventoryItem.inventory_id)'>
-        </div>
-        <div attr.class="p-1 flex-grow-1 {{inventoryImage[inventoryItem.inventory_id]}}"
-            for="flexCheckIndeterminate">
-            {{inventoryItem.inventory_name}}
-            @for (colorItem of inventoryItem.family_members;
-            track colorItem) {
-            <div class="d-inline-block family_member_dot p-1"
-                [ngStyle]="{ 'background-color': colorItem.name}">
-            </div>
-            }
-            <div attr.class="p-1 category-item-notes {{inventoryImage[inventoryItem.inventory_id]}}"
-                category-item-notes>
-                {{inventoryItem.inventory_notes}}
-            </div>
-        </div>
-        <div attr.class="px-1 {{inventoryImage[inventoryItem.inventory_id]}}">
-            {{adjustForDecimals(inventoryItem.quantity,inventoryItem.inventory_unit)}}
-        </div>
-        <div attr.class="p-0 {{inventoryImage[inventoryItem.inventory_id]}}">
-            {{inventoryItem.inventory_symbol}}
-        </div>
-    </div> -->
-
-    <!-- @for (inventoryItem of storeInventory;
-    track inventoryItem) {
-        {{inventoryItem['inventory_id']}}
-    } -->
-
-
-    <!-- @for (inventoryItemDetail of inventoryItem.family_members;
-    track inventoryItemDetail) {
-    <div class="d-flex justify-content-end">
-        <div class="p-0 flex-shrink-1  {{inventoryImage[inventoryItem.inventory_id]}}">
-            {{inventoryItemDetail.first_name}}
-            <div class="d-inline-block {{inventoryImage[inventoryItem.inventory_id]}} family_member_dot p-1 "
-                [ngStyle]="{ 'background-color': inventoryItemDetail.name}">
-            </div>
-        </div>
-        <div class="d-flex px-1 {{inventoryImage[inventoryItem.inventory_id]}}">
-            {{adjustForDecimals(inventoryItemDetail.quantity,inventoryItem.inventory_unit)}}
-            {{inventoryItem.inventory_symbol}}
-        </div>
-    </div>
-    } -->
-
-<!-- 
-    <table>
-        <thead>
-          <tr>
-            <th *ngFor="let key of items[0] | keys">{{ key }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of items">
-            <td *ngFor="let value of item | values">{{ value }}</td>
-          </tr>
-        </tbody>
-      </table> -->
-
-
 </div>
+
+
+

@@ -32,6 +32,15 @@
     background-color: rgb(236, 244, 244);
 }
 
+/* used for circle check or circle x icons
+   thar are used to ok or cancel an input
+*/   
+.ok-cancel-button {
+    font-size: 1.25em;
+    text-align: justify;
+    border: 0;
+    padding: 0.2em;
+}
 
 /* Each family member gets a color assigned and is displayed
    as a dot.

@@ -23,16 +23,15 @@
 }
 
 
-/* used for circle check or circle x icons
-   thar are used to ok or cancel an input
-*/   
-.ok-cancel-button {
+
+
+
+.icon-style{
     font-size: 1.25em;
     text-align: justify;
     border: 0;
-    padding: 0.2em;
+    padding: 0;
 }
-
 
 
 
@@ -79,6 +78,12 @@ input.large-checkbox{
 
 .icon-checkout {
     position: relative;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    border: 0;
+    background-color: white;    
     &::after {
         content: "done";
         display: block;
@@ -89,6 +94,12 @@ input.large-checkbox{
 
 .icon-start-shopping {
     position: relative;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    border: 0;
+    background-color: white;    
     &::after {
         content: "shop";
         display: block;
@@ -99,6 +110,12 @@ input.large-checkbox{
 
 .icon-stop-shopping {
     position: relative;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    border: 0;
+    background-color: white;
     &::after {
         content: "check";
         display: block;
@@ -110,6 +127,10 @@ input.large-checkbox{
 
 .icon-add-shopping{
     position: relative;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border: 0;
+    background-color: white;    
     &::after{
         content: "add";
         display: block;

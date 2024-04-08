@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 
-import { GuiColumn, GuiGridModule } from '@generic-ui/ngx-grid';
-import { GuiColumnMenu, GuiPagingDisplay, GuiRowSelection, GuiRowSelectionMode, GuiRowSelectionType, GuiCellEdit, GuiSorting, GuiSortingOrder, GuiSummaries, GuiColumnSorting, GuiDataType, GuiCellView } from '@generic-ui/ngx-grid';
+// import { GuiColumn, GuiGridModule } from '@generic-ui/ngx-grid';
+// import { GuiColumnMenu, GuiPagingDisplay, GuiRowSelection, GuiRowSelectionMode, GuiRowSelectionType, GuiCellEdit, GuiSorting, GuiSortingOrder, GuiSummaries, GuiColumnSorting, GuiDataType, GuiCellView } from '@generic-ui/ngx-grid';
 
 import { InventoryService } from '../inventory/inventory.service';
 import { Inventory } from '../models/inventory.model'
@@ -17,7 +17,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
   standalone: true,
   imports: [
     CommonModule, 
-    GuiGridModule,
+    // GuiGridModule,
 
   ],
   templateUrl: './inventory-edit.component.html',
@@ -50,7 +50,7 @@ export class InventoryEditComponent implements OnInit, OnDestroy, OnChanges {
   loading: boolean = false;
 
 
-
+/*
 	columns: Array<GuiColumn> = [
     {
 			field: 'inventory_to_list_category',
@@ -79,14 +79,6 @@ export class InventoryEditComponent implements OnInit, OnDestroy, OnChanges {
 					</span>
 					
 				`;
-/*
-					<div class="gui-user-info" >
-						<span class="gui-user-info-name" >${cellValue.name}</span>
-						<span class="gui-user-info-position" >${cellValue.position}</span>
-		
-					</div>
-
-*/
 				return template;
 			},
 			width: 80,
@@ -177,7 +169,7 @@ export class InventoryEditComponent implements OnInit, OnDestroy, OnChanges {
 		pageSizes: [5, 10, 25, 50],
 		display: GuiPagingDisplay.ADVANCED
 	};
-
+*/
 
 
 

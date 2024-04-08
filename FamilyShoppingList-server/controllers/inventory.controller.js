@@ -36,6 +36,82 @@ class InventoryKeyByCategory {
 
 let listInventoryByCategory = new Map();
 
+exports.checkInventoryForDeletion = (req, res) => {
+  logging.logEntryLocal('checkInventoryForDeletion', req );
+
+  shopping_list.findAll({     
+  exclude: ['createdAt','updatedAt'],
+  where: {
+    inventory_id: req.query.inventory_id,
+    shopping_status_id:  {
+      [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
+                    // if nothing comes back then it can be marke for deletion, which
+                    // means changing the status to 'D' in the inventory table
+    }
+  }
+ }).then(data => {
+    console.log(data.length);
+    res.send(`{"NumberOfReferences": ${data.length} }`);
+  }).catch(error => {
+    console.log('error',error);
+    res.status(500).send({
+      message: error.message || "error while creating new inventory item."      
+    })
+  })
+}
+
+
+exports.deleteInventoryItem = (req, res) => {
+  logging.logEntryLocal('deleteInventoryItem', req );
+
+  shopping_list.count({
+  where: {
+    inventory_id: req.body.inventory_id,
+    shopping_status_id:  {
+      [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
+                    // if nothing comes back then it can be marke for deletion, which
+                    // means changing the status to 'D' in the inventory table
+    }
+  }
+ }).then(data => {
+    console.log(data.length);
+    // res.send(`{"NumberOfReferences": ${data.length} }`);
+
+    if( data.length > 0 ) {
+      res.status(500).send(`{"NumberOfReferences": ${data.length} }`);
+      // res.status(500).send({
+      //   message: "error while deleting inventory item - reference violation."
+      // })
+      return;
+    }
+
+    console.log('deleteInventoryItem --> update') ;
+
+    inventory.update({
+      status: 'D'
+    },{
+      where: {
+        inventory_id: req.body.inventory_id
+      }
+    }).then(result =>{
+      console.log('result', result)
+      res.status(200).send(`{"updated": ${result} }`)
+    }).catch(error => {
+      console.log('error',error);
+      res.status(500).send({
+        message: error.message || "error while deleting new inventory item during update"      
+      })
+    })
+
+  }).catch(error => {
+    console.log('error',error);
+    res.status(500).send({
+      message: error.message || "error while deleting new inventory item"      
+    })
+  })
+}
+
+
 
 
 exports.createInventoryItem = (req, res) => {
@@ -59,7 +135,7 @@ exports.createInventoryItem = (req, res) => {
   }).catch(error => {
     console.log('error',error);
     res.status(500).send({
-      message: error.message || "error while creating new inventory item."      
+      message: error.message || "error while check inventory item for deletion."      
     })
   })
 }
@@ -121,7 +197,8 @@ exports.getInventoryByStore = (req, res) => {
       include: { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'], exclude : ['createdAt','updatedAt'] },
       exclude: ['createdAt','updatedAt'],
       where: {
-        store_id: req.query.store_id
+        store_id: req.query.store_id,
+        status: 'A'
       }
      }
   )
@@ -165,7 +242,8 @@ exports.getInventoryByStoreForEdit = (req, res) => {
       ],
       exclude: ['createdAt','updatedAt'],
       where: {
-        store_id: req.query.store_id
+        store_id: req.query.store_id,
+        status: 'A'
       }
      }
   )
@@ -205,7 +283,8 @@ exports.getInventoryByCategory = (req, res) => {
       exclude: ['createdAt','updatedAt'],
       where: {
         list_category_id: req.query.list_category_id,
-        store_id: req.query.store_id
+        store_id: req.query.store_id,
+        status: 'A'
       }
      }
   )

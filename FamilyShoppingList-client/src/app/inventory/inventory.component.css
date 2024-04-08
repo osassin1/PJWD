@@ -8,28 +8,36 @@
     background-color: rgb(236, 244, 244);
 }
 
-.col-picture{
-    max-width: 8rem;
-    min-width: 4rem;
-    width: 6rem;
-    background-color: blueviolet;
+.bg-even{
+    background-color: rgb(242, 246, 251);
+    /* rgb(236, 244, 244); */
+}
+.bg-odd{
+    background-color: white;
 }
 
-.col-name{
-    min-width: 5%;
-    column-width: 15rem;
-    background-color:coral;
+.row {
+    width: 100%;
+}
+ div.name {
+    width: 45%;
+}
+div.notes {
+    width: 45%;
 }
 
-.col-notes{
-    
-    min-width: 25%;
-    background-color:forestgreen;
+div.action {
+    width: 15%;
 }
 
-.col-action{
-    min-width: 25%;
-    background-color:forestgreen;
-
+div.picture {
+    width: 4rem;
+    padding-right: 4.5rem;
 }
 
+.icon-style{
+    font-size: 1.25em;
+    text-align: justify;
+    border: 0;
+    padding: 0;
+}

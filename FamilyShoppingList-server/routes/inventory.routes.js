@@ -31,6 +31,11 @@ module.exports = function(app) {
     router.post("/create_inventory_item_add_to_shoppinglist", 
                 inventory.createInventoryItemAddToShoppingList);
 
+    router.get("/check_inventory_for_deletion", inventory.checkInventoryForDeletion);
+
+    router.post("/delete_inventory_item", inventory.deleteInventoryItem);
+                    
+
     app.use('/api/inventory', router);
   };
   

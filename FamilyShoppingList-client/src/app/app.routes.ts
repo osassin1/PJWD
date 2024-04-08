@@ -5,7 +5,7 @@ import { AuthenticationComponent } from './authentication/authentication.compone
 import { AuthGuard } from './authentication/authentication.service';
 
 export const routes: Routes = [
-    { path: '', redirectTo: '/shoppinglist', pathMatch: 'full'},  
+    { path: '', redirectTo: '/authentication', pathMatch: 'full'},  
     { path: 'shoppinglist', component: ShoppinglistComponent, canActivate: [AuthGuard]}, 
     { path: 'authentication', component: AuthenticationComponent },
     { path: 'inventory', component: InventoryComponent,  canActivate: [AuthGuard] },

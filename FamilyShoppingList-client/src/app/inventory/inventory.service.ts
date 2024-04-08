@@ -37,6 +37,10 @@ export class InventoryService  {
 
     }
 
+    checkInventoryForDeleteion(inventory_id: number){
+        return this.http.get<any>(`${baseUrl}/check_inventory_for_deletion?inventory_id=${inventory_id}`);
+    }
+
     getListOfStores(): Observable<any>{
         return this.http.get<any>(`${baseUrl}/list_of_stores`);
     }
@@ -142,6 +146,12 @@ export class InventoryService  {
         }
 
 
+        deleteInventoryItem(inventory_id: number ) : Observable<any> {
+            return this.http.post(`${baseUrl}/delete_inventory_item`, {
+                inventory_id
+            });
+        }       
+    
     
 
     createInventoryItem(name: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
