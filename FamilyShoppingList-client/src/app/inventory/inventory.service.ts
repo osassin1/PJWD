@@ -45,6 +45,11 @@ export class InventoryService  {
         return this.http.get<any>(`${baseUrl}/list_of_stores`);
     }
 
+    // load all available quantities from table quantity
+    getQuantities(): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/quantities`);
+    }
+
     // get all categories that are defined in list_category
     getListCatgory(): Observable<ListCategory[]> {
         return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
@@ -152,10 +157,21 @@ export class InventoryService  {
             });
         }       
     
-    
+
+        updateInventoryItem(inventory_id: number, name: string, notes: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
+            return this.http.post(`${baseUrl}/update_inventory_item`, {
+                inventory_id,
+                name, 
+                notes,
+                picture,
+                store_id,
+                list_category_id,
+                quantity_id
+            });
+        }       
+            
 
     createInventoryItem(name: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
-
         return this.http.post(`${baseUrl}/create_inventory_item`, {
             name, 
             picture,

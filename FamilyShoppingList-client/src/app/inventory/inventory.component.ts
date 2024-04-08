@@ -58,9 +58,6 @@ export class InventoryComponent implements OnInit {
 
     this.inventoryForm = this.formBuilder.group({
       storesToSelectFrom:  null,
-      editPicture: null,
-      editName: null,
-      editNote: null
     });
 
   
@@ -79,23 +76,17 @@ export class InventoryComponent implements OnInit {
   //--- on ---
 
   onStoreSelectChange(){
-    //return;
-    console.log('onStoreSelectChange', this.fbc['storesToSelectFrom'])
     this.store_id=this.fbc['storesToSelectFrom'].value['store_id'];
-
     this.storeInventory = [];
-    
 
     this.inventoryService.getInventoryByStoreForEdit(this.store_id).subscribe({
       next: (v) => {
         let a = JSON.parse(v);
         this.storeInventory = a;
-        console.log('this.storeInventory', this.storeInventory)
       }, error: (e) => {
         console.error(e.error.message);
       },
       complete: () => {
-        //this.cd.detectChanges(); 
       }
     })
   }
@@ -111,14 +102,16 @@ getBG(e: any){
 }
 
   // Activate the edit action for an inventory item
-  onPenEdit(inventory_id: number){
+  onPenEdit(inventory_id: number, $event: any){
     console.log('onPenEdit', 'inventory_id', inventory_id)
+    console.log('onPenEdit', '$event', $event)
+
     this.inventoryEdit[inventory_id] = !this.inventoryEdit[inventory_id];
 
-    if(!this.inventoryEdit[inventory_id]){
-      return;
+    if($event){
+      this.onStoreSelectChange();
     }
-
+    
   }
 
 

@@ -1,0 +1,42 @@
+<form [formGroup]="selectShoppingListForm" (auxclick)="imageInput.click()">
+
+    <!-- <button class="bi bi-camera shoppinglist-card"
+    type="button" 
+    (click)="imageInput.click()" [disabled]="isImageDisabled">
+    button
+    </button> -->
+
+
+    <p class="d-flex justify-content-center fs-4 shoppinglist-card">
+        <input class="file-input" #imageInput type="file"
+            formControlName="image_upload" accept="image/*, .heic, .heif "
+            (change)="imageSelected($event, list_category_id)"
+            (cancel)="imageSelectCancel(list_category_id)"
+            [hidden]="true">
+    </p>
+
+
+
+
+            <!-- <input class="file-input" #imageInput type="file"
+            formControlName="image_upload" accept="image/*, .heic, .heif "
+            (change)="imageSelected($event, list_category_id)"
+            (cancel)="imageSelectCancel(list_category_id)"> -->
+
+
+
+        <!-- <button class="bi bi-camera shoppinglist-card"
+            type="button" data-bs-toggle="collapse"
+            attr.data-bs-target="#collapse_camera_category_n_{{list_category_id}}"
+            aria-expanded="false"
+            attr.aria-controls="collapse_camera_category_n_{{list_category_id}}"
+            (click)="imageInput.click()" [disabled]="isImageDisabled">
+            button
+        </button> -->
+    <!-- <div class="d-flex flex-column">
+        Picture:
+        <img class="inventory-picture"
+            [src]="selectedPicture[list_category_id]"
+            *ngIf="selectedPicture[list_category_id]" />
+    </div> -->
+</form>

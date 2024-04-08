@@ -14,6 +14,10 @@
     background-color: blue;
 }
 
+.bg-green {
+    background-color: green;
+}
+
 /* ------------------------------------------------------- */
 
 
@@ -59,6 +63,16 @@
     width: 4em;
     min-width: 4em;
 }
+
+/* inventory list items */
+.bg-even{
+    background-color: rgb(242, 246, 251);
+    /* rgb(236, 244, 244); */
+}
+.bg-odd{
+    background-color: white;
+}
+
 
 
 .input-label{

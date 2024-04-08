@@ -20,12 +20,16 @@ module.exports = function(app) {
 
     router.get("/list_category", inventory.getListCategory);
     router.get("/list_of_stores", inventory.getListOfStores);
+    router.get("/quantities", inventory.getQuantities);
+    
     router.get("/inventory_by_store", inventory.getInventoryByStore);
 
     router.get("/inventory_by_store_for_edit", inventory.getInventoryByStoreForEdit);
 
     
     router.get("/inventory_by_category", inventory.getInventoryByCategory);
+
+    router.post("/update_inventory_item", inventory.updateInventoryItem);
 
     router.post("/create_inventory_item", inventory.createInventoryItem);
     router.post("/create_inventory_item_add_to_shoppinglist", 

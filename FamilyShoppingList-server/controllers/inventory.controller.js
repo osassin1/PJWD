@@ -6,6 +6,7 @@ const inventory = db.inventory;
 const shopping_list = db.shopping_list;
 const store = db.store;
 const list_category = db.list_category;
+const quantity = db.quantity;
 
 //const color = db.color;
 
@@ -112,10 +113,33 @@ exports.deleteInventoryItem = (req, res) => {
 }
 
 
+exports.updateInventoryItem = (req, res) => {
+
+  inventory.update({
+    name : req.body.name,
+    notes : req.body.notes,
+    picture : req.body.picture,
+    store_id : req.body.store_id,
+    list_category_id : req.body.list_category_id,
+    quantity_id : req.body.quantity_id
+    }, {
+      where: {
+        inventory_id: req.body.inventory_id
+      }
+    }).then( result => {
+      console.log('result', result)
+      res.status(200).send(`{"updated": ${result} }`)
+
+  }).catch(error => {
+    console.log('error',error);
+    res.status(500).send({
+      message: error.message || "error while updating inventory item."      
+    })
+  })
+}
 
 
 exports.createInventoryItem = (req, res) => {
-  logging.logEntryLocal('createInventoryItem', req );
 
   inventory.create({
     name : req.body.name,
@@ -128,12 +152,7 @@ exports.createInventoryItem = (req, res) => {
     updated_at : new Date()    
   }).then( createResult => {
     res.send( String(createResult['inventory_id']) );
-    logging.logEntryLocal('createInventoryItem --> createResult', res );
-    logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
-
-    console.log('createInventoryItem --> createResult', createResult);
   }).catch(error => {
-    console.log('error',error);
     res.status(500).send({
       message: error.message || "error while check inventory item for deletion."      
     })
@@ -143,7 +162,6 @@ exports.createInventoryItem = (req, res) => {
 
 
 exports.createInventoryItemAddToShoppingList = (req, res) => {
-  logging.logEntryLocal('createInventoryItemAddToShoppingList', req );
 
   var inventory_id = 0;
 
@@ -365,6 +383,21 @@ exports.getListOfStores = (req,res) => {
     res.status(500).send({
       message:
         err.message || "error while retrieving list of stores."
+    });
+  });;
+}
+
+exports.getQuantities = (req,res) => {
+  console.log('getQuantities');
+
+  quantity.scope('excludeCreatedAtUpdateAt').findAll()
+  .then(data => {
+     res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "error while retrieving quantities."
     });
   });;
 }

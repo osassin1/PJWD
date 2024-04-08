@@ -8,13 +8,7 @@
     background-color: rgb(236, 244, 244);
 }
 
-.bg-even{
-    background-color: rgb(242, 246, 251);
-    /* rgb(236, 244, 244); */
-}
-.bg-odd{
-    background-color: white;
-}
+
 
 .row {
     width: 100%;

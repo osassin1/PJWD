@@ -1,56 +1,94 @@
-
 <div class="col-md-8">
     <form [formGroup]="inventoryForm">
-    <div class="d-flex flex-column ms-2">
-    <label for="storesToSelectFrom" class="input-label">Store</label>
-    <ng-select  [items]="storesToSelectFrom" placeholder="Select Store" style="max-width: 12rem;"
-        labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0
-        [clearable]="false" (ngModelChange)="onStoreSelectChange()" required>
-        <ng-template ng-label-tmp let-item="item">
-            <span class="label-text">{{item.name}}</span>
-        </ng-template>
-        <ng-template ng-option-tmp let-item="item" let-index="index">
-            <span class="label-text">{{item.name}}</span>
-        </ng-template>
-    </ng-select>
-<br>
+        <div class="d-flex flex-column ms-2">
+            <label for="storesToSelectFrom" class="input-label">Store</label>
+            <ng-select [items]="storesToSelectFrom" placeholder="Select Store" style="max-width: 12rem;"
+                labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0 [clearable]="false"
+                (ngModelChange)="onStoreSelectChange()" required>
+                <ng-template ng-label-tmp let-item="item">
+                    <span class="label-text">{{item.name}}</span>
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item" let-index="index">
+                    <span class="label-text">{{item.name}}</span>
+                </ng-template>
+            </ng-select>
+            <br>
 
-<!-- <div *ngIf="fbc['storesToSelectFrom'].value">
-    <app-inventory-edit [store]="fbc['storesToSelectFrom'].value"></app-inventory-edit>
-</div> -->
+            <div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0" >
+                @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
 
 
-<br>
+                @if(!inventoryEdit[inventory.inventory_id]){
+                <div class="d-flex {{getBG(e)}} pb-1">
+                    <div class="picture">
+                        <img class="inventory-picture" for="flexCheckIndeterminate" [src]="inventory.picture">
+                    </div>
 
-<div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0" class="col-lg-8">
+                    <div class="flex-fill">
+                        <div class="d-inline-flex flex-column">
+                            <button (click)="onPenEdit(inventory.inventory_id, false)" style="border:none; text-align: left;"
+                                class="{{getBG(e)}}">
+                                <div class="pb-2">
+                                    <div class="input-label">
+                                        Name
+                                    </div>
+                                    <div style="color: navy; font-weight:600;">
+                                        {{inventory.name}}
+                                    </div>
+                                </div>
 
-    <!-- <div class="d-flex" style="font-size: small; height: 2rem; width: 100%; font-weight:400;" >
-        <div class="picture">Picture</div>
-        <div class="name">Name</div>
-        <div class="notes">Notes</div>
-        <div class="action">Action</div>
-    </div> -->
+                                <div class="pb-2">
+                                    <div class="input-label">
+                                        Notes
+                                    </div>
+                                    <div>
+                                        {{inventory.notes}}
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                } @else {
+                            <app-inventory-edit class="d-flex flex-row w-100"
+                                [store]="fbc['storesToSelectFrom'].value"
+                                [inventory]="inventory"
+                                [background]="getBG(e)"
+                                (done)="onPenEdit(inventory.inventory_id, $event)"
+                                >
+                            </app-inventory-edit>
+                }
+                <!-- </div> -->
+                <!-- <div *ngIf="inventoryTrash[inventory.inventory_id]">
+                    @if (inventoryReferences[inventory.inventory_id]>0){
+                    <div class="invalid-feedback d-block">
+                        item cannot be deleted since it is still on someone's shopping list
+                    </div>
+                    } @else {
 
-    @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
-        <div class="d-flex {{getBG(e)}} pb-1">
+                    <div
+                        class="d-flex align-items-center  justify-content-center {{getBG(e)}} category-inventory-display">
 
-        <div class="picture" >
-            <img class="inventory-picture" for="flexCheckIndeterminate" [src]="inventory.picture">
-        </div>
+                        <div class="ok-cancel-button-box ">
+                            <button type="button" class="ok-cancel-button {{getBG(e)}} bi bi-x-circle "
+                                (click)="doCancelDeletion(inventory.inventory_id)">
+                            </button>
+                            <button type="button" class="ok-cancel-button {{getBG(e)}} bi bi-check-circle"
+                                (click)="doExecuteDeletion(inventory.inventory_id)">
+                            </button>
+                        </div>
+                    </div>
 
-        <div class="flex-fill">
-        <div class="d-inline-flex flex-column">
-            <button (click)="onPenEdit(inventory.inventory_id)" style="border:none; text-align: left;" class="{{getBG(e)}}">
-            <div class="pb-2" style="color: navy; font-weight:600;">
-                {{inventory.name}}
-            </div>    
-
-            <div class="pb-2">
-                {{inventory.notes}}
+                    }
+                </div> -->
+            <!-- </div> -->
+                }
+                <br>
             </div>
-            </button>
         </div>
-        </div>
+
+
+
 
         <!-- <div class="d-inline-flex ">
             <button (click)="onPenEdit(inventory.inventory_id)" style="border:none; " class="{{getBG(e)}}">
@@ -70,44 +108,3 @@
                 }
             </button>
         </div> -->
-        </div>
-        <div *ngIf="inventoryEdit[inventory.inventory_id]">
-            EDIT: inventory.inventory_id: {{inventory.inventory_id}} inventory.name: {{inventory.name}} <br>
-            <button (click)="onTrash(inventory.inventory_id)" style="border:none; " class="{{getBG(e)}}">
-                @if (!inventoryTrash[inventory.inventory_id]){
-                    <i class="bi bi-trash icon-style"></i>
-                } @else {
-                    <i class="bi bi-trash-fill icon-style"></i>
-                }
-            </button>
-        </div>
-        <div *ngIf="inventoryTrash[inventory.inventory_id]">
-            @if (inventoryReferences[inventory.inventory_id]>0){
-                <div class="invalid-feedback d-block">
-                    item cannot be deleted since it is still on someone's shopping list
-                </div>
-            } @else {
-
-                    <div class="d-flex align-items-center  justify-content-center {{getBG(e)}} category-inventory-display">
-
-                        <div class="ok-cancel-button-box ">
-                            <button type="button"
-                                class="ok-cancel-button {{getBG(e)}} bi bi-x-circle "
-                                (click)="doCancelDeletion(inventory.inventory_id)"
-                                >
-                            </button>
-                            <button type="button"
-                                class="ok-cancel-button {{getBG(e)}} bi bi-check-circle"
-                                (click)="doExecuteDeletion(inventory.inventory_id)">
-                            </button>
-                        </div>
-                </div>
-
-            }
-        </div>
-    }
-</div>
-</div>
-
-
-

@@ -903,11 +903,11 @@ checkInventoryChecked(isActiveOrDisabled: any, inventory_id: number) {
 // Either upload a picture from your computer or if mobile
 // take a picture that will be used
 
-triggerSnapshot(list_category_id: number): void {
-  console.log('triggerSnapshot(list_category_id: number): void');
-  this.list_category_id = list_category_id;
-  this.trigger.next();
-}
+// triggerSnapshot(list_category_id: number): void {
+//   console.log('triggerSnapshot(list_category_id: number): void');
+//   this.list_category_id = list_category_id;
+//   this.trigger.next();
+// }
 
 
 // this was used for debugging 
