@@ -1,15 +1,15 @@
 <form [formGroup]="inventoryEditForm" class="w-100 {{background}}">
     <div formGroupName="inventoryForm" class="d-flex flex-row w-100">
-
         <div class="d-inline-flex">
-            <button type="button" (click)="onPicture()" style="border:none; text-align: left;">
+            <button type="button" (click)="onPicture()" style="border:none; text-align: left;" class=" {{background}}">
                 <img class="inventory-picture" [src]="inventory.picture" *ngIf="inventory.picture" />
             </button>
             @if( takePicture ) {
-                <app-inventory-picture [list_category_id]="1" (pictureChange)="inventory.picture=$event"></app-inventory-picture>
+                <app-inventory-picture 
+                    [list_category_id]="1" 
+                    (pictureChange)="inventory.picture=$event"></app-inventory-picture>
             }
         </div>
-
         <div class="d-inline-flex flex-column w-100">
             <div class="ps-3">
                 <label class="input-label">Name</label>
@@ -39,7 +39,6 @@
             <div class="ps-3">
                 <div class="inventory-input-unit">
                     <label class="input-label">Category</label>
-
                     <ng-select [items]="list_categories" placeholder="Select Category" style="max-width: 12rem;"
                         labelForId="categories" formControlName="list_category" [tabIndex]=0 [clearable]="false"
                         required>

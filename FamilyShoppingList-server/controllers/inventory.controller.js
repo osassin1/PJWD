@@ -143,6 +143,7 @@ exports.createInventoryItem = (req, res) => {
 
   inventory.create({
     name : req.body.name,
+    notes : req.body.notes,
     picture : req.body.picture,
     store_id : req.body.store_id,
     list_category_id : req.body.list_category_id,
@@ -174,8 +175,8 @@ exports.createInventoryItemAddToShoppingList = (req, res) => {
     created_at: new Date(),
     updated_at : new Date()    
   }).then( createResult => {
-    //logging.logEntryLocal('createInventoryItem --> createResult', res );
-    //logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
+    logging.logEntryLocal('createInventoryItem --> createResult', res );
+    logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
     //console.log('createInventoryItem --> createResult', createResult);
 
     inventory_id = createResult['inventory_id'];
@@ -189,10 +190,10 @@ exports.createInventoryItemAddToShoppingList = (req, res) => {
       created_at: new Date(),
       updated_at : new Date()
     }).save().then(insertResult =>{
-      console.log('shopping_list.build --> insertResult', insertResult);
+      logging.logEntryLocal('shopping_list.build --> insertResult', insertResult);
       res.send(insertResult);
     }).catch(error_insert => {
-      console.log('error_insert',error_insert);
+      logging.logEntryLocal('error_insert',error_insert);
       res.status(500).send({
         message: error_insert.message || "error while inserting during updating shopping list."      
       })
@@ -369,6 +370,27 @@ exports.getPicture = (req,res) => {
     });
   });;
 }
+
+
+exports.getNoPicture = (req,res) => {
+  const picture = "no_picture.jpg";
+
+  res.send(`{ "picture" : ${picture}}`);
+  
+  // inventory.scope('excludeCreatedAtUpdateAt').findByPk(req.query.inventory_id)
+  // .then(data => {
+  //   if( data ) {
+  //       res.send(data['picture']);
+  //   }
+  // })
+  // .catch(err => {
+  //   res.status(500).send({
+  //     message:
+  //       err.message || "error while retrieving inventory picture."
+  //   });
+  // });;
+}
+
 
 //inventory.getListOfStores
 

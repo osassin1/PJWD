@@ -17,6 +17,7 @@ module.exports = function(app) {
     // router.get("/", inventory.getAllInventory);
 
     router.get("/picture", inventory.getPicture);
+    router.get("/no_picture", inventory.getNoPicture);
 
     router.get("/list_category", inventory.getListCategory);
     router.get("/list_of_stores", inventory.getListOfStores);

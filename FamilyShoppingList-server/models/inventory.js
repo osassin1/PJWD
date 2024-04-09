@@ -30,8 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     picture: {
       type: DataTypes.BLOB('medium'),

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
@@ -12,7 +12,6 @@ import { NgSelectModule } from '@ng-select/ng-select';
 
 import { InventoryPictureComponent } from '../inventory-picture/inventory-picture.component'
 
-//import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-inventory-edit',
@@ -29,7 +28,7 @@ import { InventoryPictureComponent } from '../inventory-picture/inventory-pictur
 	encapsulation: ViewEncapsulation.None  
 
 })
-export class InventoryEditComponent implements OnInit, OnChanges {
+export class InventoryEditComponent implements OnInit {
 
   @Input() store!: Store;
   @Input() inventory!: Inventory;
@@ -47,8 +46,6 @@ export class InventoryEditComponent implements OnInit, OnChanges {
 
   // for onPicture to toggle value
   takePicture: boolean = false;
-
-//    //private domSanatizer: DomSanitizer,
 
   constructor(private inventoryService: InventoryService,
     private formBuilder: FormBuilder,
@@ -74,9 +71,7 @@ export class InventoryEditComponent implements OnInit, OnChanges {
 
     this.inventoryService.getListCatgory().subscribe(res => {
       this.list_categories = res;
-    })
-
-    
+    }) 
   }
 
   get ief(){
@@ -89,31 +84,51 @@ export class InventoryEditComponent implements OnInit, OnChanges {
   }
 
   onDoneEdit(){
-    console.log('edonDoneEditit')
-    console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].name );
-    console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].notes );
-    console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].picture );
-    console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].list_category.list_category_id );
-    console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].quantity.quantity_id );
+    // console.log('edonDoneEditit')
+    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].name );
+    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].notes );
+    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].picture );
+    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].list_category.list_category_id );
+    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].quantity.quantity_id );
 
-    this.inventoryService.updateInventoryItem(
-      this.inventory.inventory_id,
-      this.inventoryEditForm.value['inventoryForm'].name, 
-      this.inventoryEditForm.value['inventoryForm'].notes,
-      this.inventory.picture,
-      this.inventoryEditForm.value['inventoryForm'].store_id, 
-      this.inventoryEditForm.value['inventoryForm'].list_category.list_category_id, 
-      this.inventoryEditForm.value['inventoryForm'].quantity.quantity_id
-      ).subscribe({
-        next: (v) => {
-          console.log('updateInventoryItem', v)
-        },
-        complete: () => {
-          console.log('updateInventoryItem complete')
-          this.done.emit(true);
-        }
-      }) 
-
+    if( this.inventory.inventory_id ){
+      this.inventoryService.updateInventoryItem(
+        this.inventory.inventory_id,
+        this.inventoryEditForm.value['inventoryForm'].name, 
+        this.inventoryEditForm.value['inventoryForm'].notes,
+        this.inventory.picture,
+        this.inventoryEditForm.value['inventoryForm'].store_id, 
+        this.inventoryEditForm.value['inventoryForm'].list_category.list_category_id, 
+        this.inventoryEditForm.value['inventoryForm'].quantity.quantity_id
+        ).subscribe({
+          next: (v) => {
+            console.log('updateInventoryItem', v)
+          },
+          complete: () => {
+            this.done.emit(true);
+          }
+        }) 
+    } else {
+        //createInventoryItem(name: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) 
+        this.inventoryService.createInventoryItem(
+          this.inventoryEditForm.value['inventoryForm'].name, 
+          this.inventoryEditForm.value['inventoryForm'].notes,
+          this.inventory.picture,
+          this.inventoryEditForm.value['inventoryForm'].store_id, 
+          this.inventoryEditForm.value['inventoryForm'].list_category.list_category_id, 
+          this.inventoryEditForm.value['inventoryForm'].quantity.quantity_id
+          ).subscribe({
+            next: (v) => {
+              this.inventory.inventory_id = v;
+            },
+            complete: () => {
+              this.done.emit(true);
+            }
+          }) 
+          
+  
+    }
+    this.inventoryEditForm.reset();
   }
 
   onCancelEdit(){
@@ -121,10 +136,10 @@ export class InventoryEditComponent implements OnInit, OnChanges {
   }
 
 
-  ngOnChanges(){
-    console.log('ngOnChanges')
-    console.log('ngOnChanges: store', this.store)
-  }
+  // ngOnChanges(){
+  //   console.log('ngOnChanges')
+  //   console.log('ngOnChanges: store', this.store)
+  // }
 
 
 

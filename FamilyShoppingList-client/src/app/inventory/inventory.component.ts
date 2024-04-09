@@ -14,6 +14,7 @@ import { Inventory } from '../models/inventory.model'
 import { Store } from '../models/store.model'
 import { InventoryEditComponent } from '../inventory-edit/inventory-edit.component'
 
+
 @Component({
   selector: 'app-inventory',
   standalone: true,
@@ -34,6 +35,12 @@ export class InventoryComponent implements OnInit {
   // get all stores that family/members can shop from
   storesToSelectFrom: any[] = [];
 
+  // get all categories that inventory can be categorized in
+  categoriesToSelectFrom: any[] = [];
+
+  // what category was selected - adjust view
+  list_category_id: number = 0;
+
   // inventory for store
   storeInventory: any[] = [];
 
@@ -45,6 +52,27 @@ export class InventoryComponent implements OnInit {
   // remember the store_id for the child component
   store_id: number = 0;
 
+  
+  // adding a new inventory item
+  isAddNewInventoryItem : boolean = false;
+
+  newInventory: Inventory = {
+    inventory_id:0, 
+    name: "",
+    picture: "no_picture.jpg", 
+    notes: "", 
+    inventory_to_quantity: {
+      quantity_id:0,
+      name: "",
+      symbol: "",
+      unit: 0
+    },
+    inventory_to_list_category: {
+      list_category_id: 0,
+      name: "",
+      description: "",
+    }
+  };
 
 
   constructor(
@@ -58,15 +86,19 @@ export class InventoryComponent implements OnInit {
 
     this.inventoryForm = this.formBuilder.group({
       storesToSelectFrom:  null,
+      categoriesToSelectFrom: null,
     });
 
   
     // get all shops that can be shopped from
     this.inventoryService.getListOfStores().subscribe((response: Store[]) => {
       this.storesToSelectFrom = response;
-      console.log('this.inventoryService.getListOfStores', this.storesToSelectFrom)
     });
 
+    // get all categories one can shop from
+    this.inventoryService.getListCatgory().subscribe((response: any) => {
+      this.categoriesToSelectFrom = response;
+    });
 
     
   }
@@ -91,7 +123,13 @@ export class InventoryComponent implements OnInit {
     })
   }
 
-
+  onCategorySelectChange(){
+    if(this.fbc['categoriesToSelectFrom'].value){
+      this.list_category_id = this.fbc['categoriesToSelectFrom'].value['list_category_id'];
+    } else {
+      this.list_category_id = 0;
+    }
+  }
 
 getBG(e: any){
   if (e){
@@ -101,6 +139,19 @@ getBG(e: any){
   }
 }
 
+
+  // Activate the create action for an inventory item
+  onCreateItem(inventory_id: number, $event: any){
+
+    if( this.isAddNewInventoryItem && inventory_id ){
+      this.isAddNewInventoryItem = false;
+    }
+
+    if($event){
+      this.onStoreSelectChange();
+    }
+  }
+
   // Activate the edit action for an inventory item
   onPenEdit(inventory_id: number, $event: any){
     console.log('onPenEdit', 'inventory_id', inventory_id)
@@ -108,10 +159,13 @@ getBG(e: any){
 
     this.inventoryEdit[inventory_id] = !this.inventoryEdit[inventory_id];
 
+    if( this.isAddNewInventoryItem && inventory_id ){
+      this.isAddNewInventoryItem = false;
+    }
+
     if($event){
       this.onStoreSelectChange();
     }
-    
   }
 
 
@@ -143,9 +197,9 @@ onTrash(inventory_id: number){
 
     // Get the picture information as a string
   // from the inventory cache
-  getPicture(inventory_id: number): SafeUrl {
-    return this.inventoryService.pictureInventory.get(inventory_id) ?? "no_picture.jpg";
-  }
+  // getPicture(inventory_id: number): SafeUrl {
+  //   return this.inventoryService.pictureInventory.get(inventory_id) ?? "no_picture.jpg";
+  // }
 
   checkInventoryForDeletion(inventory_id: number){
     this.inventoryService.checkInventoryForDeleteion(inventory_id).subscribe({
@@ -161,6 +215,7 @@ onTrash(inventory_id: number){
 
 doCancelDeletion(inventory_id:number){
   console.log('doCancelDeletion', inventory_id)
+  this.inventoryTrash[inventory_id]=false;
 }
 
 doExecuteDeletion(inventory_id:number){
@@ -179,5 +234,7 @@ doExecuteDeletion(inventory_id:number){
   })
 }
  
-
+doAddNewInventoryItem(){
+  this.isAddNewInventoryItem = !this.isAddNewInventoryItem;
+}
 }

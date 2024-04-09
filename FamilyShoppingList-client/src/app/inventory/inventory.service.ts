@@ -171,9 +171,10 @@ export class InventoryService  {
         }       
             
 
-    createInventoryItem(name: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
+    createInventoryItem(name: string, notes: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
         return this.http.post(`${baseUrl}/create_inventory_item`, {
             name, 
+            notes,
             picture,
             store_id,
             list_category_id,

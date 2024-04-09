@@ -1,110 +1,135 @@
 <div class="col-md-8">
     <form [formGroup]="inventoryForm">
         <div class="d-flex flex-column ms-2">
-            <label for="storesToSelectFrom" class="input-label">Store</label>
-            <ng-select [items]="storesToSelectFrom" placeholder="Select Store" style="max-width: 12rem;"
-                labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0 [clearable]="false"
-                (ngModelChange)="onStoreSelectChange()" required>
-                <ng-template ng-label-tmp let-item="item">
-                    <span class="label-text">{{item.name}}</span>
-                </ng-template>
-                <ng-template ng-option-tmp let-item="item" let-index="index">
-                    <span class="label-text">{{item.name}}</span>
-                </ng-template>
-            </ng-select>
-            <br>
-
-            <div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0" >
-                @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
-
-
-                @if(!inventoryEdit[inventory.inventory_id]){
-                <div class="d-flex {{getBG(e)}} pb-1">
-                    <div class="picture">
-                        <img class="inventory-picture" for="flexCheckIndeterminate" [src]="inventory.picture">
-                    </div>
-
-                    <div class="flex-fill">
-                        <div class="d-inline-flex flex-column">
-                            <button (click)="onPenEdit(inventory.inventory_id, false)" style="border:none; text-align: left;"
-                                class="{{getBG(e)}}">
-                                <div class="pb-2">
-                                    <div class="input-label">
-                                        Name
-                                    </div>
-                                    <div style="color: navy; font-weight:600;">
-                                        {{inventory.name}}
-                                    </div>
-                                </div>
-
-                                <div class="pb-2">
-                                    <div class="input-label">
-                                        Notes
-                                    </div>
-                                    <div>
-                                        {{inventory.notes}}
-                                    </div>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
+            <div class="d-flex justify-content-between">
+                <div class="d-flex flex-column ms-2">
+                    <label for="storesToSelectFrom" class="input-label">Store</label>
+                    <ng-select [items]="storesToSelectFrom" placeholder="Select Store" style="min-width: 10rem;"
+                        labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0
+                        [clearable]="false" (ngModelChange)="onStoreSelectChange()" required>
+                        <ng-template ng-label-tmp let-item="item">
+                            <span class="label-text">{{item.name}}</span>
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item" let-index="index">
+                            <span class="label-text">{{item.name}}</span>
+                        </ng-template>
+                    </ng-select>
                 </div>
+                <div class="d-flex flex-column ms-2">
+                    <label for="categoriesToSelectFrom" class="input-label">Category</label>
+                    <ng-select [items]="categoriesToSelectFrom" placeholder="All Categories" style="min-width: 10rem;"
+                        labelForId="categoriesToSelectFrom" formControlName="categoriesToSelectFrom" [tabIndex]=0
+                        [clearable]="true" (ngModelChange)="onCategorySelectChange()" required>
+                        <ng-template ng-label-tmp let-item="item">
+                            <span class="label-text">{{item.name}}</span>
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item" let-index="index">
+                            <span class="label-text">{{item.name}}</span>
+                        </ng-template>
+                    </ng-select>
+                </div>
+            </div>
+
+            <button (click)="doAddNewInventoryItem()" style="border:none; background-color: white; text-align: center;">
+                @if( isAddNewInventoryItem ) {
+                    <i class="bi bi-dash-circle icon-style p-2"></i>
                 } @else {
-                            <app-inventory-edit class="d-flex flex-row w-100"
-                                [store]="fbc['storesToSelectFrom'].value"
-                                [inventory]="inventory"
-                                [background]="getBG(e)"
-                                (done)="onPenEdit(inventory.inventory_id, $event)"
-                                >
-                            </app-inventory-edit>
+                    <i class="bi bi-plus-circle icon-style p-2"></i>
                 }
-                <!-- </div> -->
-                <!-- <div *ngIf="inventoryTrash[inventory.inventory_id]">
-                    @if (inventoryReferences[inventory.inventory_id]>0){
-                    <div class="invalid-feedback d-block">
-                        item cannot be deleted since it is still on someone's shopping list
-                    </div>
-                    } @else {
+            </button>      
+            
+            
 
-                    <div
-                        class="d-flex align-items-center  justify-content-center {{getBG(e)}} category-inventory-display">
+            @if(fbc['storesToSelectFrom'].value && isAddNewInventoryItem){
+                <app-inventory-edit class="d-flex flex-row w-100" [store]="fbc['storesToSelectFrom'].value"
+                    [inventory]="newInventory" [background]="getBG(false)" (done)="onCreateItem(newInventory.inventory_id, $event)">
+                </app-inventory-edit>          
+            }  
 
-                        <div class="ok-cancel-button-box ">
-                            <button type="button" class="ok-cancel-button {{getBG(e)}} bi bi-x-circle "
-                                (click)="doCancelDeletion(inventory.inventory_id)">
-                            </button>
-                            <button type="button" class="ok-cancel-button {{getBG(e)}} bi bi-check-circle"
-                                (click)="doExecuteDeletion(inventory.inventory_id)">
-                            </button>
+
+            <br>
+            <div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0">
+                @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
+                    <!-- filter based on category -->
+                    @if( !this.list_category_id || inventory.inventory_to_list_category.list_category_id ==
+                    this.list_category_id) {
+                        <!-- either just display or call the edit component -->
+                        @if(!inventoryEdit[inventory.inventory_id]){
+                        <div class="d-flex {{getBG(e)}} pb-1">
+                            <div class="picture">
+                                <img class="inventory-picture" for="flexCheckIndeterminate" [src]="inventory.picture">
+                                <button (click)="onPenEdit(inventory.inventory_id, false)" style="border:none; "
+                                    class="{{getBG(e)}} p-2 ">
+                                    <div>
+                                        @if (!inventoryEdit[inventory.inventory_id]){
+                                        <i class="bi bi-pencil icon-style"></i>
+                                        } @else {
+                                        <i class="bi bi-pencil-fill icon-style"></i>
+                                        }
+                                    </div>
+                                </button>
+                                <button (click)="onTrash(inventory.inventory_id)" style="border:none; " class="{{getBG(e)}}">
+                                    @if (!inventoryTrash[inventory.inventory_id]){
+                                    <i class="bi bi-trash icon-style"></i>
+                                    } @else {
+                                    <i class="bi bi-trash-fill icon-style"></i>
+                                    }
+                                </button>
+                            </div>
+                            <div class="flex-fill">
+                                <div class="d-inline-flex flex-column">
+                                    <button (click)="onPenEdit(inventory.inventory_id, false)"
+                                        style="border:none; text-align: left;" class="{{getBG(e)}}">
+                                        <div class="pb-2">
+                                            <div class="input-label">
+                                                Name
+                                            </div>
+                                            <div style="color: navy; font-weight:600;">
+                                                {{inventory.name}}
+                                            </div>
+                                        </div>
+
+                                        <div class="pb-2">
+                                            <div class="input-label">
+                                                Notes
+                                            </div>
+                                            <div>
+                                                {{inventory.notes}}
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
+                        } @else {
+                        <app-inventory-edit class="d-flex flex-row w-100" [store]="fbc['storesToSelectFrom'].value"
+                            [inventory]="inventory" [background]="getBG(e)" (done)="onPenEdit(inventory.inventory_id, $event)">
+                        </app-inventory-edit>
+                        }
+                        <!-- check if the trash icon was clicked and if the item can be deleted -->
+                        <div *ngIf="inventoryTrash[inventory.inventory_id]">
+                            @if (inventoryReferences[inventory.inventory_id]>0){
+                            <div class="invalid-feedback d-block">
+                                item cannot be deleted since it is still on someone's shopping list
+                            </div>
+                            } @else {
+                            <div
+                                class="d-flex align-items-center  justify-content-center {{getBG(e)}} category-inventory-display">
+                                <div class="ok-cancel-button-box ">
+                                    <button type="button" class="ok-cancel-button {{getBG(e)}} bi bi-x-circle "
+                                        (click)="doCancelDeletion(inventory.inventory_id)">
+                                    </button>
+                                    <button type="button" class="ok-cancel-button {{getBG(e)}} bi bi-check-circle"
+                                        (click)="doExecuteDeletion(inventory.inventory_id)">
+                                    </button>
+                                </div>
+                            </div>
+                            }
+                        </div>
                     }
-                </div> -->
-            <!-- </div> -->
                 }
                 <br>
             </div>
         </div>
-
-
-
-
-        <!-- <div class="d-inline-flex ">
-            <button (click)="onPenEdit(inventory.inventory_id)" style="border:none; " class="{{getBG(e)}}">
-                <div>
-                    @if (!inventoryEdit[inventory.inventory_id]){
-                        <i class="bi bi-pencil icon-style"></i>
-                    } @else {
-                        <i class="bi bi-pencil-fill icon-style"></i>
-                    }
-                </div>
-            </button>
-            <button (click)="onTrash(inventory.inventory_id)" style="border:none; " class="{{getBG(e)}}">
-                @if (!inventoryTrash[inventory.inventory_id]){
-                    <i class="bi bi-trash icon-style"></i>
-                } @else {
-                    <i class="bi bi-trash-fill icon-style"></i>
-                }
-            </button>
-        </div> -->
+    </form>
+</div>

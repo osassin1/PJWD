@@ -3,8 +3,8 @@ import { CommonModule, NgStyle } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { Observable } from 'rxjs';
-import { Subject } from 'rxjs';
+// import { Observable } from 'rxjs';
+// import { Subject } from 'rxjs';
 
 // compression for pictures (jpeg, png); 
 // if iOS is used then HEIC format needs to
@@ -37,6 +37,9 @@ export class InventoryPictureComponent implements OnInit, AfterViewInit {
   // this is the return of the image
   @Output() pictureChange = new EventEmitter<string>();
 
+  // get background color from caller
+  //not needed
+  //@Input() background: string = "";
 
   // don't need that
   selectShoppingListForm!: FormGroup;
@@ -53,8 +56,6 @@ export class InventoryPictureComponent implements OnInit, AfterViewInit {
 
   // debugging
   imageCompressMessage: string = "";
-
-  //private trigger: Subject<void> = new Subject<void>();
 
   constructor(
     private imageCompress: NgxImageCompressService,
@@ -216,7 +217,4 @@ imageSelectCancel(list_category_id: number) {
     return <File>theBlob;
   }
 
-  // public get triggerObservable(): Observable<void> {
-  //   return this.trigger.asObservable();
-  // }
 }
