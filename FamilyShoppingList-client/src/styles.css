@@ -44,6 +44,31 @@
     text-align: justify;
     border: 0;
     padding: 0.2em;
+    &:focus{
+        border-color: #007eff;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);
+    }
+}
+
+button{
+    border: 1px solid  #ccc;
+    &:focus {
+        border-color: #007eff;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);
+        outline-color: #007eff;
+        
+        outline: 1px solid  #ccc;
+        
+    }
+
+    &:active{
+        /* border-color: #007eff; */
+        border-color: #ff0000;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);
+
+    }
+
+
 }
 
 /* Each family member gets a color assigned and is displayed
