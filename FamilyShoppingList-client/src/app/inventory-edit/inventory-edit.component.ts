@@ -48,8 +48,7 @@ export class InventoryEditComponent implements OnInit {
   takePicture: boolean = false;
 
   constructor(private inventoryService: InventoryService,
-    private formBuilder: FormBuilder,
-    private cd: ChangeDetectorRef){
+    private formBuilder: FormBuilder ){
 
   }
 

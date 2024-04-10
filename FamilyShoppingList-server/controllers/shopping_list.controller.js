@@ -491,7 +491,8 @@ exports.getListByCategoryGroupByCached = (req, res) => {
 
 exports.getListByCategoryGroupBy = (req, res) => {
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
-    attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id',  'shopping_status_id', '`shopping_list_to_inventory`.`name`'],
+    attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id',  'shopping_status_id', 
+                 '`shopping_list_to_inventory`.`name`', '`shopping_list_to_inventory`.`picture`'],
     include: [{
       association: 'shopping_list_to_family_member', attributes: ['first_name', 'last_name', 'color_id'],
       where: { family_id: req.query.family_id },
@@ -499,11 +500,11 @@ exports.getListByCategoryGroupBy = (req, res) => {
     },
     {
       association: 'shopping_list_to_inventory',
-      attributes: ['name', 'list_category_id', 'quantity_id', 'notes'],
+      attributes: ['name', 'list_category_id', 'quantity_id', 'notes', 'picture'],
       include: [{ association: 'inventory_to_store', attributes: ['store_id'] },
       { association: 'inventory_to_list_category', attributes: ['name'] },
       { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'] }],
-      exclude: ['picture'],
+      //exclude: ['picture'],
       where: {
         store_id: req.query.store_id,
         list_category_id: req.query.list_category_id
@@ -522,7 +523,10 @@ exports.getListByCategoryGroupBy = (req, res) => {
     ]
   }).then(data => {
 
-  
+    //console.log('data',data)
+
+    //console.log('data',data.toString())
+    //res.send(data);
 
 
     // The map reduces the number of entries to one, eliminating duplicates. 
@@ -535,6 +539,8 @@ exports.getListByCategoryGroupBy = (req, res) => {
     var categoryTotalNumOfItems = 0;
 
     data.forEach(x => {
+
+      console.log('x-->', x['shopping_list_to_inventory']['picture'])
 
       colorForCategory = colorForCategory.push(x['shopping_list_to_family_member']['family_member_to_color']['name']);
       if( categoryName.length == 0){
@@ -552,6 +558,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'inventory_id' : x['inventory_id'],
           'inventory_name' : x['shopping_list_to_inventory']['name'],
           'inventory_notes' : x['shopping_list_to_inventory']['notes'],
+          'picture': x['shopping_list_to_inventory']['picture'],
           'inventory_symbol' : x['shopping_list_to_inventory']['inventory_to_quantity']['symbol'],
           'inventory_unit' : x['shopping_list_to_inventory']['inventory_to_quantity']['unit'],
           'family_members' : [ {'name' : x['shopping_list_to_family_member']['family_member_to_color']['name'],
@@ -561,6 +568,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
                                 'family_member_id' : x['family_member_id'],
             } ] 
         });
+        //console.log('newInventoryData', newInventoryData.get(x['inventory_id']))
       } 
       else {
           var y = newInventoryData.get(x['inventory_id']); 
@@ -580,6 +588,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'inventory_id' : x['inventory_id'],
           'inventory_name' : y['inventory_name'],
           'inventory_notes' : y['inventory_notes'],
+          'picture': y['picture'],
           'inventory_symbol' : y['inventory_symbol'],
           'inventory_unit' : y['inventory_unit'],
           'family_members' : family_member_array });

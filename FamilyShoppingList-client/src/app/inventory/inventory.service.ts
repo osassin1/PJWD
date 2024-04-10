@@ -87,6 +87,19 @@ export class InventoryService  {
              (`${baseUrl}/inventory_by_store_for_edit?store_id=${store_id}`,httpOptions);
     }
 
+    getInventoryByStoreForEditByCategory(store_id : number, list_category_id: number): Observable<any>{
+        //  const httpOptions: Object = {
+        //      headers: new HttpHeaders({'Accept': 'image/png'}),
+        //      responseType: 'text' 
+        //    };        
+        const httpOptions: Object = {
+            responseType: 'text'
+        };
+        return this.http.get<any>
+             (`${baseUrl}/inventory_by_store_for_edit_by_category?store_id=${store_id}&list_category_id=${list_category_id}`,httpOptions);
+    }
+
+
 
     getInventoryByCategory(store_id : number, list_category_id : number): Observable<any>{
         return this.http.get<any>

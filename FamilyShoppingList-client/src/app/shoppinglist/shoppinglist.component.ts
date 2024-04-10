@@ -17,10 +17,13 @@ import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 
 import { ShoppingListService } from './shoppinglist.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { ShoppinglistEditComponent } from '../shoppinglist-edit/shoppinglist-edit.component';
+import { ShoppinglistAddComponent } from '../shoppinglist-add/shoppinglist-add.component';
 import { AuthenticationService } from '../authentication/authentication.service';
 
+import { Inventory } from '../models/inventory.model'
 
-import { interval } from 'rxjs';
+import { NEVER, interval } from 'rxjs';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 
@@ -38,6 +41,8 @@ import heic2any from "heic2any";
     NgSelectModule,
     NgStyle,
     NavigationComponent,
+    ShoppinglistEditComponent,
+    ShoppinglistAddComponent
   ],
   templateUrl: './shoppinglist.component.html',
   styleUrl: './shoppinglist.component.css',
@@ -46,6 +51,8 @@ import heic2any from "heic2any";
 
 export class ShoppinglistComponent implements OnInit, OnDestroy {
 
+  newInventoryDisplay: boolean = true;
+  isInventoryEdit: boolean[] = [];
 
   isImageDisabled: boolean = false;
   isShopping: boolean = false;
@@ -152,6 +159,8 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   selectedShoppingListQuantity: any[] = [];
   selectedInventoryUnit: any[] = [];
 
+  storeInventoryByCategory: any[] = [];
+
   // Bind the select box for items in a category
   // to an ngModel for two-way binding
   //selectedInventoryItemModel: string[] = [];
@@ -245,62 +254,62 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     // no store is selected yet
     this.hasStore = false;
 
-    this.pollingShoppedItems = this.shoppingListService.pollShoppedItemStatus()
-      .subscribe((v) => {
-        if (v && v['inventory_id']) {
-          let inventoryList: number[] = v['inventory_id'];
-          this.inventoryImage = [];
-          inventoryList.forEach((inventory_id: number) => {
-            this.inventoryImage[inventory_id] = "disabled";
-          })
-        }
-      })
+    // this.pollingShoppedItems = this.shoppingListService.pollShoppedItemStatus()
+    //   .subscribe((v) => {
+    //     if (v && v['inventory_id']) {
+    //       let inventoryList: number[] = v['inventory_id'];
+    //       this.inventoryImage = [];
+    //       inventoryList.forEach((inventory_id: number) => {
+    //         this.inventoryImage[inventory_id] = "disabled";
+    //       })
+    //     }
+    //   })
 
-    this.subChangeCategory = interval(this.pollingTimeInSeconds)
-      .subscribe(() => {
-        let removeShoppingList = true;
-        for (let item in this.listCategories) {
-          const list_category_id = this.listCategories[item]['list_category_id'];
-          this.shoppingListService.getListByCategoryByGroupCached(this.shopping_date, this.store_id, list_category_id, this.authenticationService.familyMemberValue!.family_id)
-            .subscribe((res) => {
-              if (res != null && this.shoppingListAll.get(list_category_id) != undefined ) {
-                this.shoppingListAll.delete(list_category_id);
-                this.shoppingListAllTotal.delete(list_category_id);
-                this.shoppingListAll.set(list_category_id, res['inventory']);
-                this.shoppingListAllTotal.set(list_category_id, res['category']);
-                this.getInventoryByCategory(this.store_id, list_category_id);
-              }
-            })
-        }
-        this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
-          this.shoppingToSelectFrom = response;
-        });
+    // this.subChangeCategory = interval(this.pollingTimeInSeconds)
+    //   .subscribe(() => {
+    //     let removeShoppingList = true;
+    //     for (let item in this.listCategories) {
+    //       const list_category_id = this.listCategories[item]['list_category_id'];
+    //       this.shoppingListService.getListByCategoryByGroupCached(this.shopping_date, this.store_id, list_category_id, this.authenticationService.familyMemberValue!.family_id)
+    //         .subscribe((res) => {
+    //           if (res != null && this.shoppingListAll.get(list_category_id) != undefined ) {
+    //             this.shoppingListAll.delete(list_category_id);
+    //             this.shoppingListAllTotal.delete(list_category_id);
+    //             this.shoppingListAll.set(list_category_id, res['inventory']);
+    //             this.shoppingListAllTotal.set(list_category_id, res['category']);
+    //             this.getInventoryByCategory(this.store_id, list_category_id);
+    //           }
+    //         })
+    //     }
+    //     this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
+    //       this.shoppingToSelectFrom = response;
+    //     });
 
-        // it needs to to be synced amongst all family_members
-        // the event of checking out mut be propergated to all active
-        // sessions
+    //     // it needs to to be synced amongst all family_members
+    //     // the event of checking out mut be propergated to all active
+    //     // sessions
 
-        this.shoppingToSelectFrom.forEach(x=>{
-          if( this.selectShoppingListForm.controls['shopping_list_form'].value && 
-              this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_date'] == x['shopping_date'] &&
-              this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_list_to_inventory.inventory_to_store.store_id'] == 
-              x['shopping_list_to_inventory.inventory_to_store.store_id'] ) {
+    //     this.shoppingToSelectFrom.forEach(x=>{
+    //       if( this.selectShoppingListForm.controls['shopping_list_form'].value && 
+    //           this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_date'] == x['shopping_date'] &&
+    //           this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_list_to_inventory.inventory_to_store.store_id'] == 
+    //           x['shopping_list_to_inventory.inventory_to_store.store_id'] ) {
 
-            removeShoppingList = false;
-            if(this.newShoppingListCreated) {  
-              this.newShoppingListCreated = false;  // a new shopping list that was created, is now stored
-            }
+    //         removeShoppingList = false;
+    //         if(this.newShoppingListCreated) {  
+    //           this.newShoppingListCreated = false;  // a new shopping list that was created, is now stored
+    //         }
 
-          }
-        })
+    //       }
+    //     })
 
-        if( !this.newShoppingListCreated && removeShoppingList ) {
-          this.resetShoppingState();
-          this.selectShoppingListForm.controls['shopping_list_form'].reset();
-          this.onSelectShoppingList()
-        }
-        this.loadShoppingListStatus();
-      })
+    //     if( !this.newShoppingListCreated && removeShoppingList ) {
+    //       this.resetShoppingState();
+    //       this.selectShoppingListForm.controls['shopping_list_form'].reset();
+    //       this.onSelectShoppingList()
+    //     }
+    //     this.loadShoppingListStatus();
+    //   })
   }
 
   ngOnDestroy() {
@@ -329,6 +338,30 @@ resetShoppingState(){
   this.store_id = 0;
   this.store_name = "";
   this.list_category_id = 0;
+}
+
+
+
+onInventoryEdit(inventory_id: number){
+  this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
+}
+onInventoryEditDone(inventory_id: number, $event: any){
+  console.log('onInventoryEditDone', inventory_id, $event)
+  this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
+
+  // if quantity got changed, update the list
+  if( $event ){
+    this.getShoppingListByCategory(this.shopping_date,
+     this.store_id,
+     this.list_category_id);
+
+  // this.selectedInventoryFlag[list_category_id] = true;
+  // this.selectShoppingListForm.controls['select_shopping_category'].reset();  //patchValue(null);
+  }
+}
+
+onPenEdit(inventory_id: number, $event: any){
+  console.log('onPenEdit', inventory_id, $event)
 }
 
   // When a shopping list is selected from the <Select Shopping List>,
@@ -397,6 +430,7 @@ resetShoppingState(){
         console.error("Error in selecting shopping list", e);
       }
     });
+
   }
 
 
@@ -635,6 +669,18 @@ resetShoppingState(){
     return 0;
   }
 
+  get familyMemberID(){
+    return this.authenticationService.familyMemberValue!.family_id;
+  }
+
+  get shoppingDate(){
+    return this.shopping_date;
+  }
+
+  get inventoryBackground(){
+    return "bg-inventory";
+  }
+
   // Load the shopping list by categories to match the accordion selector
   // and handle each section individually.
   getShoppingListByCategory(shopping_date: string, store_id: number, list_category_id: number) {
@@ -679,6 +725,10 @@ resetShoppingState(){
         }
       })
   }
+
+
+
+
 
 
 
