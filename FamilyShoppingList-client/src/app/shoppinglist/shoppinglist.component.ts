@@ -23,7 +23,7 @@ import { AuthenticationService } from '../authentication/authentication.service'
 
 import { Inventory } from '../models/inventory.model'
 
-import { NEVER, interval } from 'rxjs';
+import { interval } from 'rxjs';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 
@@ -54,13 +54,16 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   newInventoryDisplay: boolean = true;
   isInventoryEdit: boolean[] = [];
 
+  // turn on/off monitoring of changes
+  isMonitorOn: boolean = true;
+
   isImageDisabled: boolean = false;
   isShopping: boolean = false;
   isCheckout: boolean = false;
   isCheckoutConfirm: boolean = false;
   statusShoppingList: number = 0;
 
-  pollingTimeInSeconds: number = 5000;
+  pollingTimeInSeconds: number = 60000;
   pollingData: any;
   pollingShoppedItems: any;
 
@@ -180,7 +183,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-
     this.selectShoppingListForm = this.formBuilder.group({
       // the selected shopping list
       shopping_list_form: null,
@@ -254,68 +256,73 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     // no store is selected yet
     this.hasStore = false;
 
-    // this.pollingShoppedItems = this.shoppingListService.pollShoppedItemStatus()
-    //   .subscribe((v) => {
-    //     if (v && v['inventory_id']) {
-    //       let inventoryList: number[] = v['inventory_id'];
-    //       this.inventoryImage = [];
-    //       inventoryList.forEach((inventory_id: number) => {
-    //         this.inventoryImage[inventory_id] = "disabled";
-    //       })
-    //     }
-    //   })
+    if( this.isMonitorOn ) {
+    
+      this.pollingShoppedItems = this.shoppingListService.pollShoppedItemStatus()
+        .subscribe((v) => {
+          if (v && v['inventory_id']) {
+            let inventoryList: number[] = v['inventory_id'];
+            this.inventoryImage = [];
+            inventoryList.forEach((inventory_id: number) => {
+              this.inventoryImage[inventory_id] = "disabled";
+            })
+          }
+        })
 
-    // this.subChangeCategory = interval(this.pollingTimeInSeconds)
-    //   .subscribe(() => {
-    //     let removeShoppingList = true;
-    //     for (let item in this.listCategories) {
-    //       const list_category_id = this.listCategories[item]['list_category_id'];
-    //       this.shoppingListService.getListByCategoryByGroupCached(this.shopping_date, this.store_id, list_category_id, this.authenticationService.familyMemberValue!.family_id)
-    //         .subscribe((res) => {
-    //           if (res != null && this.shoppingListAll.get(list_category_id) != undefined ) {
-    //             this.shoppingListAll.delete(list_category_id);
-    //             this.shoppingListAllTotal.delete(list_category_id);
-    //             this.shoppingListAll.set(list_category_id, res['inventory']);
-    //             this.shoppingListAllTotal.set(list_category_id, res['category']);
-    //             this.getInventoryByCategory(this.store_id, list_category_id);
-    //           }
-    //         })
-    //     }
-    //     this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
-    //       this.shoppingToSelectFrom = response;
-    //     });
+      this.subChangeCategory = interval(this.pollingTimeInSeconds)
+        .subscribe(() => {
+          let removeShoppingList = true;
+          for (let item in this.listCategories) {
+            const list_category_id = this.listCategories[item]['list_category_id'];
+            this.shoppingListService.getListByCategoryByGroupCached(this.shopping_date, this.store_id, list_category_id, this.authenticationService.familyMemberValue!.family_id)
+              .subscribe((res) => {
+                if (res != null && this.shoppingListAll.get(list_category_id) != undefined ) {
+                  this.shoppingListAll.delete(list_category_id);
+                  this.shoppingListAllTotal.delete(list_category_id);
+                  this.shoppingListAll.set(list_category_id, res['inventory']);
+                  this.shoppingListAllTotal.set(list_category_id, res['category']);
+                  this.getInventoryByCategory(this.store_id, list_category_id);
+                }
+              })
+          }
+          this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
+            this.shoppingToSelectFrom = response;
+          });
 
-    //     // it needs to to be synced amongst all family_members
-    //     // the event of checking out mut be propergated to all active
-    //     // sessions
+          // it needs to to be synced amongst all family_members
+          // the event of checking out mut be propergated to all active
+          // sessions
 
-    //     this.shoppingToSelectFrom.forEach(x=>{
-    //       if( this.selectShoppingListForm.controls['shopping_list_form'].value && 
-    //           this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_date'] == x['shopping_date'] &&
-    //           this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_list_to_inventory.inventory_to_store.store_id'] == 
-    //           x['shopping_list_to_inventory.inventory_to_store.store_id'] ) {
+          this.shoppingToSelectFrom.forEach(x=>{
+            if( this.selectShoppingListForm.controls['shopping_list_form'].value && 
+                this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_date'] == x['shopping_date'] &&
+                this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_list_to_inventory.inventory_to_store.store_id'] == 
+                x['shopping_list_to_inventory.inventory_to_store.store_id'] ) {
 
-    //         removeShoppingList = false;
-    //         if(this.newShoppingListCreated) {  
-    //           this.newShoppingListCreated = false;  // a new shopping list that was created, is now stored
-    //         }
+              removeShoppingList = false;
+              if(this.newShoppingListCreated) {  
+                this.newShoppingListCreated = false;  // a new shopping list that was created, is now stored
+              }
 
-    //       }
-    //     })
+            }
+          })
 
-    //     if( !this.newShoppingListCreated && removeShoppingList ) {
-    //       this.resetShoppingState();
-    //       this.selectShoppingListForm.controls['shopping_list_form'].reset();
-    //       this.onSelectShoppingList()
-    //     }
-    //     this.loadShoppingListStatus();
-    //   })
+          if( !this.newShoppingListCreated && removeShoppingList ) {
+            this.resetShoppingState();
+            this.selectShoppingListForm.controls['shopping_list_form'].reset();
+            this.onSelectShoppingList()
+          }
+          this.loadShoppingListStatus();
+        })
+      }
   }
 
   ngOnDestroy() {
-    this.stopPolling$.next(null);
-    this.pollingShoppedItems.unsubscribe();
-    this.subChangeCategory.unsubscribe();
+    if( this.isMonitorOn ) {
+      this.stopPolling$.next(null);
+      this.pollingShoppedItems.unsubscribe();
+      this.subChangeCategory.unsubscribe();
+    }
   }
 
   get fb() {
@@ -346,7 +353,7 @@ onInventoryEdit(inventory_id: number){
   this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
 }
 onInventoryEditDone(inventory_id: number, $event: any){
-  console.log('onInventoryEditDone', inventory_id, $event)
+  console.log('shoppinglist::onInventoryEditDone', inventory_id, $event)
   this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
 
   // if quantity got changed, update the list
@@ -670,7 +677,8 @@ onPenEdit(inventory_id: number, $event: any){
   }
 
   get familyMemberID(){
-    return this.authenticationService.familyMemberValue!.family_id;
+    console.log('ShoppinglistComponent --> family_member_id', this.authenticationService.familyMemberValue!.family_member_id);
+    return this.authenticationService.familyMemberValue!.family_member_id;
   }
 
   get shoppingDate(){

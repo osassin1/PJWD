@@ -79,9 +79,15 @@ export class ShoppinglistAddComponent implements OnInit {
   }
 
   onInventoryEditDone(inventory_id: number, $event: any){
-
+    console.log('shoppinglist-add::onInventoryEditDone',$event)
+    this.selectedInventory=null;
+    this.done.emit($event);
   }
 
+  onSelectedInventory(){
+    this.selectedInventory = this.shoppingListAddForm.controls['inventoryToAdd'].value;
+  }
+  
   doNothing(){
 
   }

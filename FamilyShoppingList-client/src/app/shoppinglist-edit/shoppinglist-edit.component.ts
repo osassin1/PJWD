@@ -57,7 +57,16 @@ export class ShoppinglistEditComponent implements OnInit{
 
   ngOnInit() {
 
-    this.quantity = parseInt(this.shoppingListItem.family_members.find((v:any) => v.family_member_id == this.familyMemberID )?.quantity || "1" );
+    console.log('ShoppinglistEditComponent')
+
+    console.log('familyMemberID', this.familyMemberID)
+    console.log('this.shoppingListItem.family_members', this.shoppingListItem.family_members)
+
+    if( this.shoppingListItem.family_members ){
+      this.quantity = parseInt(this.shoppingListItem.family_members.find((v:any) => v.family_member_id == this.familyMemberID )?.quantity || "1" );
+    } else {
+      this.quantity = 1;
+    }
 
     this.shoppingListEditForm = this.formBuilder.group({
         quantity: this.quantity
@@ -81,7 +90,7 @@ export class ShoppinglistEditComponent implements OnInit{
         this.shoppingListItem.inventory_id, 
         this.quantity).subscribe({
           next: (v) => {
-            console.log('onDoneEdit',v)
+            console.log('shoppinglist-edit::onDoneEdit',v)
           },
           error: (e) => {
             console.error('error', e);

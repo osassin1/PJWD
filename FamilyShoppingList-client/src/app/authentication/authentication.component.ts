@@ -90,6 +90,9 @@ export class AuthenticationComponent implements OnInit {
       .subscribe({
         next: (v) => {
           // go to the returnUrl or '/shoppinglist'
+
+          console.log('loginFamilyMember', v)
+
           this.loading = false;
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/shoppinglist';
           this.router.navigateByUrl(returnUrl);

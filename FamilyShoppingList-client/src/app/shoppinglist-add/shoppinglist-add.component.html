@@ -1,27 +1,24 @@
-
-
-<form [formGroup]="shoppingListAddForm" class="w-100 {{background}}">
-    <div class="d-flex flex-row w-100">
-            <ng-select formControlName="inventoryToAdd" [items]="storeInventoryByCategory" bindLabel="inventory_name"
-                placeholder="Select inventory item" class="ng-select-container" name="mySelectBox"
-                (change)="storeInventoryByCategory" (clear)="storeInventoryByCategory"
-                [(ngModel)]="selectedInventory">
-                <ng-template ng-label-tmp let-item="item">
-                    <span>{{item.name}}</span>
-                </ng-template>
-                <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-                    <img class="inventory-picture me-1" height="40" width="40" [src]="item.picture" />
-                    <span>{{item.name}}</span>
-                </ng-template>
-            </ng-select>
-    </div>
+<div class="d-flex flex-column {{background}} w-100">
+    <form [formGroup]="shoppingListAddForm">
+        <ng-select formControlName="inventoryToAdd" [items]="storeInventoryByCategory" bindLabel="inventory_name"
+            placeholder="Select inventory item" class="ng-select-container" name="mySelectBox"
+            (change)="storeInventoryByCategory" (clear)="storeInventoryByCategory" (click)="onSelectedInventory()"
+            class="w-100">
+            <ng-template ng-label-tmp let-item="item">
+                <span>{{item.name}}</span>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                <img class="inventory-picture me-1" height="40" width="40" [src]="item.picture" />
+                <span>{{item.name}}</span>
+            </ng-template>
+        </ng-select>
+    </form>
     @if(selectedInventory){
-        <app-shoppinglist-edit class="d-flex flex-row w-100" 
-        [shoppingListItem]="selectedInventory"
-        [familyMemberID]="familyMemberID"
-        [shoppingDate]="shoppingDate"
-        [background]="background"
-        (done)="onInventoryEditDone(selectedInventory.inventory_id, $event)">
-    </app-shoppinglist-edit>
+    <div>
+        <app-shoppinglist-edit class="d-flex flex-row w-100" [shoppingListItem]="selectedInventory"
+            [familyMemberID]="familyMemberID" [shoppingDate]="shoppingDate" [background]="background"
+            (done)="onInventoryEditDone(selectedInventory.inventory_id, $event)">
+        </app-shoppinglist-edit>
+    </div>
     }
-</form>
+</div>

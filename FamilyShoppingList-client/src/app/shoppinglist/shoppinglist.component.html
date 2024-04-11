@@ -171,7 +171,7 @@
                                         attr.data-bs-parent="#addInventory_category_{{item.list_category_id}}">
                                         <div class=""> <!-- accordion-body -->
                                             <div class="bg-light">
-                                                <ng-select formControlName="select_shopping_category"
+                                                <!-- <ng-select formControlName="select_shopping_category"
                                                     [items]="selectInventoryByCategory[item.list_category_id]"
                                                     bindLabel="inventory_name" placeholder="Select inventory item"
                                                     class="ng-select-container" name="mySelectBox"
@@ -186,15 +186,17 @@
                                                             [src]="getPicture(item.inventory_id)" />
                                                         <span>{{item.inventory_name}}</span>
                                                     </ng-template>
-
-                                                </ng-select>
+                                                </ng-select> -->
 
 
                                                 <app-shoppinglist-add class="d-flex flex-row w-100"
                                                     [storeID]="store_id"
-                                                    [listCategoryID]="item.list_category_id">
-
-                                                </app-shoppinglist-add>
+                                                    [shoppingDate]="shoppingDate"
+                                                    [familyMemberID]="familyMemberID"
+                                                    [listCategoryID]="item.list_category_id"
+                                                    [background]="inventoryBackground"
+                                                    (done)="onInventoryEditDone(item.inventory_id, $event)">
+                                                 </app-shoppinglist-add>
 
                                                 @if(!selectedInventoryFlag[item.list_category_id]){
 
