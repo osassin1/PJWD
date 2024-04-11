@@ -14,9 +14,14 @@
                     <span>{{item.name}}</span>
                 </ng-template>
             </ng-select>
-            selectedInventory: {{selectedInventory | json}}
     </div>
     @if(selectedInventory){
-
+        <app-shoppinglist-edit class="d-flex flex-row w-100" 
+        [shoppingListItem]="selectedInventory"
+        [familyMemberID]="familyMemberID"
+        [shoppingDate]="shoppingDate"
+        [background]="background"
+        (done)="onInventoryEditDone(selectedInventory.inventory_id, $event)">
+    </app-shoppinglist-edit>
     }
 </form>

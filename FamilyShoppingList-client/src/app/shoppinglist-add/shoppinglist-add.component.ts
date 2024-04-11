@@ -8,6 +8,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { InventoryService } from '../inventory/inventory.service';
 import { ShoppingListService } from '../shoppinglist/shoppinglist.service';
 
+import { ShoppinglistEditComponent } from '../shoppinglist-edit/shoppinglist-edit.component';
 import { InventoryPictureComponent } from '../inventory-picture/inventory-picture.component'
 //import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 import { Inventory } from '../models/inventory.model'
@@ -20,6 +21,7 @@ import { Inventory } from '../models/inventory.model'
     NgSelectModule,
     ReactiveFormsModule,
     InventoryPictureComponent,
+    ShoppinglistEditComponent
   ],
   templateUrl: './shoppinglist-add.component.html',
   styleUrl: './shoppinglist-add.component.css'
@@ -76,7 +78,9 @@ export class ShoppinglistAddComponent implements OnInit {
     // }) 
   }
 
+  onInventoryEditDone(inventory_id: number, $event: any){
 
+  }
 
   doNothing(){
 
