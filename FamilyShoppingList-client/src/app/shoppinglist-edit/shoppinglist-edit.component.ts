@@ -8,8 +8,10 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { InventoryService } from '../inventory/inventory.service';
 import { ShoppingListService } from '../shoppinglist/shoppinglist.service';
 
+
 import { InventoryPictureComponent } from '../inventory-picture/inventory-picture.component'
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
+import { Inventory } from '../models/inventory.model'
 
 @Component({
   selector: 'app-shoppinglist-edit',
@@ -26,7 +28,7 @@ import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 export class ShoppinglistEditComponent implements OnInit{
 
   // @Input() store!: Store;
-  @Input() shoppingListItem!: ShoppingListInventory;
+  @Input() shoppingListItem!: ShoppingListInventory | Inventory;
   @Input() familyMemberID: number = 0;
   @Input() shoppingDate: string = "";
   @Input() background: string = "";
@@ -55,7 +57,11 @@ export class ShoppinglistEditComponent implements OnInit{
 
   ngOnInit() {
 
-    this.quantity = parseInt(this.shoppingListItem.family_members.find((v) => v.family_member_id == this.familyMemberID )?.quantity || "1" );
+
+    if( true ){
+      //console.log( is( this.shoppingListItem, Inventory) );
+    }
+    //this.quantity = parseInt(this.shoppingListItem.family_members.find((v) => v.family_member_id == this.familyMemberID )?.quantity || "1" );
 
     this.shoppingListEditForm = this.formBuilder.group({
         quantity: this.quantity

@@ -13,13 +13,13 @@
                         <label class="input-label">Name</label>
                     </div>
                     <div style="color: navy; font-weight:600; max-width: max-content;">
-                        <p>{{shoppingListItem.inventory_name}}</p>
+                        <p>{{shoppingListItem.name}}</p>
                     </div>
                     <div>
                         <label class="input-label">Notes</label>
                     </div>
                     <div style="color: navy; font-weight:400; max-width: max-content;">
-                        <p>{{shoppingListItem.inventory_notes}}</p>
+                        <p>{{shoppingListItem.notes}}</p>
                     </div>
                     <div>
                         <label class="input-label">Quantity</label>
@@ -43,7 +43,7 @@
                             (click)="doIncreaseShoppingListQuantity()">
                         </button>
                         <div class="d-flex align-items-center mx-2">
-                            {{shoppingListItem.inventory_symbol}}
+                            {{shoppingListItem.symbol}}
                         </div>
                     </div>
                     <div>
@@ -58,8 +58,8 @@
                                     </div>
                                 </div>
                                 <div class="d-flex px-1 {{disabledString}}">
-                                    {{adjustForDecimals(inventoryItemDetail.quantity,shoppingListItem.inventory_unit)}}
-                                    {{shoppingListItem.inventory_symbol}}
+                                    {{adjustForDecimals(inventoryItemDetail.quantity,shoppingListItem.unit)}}
+                                    {{shoppingListItem.symbol}}
                                 </div>
                             </div>
                             }

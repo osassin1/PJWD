@@ -5,6 +5,9 @@ export interface Inventory {
     picture: any,
     name: string,               // "inventory_name": "Butternut squash, organic",
     notes: string,              // "inventory_notes": "Get the largest available.",
+    symbol: string,     // to comply with shopping_list_inventory
+    unit: number,    // to comply with shopping_list_inventory
+    family_members: any,
     inventory_to_quantity : {
         quantity_id: number,
         name: string,

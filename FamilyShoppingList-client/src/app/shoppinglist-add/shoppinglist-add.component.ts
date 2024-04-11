@@ -37,6 +37,7 @@ export class ShoppinglistAddComponent implements OnInit {
 
   shoppingListAddForm!: FormGroup;
 
+  selectedInventory: any;
   storeInventoryByCategory:  Inventory[] = [];
 
   constructor(

@@ -61,6 +61,9 @@ export class InventoryComponent implements OnInit {
     name: "",
     picture: "no_picture.jpg", 
     notes: "", 
+    symbol: "",
+    unit: 0,
+    family_members: null,
     inventory_to_quantity: {
       quantity_id:0,
       name: "",

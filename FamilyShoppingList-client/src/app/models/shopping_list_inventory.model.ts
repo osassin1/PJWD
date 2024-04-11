@@ -6,10 +6,10 @@ export interface ShoppingListInventory {
     shopping_status_id: number,           // 1: open, 2: incart, 3: purchased, 4: closed
     inventory_id: number,                 // "inventory_id": 4,
     picture: SafeUrl,
-    inventory_name: string,               // "inventory_name": "Butternut squash, organic",
-    inventory_notes: string,              // "inventory_notes": "Get the largest available.",
-    inventory_symbol: string,             // "inventory_symbol": "lbs",
-    inventory_unit: number, 
+    name: string,               // "inventory_name": "Butternut squash, organic",
+    notes: string,              // "inventory_notes": "Get the largest available.",
+    symbol: string,             // "inventory_symbol": "lbs",
+    unit: number, 
     family_members : [
         {
             name : string,                // "name": "orange"
