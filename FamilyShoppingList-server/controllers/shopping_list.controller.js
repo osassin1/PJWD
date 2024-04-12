@@ -10,7 +10,7 @@ const inventory = db.inventory;
 const store = db.store;
 const family_member = db.store;
 const quantity = db.store;
-const list_category = db.list_category;
+//const list_category = db.list_category;
 
 const Op = db.Sequelize.Op;
 const sequelize = db.sequelize
@@ -82,12 +82,68 @@ exports.changeShoppingStatus = (req, res) => {
   //console.log('startShopping::shoppingMap', [...shoppingMap.entries()])
   let key = new ShoppingKey(shopping_date, store_id, family_id);
   
-  // console.log('key', key.key())
+  console.log('key', key.key())
 
   shoppingMap = shoppingMap.set( key.key(), shopping_status);
 
- // console.log('startShopping::shoppingMap', [...shoppingMap.entries()])
+  console.log('startShopping::shoppingMap', [...shoppingMap.entries()])
 }  
+
+
+
+exports.checkoutShoppingList = (req, res) => {
+  shopping_date = req.body.shopping_date;
+  store_id = parseInt(req.body.store_id);
+  family_id = parseInt(req.body.family_id); 
+  //shopping_status_id = req.body.shopping_status_id;
+
+  let key = new ShoppingKey(shopping_date, store_id, family_id);
+  shoppingMap = shoppingMap.delete(key.key());
+
+  shopping_list.update({
+    shopping_status_id: 3
+  },{
+    where : {
+      shopping_date: shopping_date,
+      shopping_status_id: 2,
+      family_member_id: {
+        [Op.in]:  Sequelize.literal(`(select family_member_id from family_member where family_id=${family_id})`)
+      }
+    }
+  }).then( f1 => {
+    console.log('f1',JSON.stringify(f1));
+    if( f1 ) {
+      res.status(200).send();
+    } else {
+      res.status(500).send({
+        message: "error while checkout shopping list."      
+      });
+    }
+  })
+
+  shopping_list.update({
+    shopping_status_id: 4
+  },{
+    where : {
+      shopping_date: shopping_date,
+      shopping_status_id: 1,
+      family_member_id: {
+        [Op.in]:  Sequelize.literal(`(select family_member_id from family_member where family_id=${family_id})`)
+      }
+    }
+  }).then( f1 => {
+    console.log('f1',JSON.stringify(f1));
+    if( f1 ) {
+      res.status(200).send();
+    } else {
+      res.status(500).send({
+        message: "error while checkout shopping list."      
+      });
+    }
+  })
+
+
+}
 
 
 
@@ -113,6 +169,13 @@ exports.getShoppingListStatus = (req, res) => {
 }
 
 
+exports.getAllShoppingListStatus = (req, res) => {
+  
+  //let response = `{ "key": ${shoppingMap}, "status": ${status}}`
+  let response = shoppingMap.toJSON();
+  console.log('getShoppingListStatus response', response);
+  res.send(response);
+}
 
 
 
@@ -260,6 +323,27 @@ exports.getShoppedItemStatus = (req, res) => {
 
 
 
+// exports.createShoppingList = (req, res) => {
+//   shopping_list.build({
+//     shopping_date: req.body.shopping_date,
+//     family_member_id: req.body.family_member_id,
+//     inventory_id : req.body.inventory_id,
+//     quantity: req.body.quantity,
+//     created_at: new Date(),
+//     updated_at : new Date()
+//   }).save().then(insertResult =>{
+//     console.log('shopping_list.build --> insertResult', insertResult);
+//   }).catch(error_insert => {
+//     console.log('error_insert',error_insert);
+//     res.status(500).send({
+//       message: error_insert.message || "error while inserting during updating shopping list."      
+//     })
+//   })
+// }
+
+
+
+
 exports.updateShoppingList = (req, res) => {
   // if quantity is 0 then remove the item from
   // the shopping list otherwise update the quantity
@@ -293,8 +377,8 @@ exports.updateShoppingList = (req, res) => {
           inventory_id : req.body.inventory_id
         }
       }).then( result =>{
-        //console.log('result', result);
-        res.send( String(result) );
+        console.log('result', result);
+        //res.send( String(result) );
 
         // no updates performed, so enter it (create a new record)
         if( result == 0 ){
@@ -303,16 +387,20 @@ exports.updateShoppingList = (req, res) => {
             family_member_id: req.body.family_member_id,
             inventory_id : req.body.inventory_id,
             quantity: req.body.quantity,
+            shopping_status_id: 1,  // status is 'open'
             created_at: new Date(),
             updated_at : new Date()
           }).save().then(insertResult =>{
-            //console.log('shopping_list.build --> insertResult', insertResult);
+            console.log('shopping_list.build --> insertResult', insertResult);
+            res.send( insertResult );
           }).catch(error_insert => {
             console.log('error_insert',error_insert);
             res.status(500).send({
               message: error_insert.message || "error while inserting during updating shopping list."      
             })
           })
+        }else{
+          res.send( result );
         }
       }).catch(error_update => {
         console.log('error_update',error_update);
@@ -337,11 +425,17 @@ exports.getShoppingDates = (req, res) => {
       association: 'shopping_list_to_inventory', attributes: [], exclude: ['inventory_id', 'store_id'],
       include: { association: 'inventory_to_store', attributes: ['name'], exclude: ['store_id'] }
     }],
+    where: {
+      shopping_status_id: {
+        [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
+      }
+    },
     order : [['shopping_date', 'ASC']],
     group: ['shopping_date', 'shopping_list_to_inventory->inventory_to_store.store_id'],
     
 
   }).then(data => {
+    console.log('getShoppingDates', JSON.stringify(data) )
     res.send(data);
   })
     .catch(err => {
@@ -351,22 +445,6 @@ exports.getShoppingDates = (req, res) => {
       });
     });
 };
-
-
-exports.getListCategory = (req, res) => {
-  list_category.scope('excludeCreatedAtUpdateAt').findAll({
-    attributes: ['list_category_id', 'name'],
-    order: [['list_category_id', 'ASC']]
-  }).then(data => {
-    res.send(data);
-  })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "error while retrieving list categories."
-      });
-    });;
-}
 
 
 exports.getList = (req, res) => {
@@ -413,7 +491,8 @@ exports.getListByCategoryGroupByCached = (req, res) => {
 
 exports.getListByCategoryGroupBy = (req, res) => {
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
-    attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id',  'shopping_status_id', '`shopping_list_to_inventory`.`name`'],
+    attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id',  'shopping_status_id', 
+                 '`shopping_list_to_inventory`.`name`'],
     include: [{
       association: 'shopping_list_to_family_member', attributes: ['first_name', 'last_name', 'color_id'],
       where: { family_id: req.query.family_id },
@@ -425,21 +504,29 @@ exports.getListByCategoryGroupBy = (req, res) => {
       include: [{ association: 'inventory_to_store', attributes: ['store_id'] },
       { association: 'inventory_to_list_category', attributes: ['name'] },
       { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'] }],
-      exclude: ['picture'],
+      //exclude: ['picture'],
       where: {
         store_id: req.query.store_id,
         list_category_id: req.query.list_category_id
       }
     }],
     where: {
-      shopping_date: req.query.shopping_date
+      shopping_date: req.query.shopping_date,
+      shopping_status_id: {
+        [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
+      }
+
+
     },
     order: [
       [ 'shopping_list_to_inventory', 'name', 'ASC'] 
     ]
   }).then(data => {
 
-  
+    //console.log('data',data)
+
+    //console.log('data',data.toString())
+    //res.send(data);
 
 
     // The map reduces the number of entries to one, eliminating duplicates. 
@@ -452,6 +539,8 @@ exports.getListByCategoryGroupBy = (req, res) => {
     var categoryTotalNumOfItems = 0;
 
     data.forEach(x => {
+
+      console.log('x-->', x['shopping_list_to_inventory']['picture'])
 
       colorForCategory = colorForCategory.push(x['shopping_list_to_family_member']['family_member_to_color']['name']);
       if( categoryName.length == 0){
@@ -467,10 +556,11 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'quantity' : x['quantity'],
           'shopping_status_id' : x['shopping_status_id'],
           'inventory_id' : x['inventory_id'],
-          'inventory_name' : x['shopping_list_to_inventory']['name'],
-          'inventory_notes' : x['shopping_list_to_inventory']['notes'],
-          'inventory_symbol' : x['shopping_list_to_inventory']['inventory_to_quantity']['symbol'],
-          'inventory_unit' : x['shopping_list_to_inventory']['inventory_to_quantity']['unit'],
+          'name' : x['shopping_list_to_inventory']['name'],
+          'notes' : x['shopping_list_to_inventory']['notes'],
+          //'picture': x['shopping_list_to_inventory']['picture'],
+          'symbol' : x['shopping_list_to_inventory']['inventory_to_quantity']['symbol'],
+          'unit' : x['shopping_list_to_inventory']['inventory_to_quantity']['unit'],
           'family_members' : [ {'name' : x['shopping_list_to_family_member']['family_member_to_color']['name'],
                                 'quantity' : x['quantity'],
                                 'first_name' : x['shopping_list_to_family_member']['first_name'],
@@ -478,6 +568,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
                                 'family_member_id' : x['family_member_id'],
             } ] 
         });
+        //console.log('newInventoryData', newInventoryData.get(x['inventory_id']))
       } 
       else {
           var y = newInventoryData.get(x['inventory_id']); 
@@ -495,10 +586,11 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'quantity' : parseFloat(y['quantity']) + parseFloat(x['quantity']),
           'shopping_status_id' : x['shopping_status_id'],
           'inventory_id' : x['inventory_id'],
-          'inventory_name' : y['inventory_name'],
-          'inventory_notes' : y['inventory_notes'],
-          'inventory_symbol' : y['inventory_symbol'],
-          'inventory_unit' : y['inventory_unit'],
+          'name' : y['name'],
+          'notes' : y['notes'],
+          //'picture': y['picture'],
+          'symbol' : y['symbol'],
+          'unit' : y['unit'],
           'family_members' : family_member_array });
       }
       
@@ -515,6 +607,8 @@ exports.getListByCategoryGroupBy = (req, res) => {
 
     let listByCategoryKey = new ListByCategoryKey(req.query.shopping_date, req.query.store_id, req.query.family_id, req.query.list_category_id);
     listByCategory = listByCategory.set(listByCategoryKey.key(), returnData);
+
+    console.log('getListByCategoryGroupBy', JSON.stringify(returnData) )
 
     res.send(returnData);
   })

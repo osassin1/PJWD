@@ -8,6 +8,7 @@ import { FamilyMember } from '../models/family_member.model';
 export class FamilyMemberService implements FamilyMember {
     
     public family_member_id: number = 0;
+    public family_code: string = '';
     public username: string = '';
     public first_name: string = '';
     public last_name: string = '';
@@ -19,11 +20,13 @@ export class FamilyMemberService implements FamilyMember {
             family_member_id: number,
             name: string 
     } = {color_id:0, family_member_id:0, name: ''};
-    private is_authenticated : boolean = false;
+    
+    //private is_authenticated : boolean = false;
 
 
     set familyMember( value : FamilyMember ){
         this.family_member_id = value.family_member_id;
+        this.family_code = value.family_code;
         this.username = value.username;
         this.first_name = value.first_name;
         this.last_name = value.last_name;
@@ -43,11 +46,11 @@ export class FamilyMemberService implements FamilyMember {
     // get colorID() { return this.color.color_id; }
     // get colorName() { return this.color.name; } 
 
-    set isAuthenticated(value : boolean){
-        this.is_authenticated = value;
-    }
+    // set isAuthenticated(value : boolean){
+    //     this.is_authenticated = value;
+    // }
 
-    get isAuthenticated(){
-        return this.is_authenticated;
-    }
+    // get isAuthenticated(){
+    //     return this.is_authenticated;
+    // }
 };

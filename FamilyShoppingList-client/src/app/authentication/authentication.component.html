@@ -1,147 +1,150 @@
 <form [formGroup]="formLoginSignup">
 
-<div *ngIf="!getSignup()">
-	<div class="d-flex justify-content-center mt-5">
-    <div class="flex-row ">
-        <div class="card" style="width: 20rem; align-content:center">
-            <h4 class="card-header" style="background-color:lightskyblue">FamilyShoppingList</h4>
-            <div class="card-body">
-                <!-- <form [formGroup]="loginForm"> -->
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <input type="text" formControlName="username" class="form-control" [ngClass]="{ 'is-invalid': submittedLogin && f['username'].errors }" />
-                        <div *ngIf="submittedLogin && f['username'].errors" class="invalid-feedback">
-                            <div *ngIf="f['username'].errors['required']">username is required</div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" formControlName="password" class="form-control" [ngClass]="{ 'is-invalid': submittedLogin && f['password'].errors }" />
-                        <div *ngIf="submittedLogin && f['password'].errors" class="invalid-feedback">
-                            <div *ngIf="f['password'].errors['required']">password is required</div>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-row justify-content-between itemdisplay">
-                        <button [disabled]="loading" class="btn btn-primary" (click)="onLogin()">
-                            <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
-                            Login
-                        </button>
-                        <button class="btn btn-secondary" (click)="onSignup()">Signup</button>
-                    </div>
-                    <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
-                <!-- </form> -->
-            </div>
-        </div>    
-    </div>
-</div>    
-</div>
-<div *ngIf="getSignup()">
-	<div class="d-flex justify-content-center mt-5">
-	<div class="flex-row">
-		<div class="card" style="width: 24rem;">
-			<h4 class="card-header" style="background-color:lightskyblue">FamilyShoppingList</h4>
-			<div class="card-body">
-				<!-- <form [formGroup]="signupForm"> -->
-					<div class="mb-3">
-						<label class="form-label">Family Code</label>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="familyCodeRadio" id="familyCodeRadioExisting" checked>
-							<label class="form-check-label" for="familyCodeRadioExisting">
-							  existing code
-							</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="familyCodeRadio" id="familyCodeRadioNew" 
-							   (change)="onNewFamilyCode()">
-							<label class="form-check-label" for="familyCodeRadioNew">
-							 new code
-							</label>
-						</div>
-
-						<input type="text" formControlName="familyCode" class="form-control"
-								[ngClass]="{ 'is-invalid': fgc['familyCode'].errors }" />
-						<div *ngIf="fgc['familyCode'].errors" class="invalid-feedback">
-							<div *ngIf="fgc['familyCode'].errors['required']">code is required</div>
-							<div *ngIf="fgc['familyCode'].errors['codeInValid']">code is invalid</div>
-						</div>
-					</div>
-					<div class="mb-3">
-						<label class="form-label">Username</label>
-						<input type="text" formControlName="username" class="form-control"
-							[ngClass]="{ 'is-invalid': fs['username'].errors }" />
-						<div *ngIf="fs['username'].errors" class="invalid-feedback">
-							<div *ngIf="fs['username'].errors['required']">username is required</div>
-							<div *ngIf="fs['username'].errors['minlength']">username must be at least 6 characters long
-							</div>
-							<div *ngIf="fs['username'].errors['maxlength']">username must be at most 20 characters long
-							</div>
-							<div *ngIf="fs['username'].errors['usernameExists']">username already exists</div>
-						</div>
-					</div>
-					<div class="mb-3">
-						<label class="form-label">Password</label>
-						<input type="password" formControlName="password" class="form-control"
-							[ngClass]="{ 'is-invalid':  fs['password'].errors }" />
-						<div *ngIf="fs['password'].errors" class="invalid-feedback">
-							<div *ngIf="fs['password'].errors['required']">password is required</div>
-							<div *ngIf="fs['password'].errors['minlength']">password must be at least 6 characters long
-							</div>
-							<div *ngIf="fs['password'].errors['maxlength']">password must be at most 20 characters long
+	<div *ngIf="!getSignup()">
+		<div class="d-flex justify-content-center mt-5">
+			<div class="flex-row ">
+				<div class="card" style="width: 20rem; align-content:center">
+					<h4 class="card-header" style="background-color:lightskyblue">FamilyShoppingList</h4>
+					<div class="card-body">
+						<div class="mb-3">
+							<label class="form-label">Username</label>
+							<input type="text" formControlName="username" class="form-control input-frame-color"
+								[ngClass]="{ 'is-invalid': submittedLogin && fgc['username'].errors }" />
+							<div *ngIf="submittedLogin && fgc['username'].errors" class="invalid-feedback">
+								<div *ngIf="fgc['username'].errors['required']">username is required</div>
 							</div>
 						</div>
-					</div>
-					<div class="mb-3">
-						<label class="form-label">First Name</label>
-						<input type="text" formControlName="firstName" class="form-control"
-							[ngClass]="{ 'is-invalid': fs['firstName'].errors }" />
-						<div *ngIf="fs['firstName'].errors" class="invalid-feedback">
-							<div *ngIf="fs['firstName'].errors['required']">first name is required</div>
+						<div class="mb-3">
+							<label class="form-label">Password</label>
+							<input type="password" formControlName="password" class="form-control input-frame-color"
+								[ngClass]="{ 'is-invalid': submittedLogin && fgc['password'].errors }" />
+							<div *ngIf="submittedLogin && fgc['password'].errors" class="invalid-feedback">
+								<div *ngIf="fgc['password'].errors['required']">password is required</div>
+							</div>
 						</div>
-					</div>
-					<div class="mb-3">
-						<label class="form-label">Last Name</label>
-						<input type="text" formControlName="lastName" class="form-control"
-							[ngClass]="{ 'is-invalid': fs['lastName'].errors }" />
-						<div *ngIf="fs['lastName'].errors" class="invalid-feedback">
-							<div *ngIf="fs['lastName'].errors['required']">last name is required</div>
-						</div>
-
-					</div>
-					
-					<div *ngIf="submittedSignup && fg.valid">
-						<label for="signupForm">Select color</label>
-						<ng-select [items]="colorsToSelectFrom" bindLabel="name" bindValue="name" placeholder="Select color"
-						    class="custom"
-							formControlName="color_select"
-							labelForId="colorsToSelectFrom" [virtualScroll]="true" 
-							[ngStyle]="{ 'color': 'name' }" [ngClass]="{ 'is-invalid': submittedSignup && fs['color_select'].errors}">
-							<ng-template ng-label-tmp let-item="item" >
-								<span class="d-inline-block rounded-circle p-2" [ngStyle]="{ 'background-color': item.name }"></span>
-								<span class="label-text" [ngStyle]="{ 'color': item.name }">{{item.name}}</span>
-							</ng-template>
-							<ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm" >
-								<span class="d-inline-block rounded-circle p-2" [ngStyle]="{ 'background-color': item.name }"></span>
-								<span class="label-text" [ngStyle]="{ 'color': item.name }"
-									[ngOptionHighlight]="search">{{item.name}}</span>
-							</ng-template>
-						</ng-select>
-						<div *ngIf="submittedSignup && fs['color_select'].errors" class="invalid-feedback">
-							<div *ngIf="fs['color_select'].errors['required']">color is required</div>
-						</div>
-						<br>
-					</div>
-					<div>
 						<div class="d-flex flex-row justify-content-between itemdisplay">
-							<button class="btn btn-primary" type="button" (click)="onSubmitSignup()"
-							[disabled]="!fg.valid"> Signup</button>
-							<button class="btn btn-secondary" (click)="onSignupCancel()">Cancel</button>
+							<button [disabled]="loading" class="btn btn-primary" (click)="onLogin()">
+								<span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+								Login
+							</button>
+							<button class="btn btn-secondary" (click)="onSignup()">Signup</button>
 						</div>
 						<div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
 					</div>
-					<!-- </form> -->
-					</div>
+				</div>
+			</div>
 		</div>
 	</div>
+	<div *ngIf="getSignup()">
+		<div class="d-flex justify-content-center mt-5">
+			<div class="flex-row">
+				<div class="card" style="width: 24rem;">
+					<h4 class="card-header" style="background-color:lightskyblue">FamilyShoppingList</h4>
+					<div class="card-body">
+						<div class="mb-3">
+							<label class="form-label">Family Code</label>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="familyCodeRadio"
+									id="familyCodeRadioExisting" checked>
+								<label class="form-check-label" for="familyCodeRadioExisting">
+									existing code
+								</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="familyCodeRadio"
+									id="familyCodeRadioNew" (change)="onNewFamilyCode()">
+								<label class="form-check-label" for="familyCodeRadioNew">
+									new code
+								</label>
+							</div>
+							<input type="text" formControlName="familyCode" class="form-control input-frame-color"
+								[ngClass]="{ 'is-invalid': fgc['familyCode'].errors }" />
+							<div *ngIf="fgc['familyCode'].errors" class="invalid-feedback">
+								<div *ngIf="fgc['familyCode'].errors['required']">code is required</div>
+								<div *ngIf="fgc['familyCode'].errors['codeInValid']">code is invalid</div>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Username</label>
+							<input type="text" formControlName="username" class="form-control input-frame-color"
+								[ngClass]="{ 'is-invalid': fgc['username'].errors }" />
+							<div *ngIf="fgc['username'].errors" class="invalid-feedback">
+								<div *ngIf="fgc['username'].errors['required']">username is required</div>
+								<div *ngIf="fgc['username'].errors['minlength']">username must be at least 6 characters
+									long
+								</div>
+								<div *ngIf="fgc['username'].errors['maxlength']">username must be at most 20 characters
+									long
+								</div>
+								<div *ngIf="fgc['username'].errors['usernameExists']">username already exists</div>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Password</label>
+							<input type="password" formControlName="password" class="form-control input-frame-color"
+								[ngClass]="{ 'is-invalid':  fgc['password'].errors }" />
+							<div *ngIf="fgc['password'].errors" class="invalid-feedback">
+								<div *ngIf="fgc['password'].errors['required']">password is required</div>
+								<div *ngIf="fgc['password'].errors['minlength']">password must be at least 6 characters
+									long
+								</div>
+								<div *ngIf="fgc['password'].errors['maxlength']">password must be at most 20 characters
+									long
+								</div>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">First Name</label>
+							<input type="text" formControlName="firstName" class="form-control input-frame-color"
+								[ngClass]="{ 'is-invalid': fgc['firstName'].errors }" />
+							<div *ngIf="fgc['firstName'].errors" class="invalid-feedback">
+								<div *ngIf="fgc['firstName'].errors['required']">first name is required</div>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Last Name</label>
+							<input type="text" formControlName="lastName" class="form-control input-frame-color"
+								[ngClass]="{ 'is-invalid': fgc['lastName'].errors }" />
+							<div *ngIf="fgc['lastName'].errors" class="invalid-feedback">
+								<div *ngIf="fgc['lastName'].errors['required']">last name is required</div>
+							</div>
+						</div>
+						<div *ngIf="submittedSignup && fg.valid">
+							<label for="signupForm">Select color</label>
+							<ng-select [items]="colorsToSelectFrom" bindLabel="name" bindValue="color_id"
+								placeholder="Select color" class="custom input-frame-color"
+								formControlName="colorSelect" labelForId="colorsToSelectFrom" [tabIndex]=0
+								[clearable]="false" (change)="onColorSelection($event)" [ngStyle]="{ 'color': 'name' }"
+								[ngClass]="{ 'is-invalid': selectColorError}">
+								<ng-template ng-label-tmp let-item="item">
+									<span class="d-inline-block rounded-circle p-2 family_member_dot"
+										[ngStyle]="{ 'background-color': item.name }"></span>
+									<span class="label-text" [ngStyle]="{ 'color': item.name }">{{item.name}}</span>
+								</ng-template>
+								<ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+									<span class="d-inline-block family_member_dot rounded-circle p-2"
+										[ngStyle]="{ 'background-color': item.name }"></span>
+									<span class="label-text" [ngStyle]="{ 'color': item.name }">{{item.name}}</span>
+								</ng-template>
+							</ng-select>
+							<div *ngIf="submittedSignup && selectColorError" class="invalid-feedback">
+								<div *ngIf="selectColorError">color is required</div>
+							</div>
+							<br>
+						</div>
+						<div>
+							<div class="d-flex flex-row justify-content-between itemdisplay">
+								<button class="btn btn-primary" type="button" (click)="onSubmitSignup()"
+									[disabled]="!fg.valid">
+									<span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+									{{buttonSignup}} </button>
+								<button class="btn btn-secondary" (click)="onSignupCancel()">Cancel</button>
+							</div>
+							<div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-</div>
 </form>

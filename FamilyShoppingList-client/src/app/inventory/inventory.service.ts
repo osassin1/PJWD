@@ -4,11 +4,12 @@ import { Observable } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
+import { Inventory } from '../models/inventory.model';
 
 import { AppConfiguration } from "read-appsettings-json";
 import { catchError, map } from 'rxjs/operators';
 
-
+import{ ListCategory } from '../models/list_category.model';
 
 //const baseUrl = 'http://localhost:8080/api/inventory';
 //const baseUrl = 'http://192.168.1.193:8080/api/inventory';
@@ -36,6 +37,23 @@ export class InventoryService  {
 
     }
 
+    checkInventoryForDeleteion(inventory_id: number){
+        return this.http.get<any>(`${baseUrl}/check_inventory_for_deletion?inventory_id=${inventory_id}`);
+    }
+
+    getListOfStores(): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/list_of_stores`);
+    }
+
+    // load all available quantities from table quantity
+    getQuantities(): Observable<any>{
+        return this.http.get<any>(`${baseUrl}/quantities`);
+    }
+
+    // get all categories that are defined in list_category
+    getListCatgory(): Observable<ListCategory[]> {
+        return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
+    }
 
     getPicture(inventory_id : number): Observable<any>{
         // const httpOptions: Object = {
@@ -56,6 +74,31 @@ export class InventoryService  {
         return this.http.get<any>
              (`${baseUrl}/inventory_by_store?store_id=${store_id}`);
     }
+
+    getInventoryByStoreForEdit(store_id : number): Observable<any>{
+        //  const httpOptions: Object = {
+        //      headers: new HttpHeaders({'Accept': 'image/png'}),
+        //      responseType: 'text' 
+        //    };        
+        const httpOptions: Object = {
+            responseType: 'text'
+        };
+        return this.http.get<any>
+             (`${baseUrl}/inventory_by_store_for_edit?store_id=${store_id}`,httpOptions);
+    }
+
+    getInventoryByStoreForEditByCategory(store_id : number, list_category_id: number): Observable<any>{
+        //  const httpOptions: Object = {
+        //      headers: new HttpHeaders({'Accept': 'image/png'}),
+        //      responseType: 'text' 
+        //    };        
+        const httpOptions: Object = {
+            responseType: 'text'
+        };
+        return this.http.get<any>
+             (`${baseUrl}/inventory_by_store_for_edit_by_category?store_id=${store_id}&list_category_id=${list_category_id}`,httpOptions);
+    }
+
 
 
     getInventoryByCategory(store_id : number, list_category_id : number): Observable<any>{
@@ -121,12 +164,30 @@ export class InventoryService  {
         }
 
 
+        deleteInventoryItem(inventory_id: number ) : Observable<any> {
+            return this.http.post(`${baseUrl}/delete_inventory_item`, {
+                inventory_id
+            });
+        }       
     
 
-    createInventoryItem(name: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
+        updateInventoryItem(inventory_id: number, name: string, notes: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
+            return this.http.post(`${baseUrl}/update_inventory_item`, {
+                inventory_id,
+                name, 
+                notes,
+                picture,
+                store_id,
+                list_category_id,
+                quantity_id
+            });
+        }       
+            
 
+    createInventoryItem(name: string, notes: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
         return this.http.post(`${baseUrl}/create_inventory_item`, {
             name, 
+            notes,
             picture,
             store_id,
             list_category_id,

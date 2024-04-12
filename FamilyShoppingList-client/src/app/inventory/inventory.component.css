@@ -1,0 +1,37 @@
+
+.category-inventory-display {
+    color: navy;
+    font-weight: bold;
+    border: 1px; 
+    /* border-style: solid; */
+    padding: 0.4rem;
+    background-color: rgb(236, 244, 244);
+}
+
+
+
+.row {
+    width: 100%;
+}
+ div.name {
+    width: 45%;
+}
+div.notes {
+    width: 45%;
+}
+
+div.action {
+    width: 15%;
+}
+
+div.picture {
+    width: 4rem;
+    padding-right: 4.5rem;
+}
+
+.icon-style{
+    font-size: 1.25em;
+    text-align: justify;
+    border: 0;
+    padding: 0;
+}

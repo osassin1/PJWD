@@ -30,15 +30,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     picture: {
       type: DataTypes.BLOB('medium'),
       allowNull: true,
-      // get(){
-      //   return this.getDataValue('picture').toString('utf8');
-      // }
+      get(){
+        //return this.getDataValue('picture').toString('utf8');
+        const picValue = this.getDataValue('picture');
+        return picValue ? picValue.toString('utf8') : null;
+      }
     }, 
     notes: DataTypes.STRING,
 
@@ -72,7 +73,13 @@ module.exports = (sequelize, DataTypes) => {
         key: 'quantity_id',
         as: 'inventory_to_quantity' 
       }
-    }
+    },
+
+    status: {
+      type: DataTypes.CHAR,
+      defaultValue: 'A',  // active
+    } 
+
 
   }, {
     sequelize,

@@ -1,0 +1,39 @@
+<div class="d-flex flex-column {{background}}  w-100">
+    <div class="d-flex flex-row">
+    <form [formGroup]="shoppingListAddForm" class="d-flex flex-grow-1">
+        <ng-select formControlName="inventoryToAdd" [items]="storeInventoryByCategory" bindLabel="inventory_name"
+            placeholder="Select inventory item" class="ng-select-container" name="mySelectBox"
+            (change)="storeInventoryByCategory" (clear)="storeInventoryByCategory" (click)="onSelectedInventory()"
+            class="w-100 px-2 my-2">
+            <ng-template ng-label-tmp let-item="item">
+                <span>{{item.name}}</span>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                <img class="inventory-picture me-1" height="40" width="40" [src]="item.picture" />
+                <span>{{item.name}}</span>
+            </ng-template>
+        </ng-select>
+    </form>
+    <button class="ok-cancel-button bi bi-camera {{background}} py-1 my-1"
+            type="button" 
+            (click)="doNewInventoryItemForShoppingList()" [disabled]="false">
+    </button>
+</div>
+    @if(selectedInventory){
+    <div>
+        <app-shoppinglist-edit class="d-flex flex-row w-100 px-1" [shoppingListItem]="selectedInventory"
+            [familyMemberID]="familyMemberID" [shoppingDate]="shoppingDate" [background]="background"
+            (done)="onInventoryEditDone(selectedInventory.inventory_id, $event)">
+        </app-shoppinglist-edit>
+    </div>
+    }
+    @if(newInventory){
+        <div>
+            <app-inventory-edit class="d-flex flex-row w-100" [store]="store"
+                [inventory]="newInventory" [background]="background" 
+                [list_category]="list_category"
+                (done)="onNewInventoryDone(newInventory.inventory_id, $event)">
+            </app-inventory-edit>          
+        </div>
+        }
+    </div>

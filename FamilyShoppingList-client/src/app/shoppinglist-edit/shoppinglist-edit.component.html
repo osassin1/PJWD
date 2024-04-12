@@ -1,0 +1,80 @@
+<form [formGroup]="shoppingListEditForm" class="w-100 {{background}}">
+    <div class="d-flex flex-row w-100">
+
+    <div class="d-flex">
+        <div class="d-flex align-items-center">
+            <img class="inventory-picture"
+                [src]="shoppingListItem.picture" />
+        </div>
+        <div class="w-100">
+            <div class="d-flex flex-row align-items-center m-1">
+                <div class="d-flex flex-column ms-1">
+                    <div>
+                        <label class="input-label">Name</label>
+                    </div>
+                    <div style="color: navy; font-weight:600; max-width: max-content;">
+                        <p>{{shoppingListItem.name}}</p>
+                    </div>
+                    <div>
+                        <label class="input-label">Notes</label>
+                    </div>
+                    <div style="color: navy; font-weight:400; max-width: max-content;">
+                        <p>{{shoppingListItem.notes}}</p>
+                    </div>
+                    <div>
+                        <label class="input-label">Quantity</label>
+                    </div>
+                    <div class="d-flex">
+                        <button type="button"
+                            class="ok-cancel-button {{background}} bi bi-dash-square p-0 my-1"
+                            (click)="doDecreaseShoppingListQuantity()">
+                        </button>
+                        <div class="inventory-input-edit m-1">
+                            <input type="text"
+                                formControlName="quantity"
+                                class="form-control inventory-input-edit input-frame-color"
+                                [max]="50" [min]="0"
+                                (change)="doUpdateQuantity($event)"
+                                [value]="quantity"
+                                style="width: 6rem;" />
+                        </div>
+                        <button type="button"
+                            class="ok-cancel-button {{background}} bi bi-plus-square p-0 my-1"
+                            (click)="doIncreaseShoppingListQuantity()">
+                        </button>
+                        <div class="d-flex align-items-center mx-2">
+                            {{shoppingListItem.symbol}}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="category-item-accordion d-flex flex-column" style="font-size:x-small;">
+                            @for (inventoryItemDetail of shoppingListItem.family_members;
+                            track inventoryItemDetail) {
+                            <div class="d-flex justify-content-end">
+                                <div class="p-0 flex-shrink-1  {{disabledString}}">
+                                    {{inventoryItemDetail.first_name}}
+                                    <div class="d-inline-block {{disabledString}} family_member_dot p-1 "
+                                        [ngStyle]="{ 'background-color': inventoryItemDetail.name}">
+                                    </div>
+                                </div>
+                                <div class="d-flex px-1 {{disabledString}}">
+                                    {{adjustForDecimals(inventoryItemDetail.quantity,shoppingListItem.unit)}}
+                                    {{shoppingListItem.symbol}}
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>            
+        
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-grow-1 align-items-center justify-content-end">
+            <div class="ps-3">
+                <button type="button" class="ok-cancel-button {{background}} bi bi-check-circle" (click)="onDoneEdit()"> </button>
+                <button type="button" class="ok-cancel-button {{background}} bi bi-x-circle " (click)="onCancelEdit()"></button>                
+            </div>
+        </div>
+    </div>
+</form>

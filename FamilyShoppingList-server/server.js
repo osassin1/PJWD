@@ -16,6 +16,7 @@ var allowedlist = ['http://localhost',
   'http://192.168.1.195:8081',
   'http://192.168.1.193:8089',
   'http://192.168.1.195:8089',
+  'http://osassin.tplinkdns.com'
 ]
 var corsOptions = {
   origin: function (origin, callback) {

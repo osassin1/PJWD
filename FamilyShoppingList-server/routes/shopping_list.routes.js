@@ -16,7 +16,7 @@ module.exports = function(app) {
   
     router.get("/shopping_dates", shopping_list.getShoppingDates);
     router.get("/list", shopping_list.getList);
-    router.get("/list_category", shopping_list.getListCategory);
+
 
     //router.get("/list_by_category", shopping_list.getListByCategory);
 
@@ -27,14 +27,19 @@ module.exports = function(app) {
 
     router.post("/log", shopping_list.logShoppingList)
     
-    // start, stop, and mark items hopped
+    // start, stop, and mark items shopped
     router.post("/change_shopping_status", shopping_list.changeShoppingStatus);
+
+    router.post("/checkout_shopping_list", shopping_list.checkoutShoppingList);
+
+    
     // router.post("/start_shopping", shopping_list.startShopping);
     // router.post("/stop_shopping", shopping_list.stopShopping);
     router.post("/shopped_item", shopping_list.shoppedItem);
     router.post("/un_shopped_item", shopping_list.unShoppedItem);
     router.get("/get_shopping_list_status", shopping_list.getShoppingListStatus);
     router.get("/get_shopped_item_status", shopping_list.getShoppedItemStatus);
+    router.get("/get_all_shopping_list_status", shopping_list.getAllShoppingListStatus);
 
     
     app.use('/api/shopping_list', router);

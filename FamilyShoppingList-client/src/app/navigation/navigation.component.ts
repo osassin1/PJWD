@@ -1,32 +1,33 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+
 //import { AuthenticationComponent } from '../authentication/authentication.component';
 import { AuthenticationService } from '../authentication/authentication.service';
-
-//import { FamilyMemberService } from '../family_member/family_member.service';
+import { FamilyMemberService } from '../family_member/family_member.service';
 
 @Component({
   selector: 'app-navigation',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive
+  ],
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.css'
 })
 export class NavigationComponent {
 
-  //constructor(private familyMemberService:FamilyMemberService){}
+  toggleNameFamilyCodeBoolean = false;
+
   constructor(private authenticationService:AuthenticationService){}
 
-  isAuthenticated(){
-     //console.log("NavigationComponent::isAuthenticated() = " );
-      
-     //    this.familyMemberService.isAuthenticated);
-    //return this.familyMemberService.isAuthenticated;
-    return true;
+  get isAuthenticated(){
+    return this.authenticationService.isAuthenticated;
   }
-  logout()
-  {
-    console.log('NavigationComponent: logout');
+
+  logout() {
     this.authenticationService.logout();
   }
 
@@ -46,6 +47,13 @@ export class NavigationComponent {
     }
     return "";
   }
+  get familyCode() {
+    if( this.authenticationService.familyMemberValue ) {
+      return this.authenticationService.familyMemberValue.family_code;
+    }
+    return "";
+  }
+
   color() {
     if( this.authenticationService.familyMemberValue ) {
       return this.authenticationService.familyMemberValue.color.name;
@@ -55,5 +63,9 @@ export class NavigationComponent {
 
   noOfItemsOnList(){
     return 0;
+  }
+
+  toggleNameFamilyCode(){
+    this.toggleNameFamilyCodeBoolean = !this.toggleNameFamilyCodeBoolean;
   }
 }

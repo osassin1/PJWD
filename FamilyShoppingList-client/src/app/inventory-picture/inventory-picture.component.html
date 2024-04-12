@@ -1,0 +1,9 @@
+<form [formGroup]="selectShoppingListForm" >
+    <p class="d-flex justify-content-center fs-4 shoppinglist-card">
+        <input class="file-input" #imageInput type="file"
+            formControlName="image_upload" accept="image/*, .heic, .heif "
+            (change)="imageSelected($event)"
+            (cancel)="imageSelectCancel()"
+            [hidden]="true">
+    </p>
+</form>

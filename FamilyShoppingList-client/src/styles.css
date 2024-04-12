@@ -4,6 +4,81 @@
 
 @import "../node_modules/@ng-select/ng-select/themes/default.theme.css";
 
+
+/* these need to removed  */
+.bg-red {
+    background-color: red;
+}
+
+.bg-blue {
+    background-color: blue;
+}
+
+.bg-green {
+    background-color: green;
+}
+
+/* ------------------------------------------------------- */
+
+
+/* Style for the shopping list categories in format:
+   <category name>  <family member dots> <# total family member entries>
+
+   For example, two family members need <fruits> then there are 
+   two entries
+*/
+.category-total-display {
+    color: navy;
+    font-weight: bold;
+    /* border: 0.1pt;  */
+    border-style: dotted;
+    /* padding: 0.3rem; */
+    background-color: rgb(236, 244, 244);
+}
+
+/* used for circle check or circle x icons
+   thar are used to ok or cancel an input
+*/   
+.ok-cancel-button {
+    font-size: 1.25em;
+    text-align: justify;
+    border: 0;
+    padding: 0.2em;
+    margin-right: 0.2em;
+    &:focus{
+        border-color: #007eff;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);
+    }
+}
+
+button{
+    border: none;
+    /* 1px solid  #ccc; */
+    &:focus {
+        /* border-color: #007eff; */
+        /* box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1); */
+        /* outline-color: #007eff; */
+        /* outline-color: #007eff; */
+        outline-color: #007eff;
+        outline-style: inset;
+        /* outline-style: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 1px rgba(0, 126, 255, 0.1); */
+
+        /* outline: 1px solid  #ccc; */
+        
+    }
+
+    /* &:active{
+        border-color: #007eff; 
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(255, 0, 0, 0.1);
+
+    } */
+
+
+}
+
+/* Each family member gets a color assigned and is displayed
+   as a dot.
+*/
 .family_member_dot {
     width: 10px;
     height: 10px;
@@ -11,6 +86,52 @@
     padding: 10px;
     margin-right: 5px;    
 }
+
+/* the picture taken or uploaded */
+.inventory-picture {
+    height: 4em;
+    width: 4em;
+    min-width: 4em;
+}
+
+/* inventory list items */
+.bg-even{
+    background-color: rgb(242, 246, 251);
+    /* rgb(236, 244, 244); */
+}
+.bg-odd{
+    background-color: white;
+}
+
+.bg-inventory{
+    background-color: rgb(245, 245, 245)
+}
+
+
+.input-label{
+    font-size:small;
+}
+
+.input-frame-color {
+    border: 1px solid  #ccc;
+    color: black;
+    border-radius: 4px;
+    min-height: 36px;
+    outline-color: #007eff;
+    outline-width: 0;
+    border-width: 1px;
+    
+    &:focus{
+        border-color: #007eff;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);
+    }
+    &:invalid{
+        border-color: #ff0000;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);
+
+    }
+}
+
 
 :root {
     color-scheme: only light;
