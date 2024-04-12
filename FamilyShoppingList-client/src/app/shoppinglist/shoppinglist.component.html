@@ -1,6 +1,6 @@
 <!-- <div class="container-fluid"> -->
     <div>
-    <div class="col-md-6">
+    <div class="col-md-8">
         <!-- select an existing shopping list by <date> <store name> -->
         <form [formGroup]="selectShoppingListForm">
             <div class="d-flex flex-row shoppinglist-card py-1 bg-blue">
@@ -75,7 +75,7 @@
                             <label for="storesToSelectFrom" class="input-label">Store</label>
                             <ng-select [items]="storesToSelectFrom" placeholder="Select Store"
                                 labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0
-                                [clearable]="false" (ngModelChange)="onStoreSelectChange()" required
+                                [clearable]="false"  required
                                 [ngClass]="{ 'is-invalid': fb.controls['storesToSelectFrom'].errors }">
                                 <ng-template ng-label-tmp let-item="item">
                                     <span class="label-text">{{item.name}}</span>
@@ -193,7 +193,8 @@
                                                     [storeID]="store_id"
                                                     [shoppingDate]="shoppingDate"
                                                     [familyMemberID]="familyMemberID"
-                                                    [listCategoryID]="item.list_category_id"
+                                                    
+                                                    [list_category]="item"
                                                     [background]="inventoryBackground"
                                                     (done)="onInventoryEditDone(item.inventory_id, $event)">
                                                  </app-shoppinglist-add>
@@ -214,7 +215,7 @@
 
                                                 <!-- (Add To Shopping List) read from the existing inventory and get what quantity is already
                                              on the list from the family member using it  --->
-                                                <div *ngIf="!selectedInventoryFlag[item.list_category_id]">
+                                                <!-- <div *ngIf="!selectedInventoryFlag[item.list_category_id]">
                                                     <div class="d-flex">
                                                         <div class="d-flex align-items-center">
                                                             <img class="inventory-picture"
@@ -265,28 +266,28 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> -->
                                                 <!-- adjusting the quantity on the list / or added to inventory / (click)="handleImage(item.list_category_id)" -->
                                                 <p class="d-flex justify-content-center fs-4 shoppinglist-card">
-                                                    <input class="file-input" #imageInput type="file"
+                                                    <!-- <input class="file-input" #imageInput type="file"
                                                         formControlName="image_upload" accept="image/*, .heic, .heif "
                                                         (change)="imageSelected($event, item.list_category_id)"
-                                                        (cancel)="imageSelectCancel(item.list_category_id)">
+                                                        (cancel)="imageSelectCancel(item.list_category_id)"> -->
 
                                                         <!-- <input class="file-input" #imageInput type="file"
                                                         formControlName="image_upload" accept="image/*, .heic, .heif "
                                                         (change)="imageSelected($event, item.list_category_id)"
                                                         (cancel)="imageSelectCancel(item.list_category_id)"> -->
 
-                                                    <button class="bi bi-camera shoppinglist-card"
+                                                    <!-- <button class="bi bi-camera shoppinglist-card"
                                                         type="button" data-bs-toggle="collapse"
                                                         attr.data-bs-target="#collapse_camera_category_n_{{item.list_category_id}}"
                                                         aria-expanded="false"
                                                         attr.aria-controls="collapse_camera_category_n_{{item.list_category_id}}"
                                                         (click)="imageInput.click()" [disabled]="isImageDisabled">
-                                                    </button>
+                                                    </button> -->
                                                 </p>
-                                                <div class="collapse"
+                                                <!-- <div class="collapse"
                                                     id="collapse_camera_category_n_{{item.list_category_id}}">
                                                     <div class="card inventory-select-accordion">
                                                         <div *ngIf="takePicture[item.list_category_id]=='wait'">
@@ -296,10 +297,6 @@
                                                                         <img class="inventory-picture"
                                                                             [src]="selectedPicture[item.list_category_id]"
                                                                             *ngIf="selectedPicture[item.list_category_id]" />
-                                                                        <!-- <p *ngIf="selectedPicture[item.list_category_id]"
-                                                                            class="inventory-camera-label">
-                                                                            {{imageLength(selectedPicture[item.list_category_id])}}
-                                                                        </p> -->
                                                                     </div>
                                                                 </div>
 
@@ -371,7 +368,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> -->
                                                 <!-- take/load a picture and define what it is-->
                                                 <!-- end of take/load a picture -->
                                             </div>
@@ -393,11 +390,12 @@
                             </div>
                             @if( newInventoryDisplay ){
                                 @if( !isInventoryEdit[inventoryItem.inventory_id] ) {
-                                <button type="button" (click)="onInventoryEdit(inventoryItem.inventory_id)" class="d-flex w-100 align-items-center shoppinglist-card">
-                                <!-- <div class="d-flex align-items-center"> -->
+                                <button type="button" (click)="onInventoryEdit(inventoryItem)" class="d-flex w-100 align-items-center shoppinglist-card">
                                     <div>
                                         <img class="flex-row inventory-picture {{inventoryImage[inventoryItem.inventory_id]}}"
-                                            for="flexCheckIndeterminate" [src]='inventoryItem.picture'>
+                                            for="flexCheckIndeterminate" [src]='getPicture(inventoryItem.inventory_id)'>
+                                            <!-- <img class="flex-row inventory-picture {{inventoryImage[inventoryItem.inventory_id]}}"
+                                            for="flexCheckIndeterminate" [src]='inventoryItem.picture'> -->
                                     </div>
                                     <div class="p-1 flex-grow-1 {{inventoryImage[inventoryItem.inventory_id]}}"
                                         for="flexCheckIndeterminate"
@@ -422,7 +420,6 @@
                                             {{inventoryItem.symbol}}
                                         </div>
                                     </div>
-                                <!-- </div> -->
                                 </button>
                                 } @else {
 

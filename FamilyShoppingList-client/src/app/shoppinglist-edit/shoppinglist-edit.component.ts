@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
-import { InventoryService } from '../inventory/inventory.service';
+
 import { ShoppingListService } from '../shoppinglist/shoppinglist.service';
 
 
@@ -37,31 +37,20 @@ export class ShoppinglistEditComponent implements OnInit{
 
   shoppingListEditForm!: FormGroup;
 
-    // get all available quantities
-    //quantities: any;
 
-    // get all list categories
-    //list_categories: any;
-  
-    // for onPicture to toggle value
-    takePicture: boolean = false;
+    //takePicture: boolean = false;
 
     quantity: number = 0;
 
   constructor(
-    //private inventoryService: InventoryService,
     private shoppingListService: ShoppingListService,
     private formBuilder: FormBuilder ){
   }
 
 
   ngOnInit() {
-
-    console.log('ShoppinglistEditComponent')
-
-    console.log('familyMemberID', this.familyMemberID)
-    console.log('this.shoppingListItem.family_members', this.shoppingListItem.family_members)
-
+    // Select the quantity for a family member if they already have the item
+    // otherwise it's new and gets the default value of 1 (based on feedback)
     if( this.shoppingListItem.family_members ){
       this.quantity = parseInt(this.shoppingListItem.family_members.find((v:any) => v.family_member_id == this.familyMemberID )?.quantity || "1" );
     } else {
@@ -71,14 +60,6 @@ export class ShoppinglistEditComponent implements OnInit{
     this.shoppingListEditForm = this.formBuilder.group({
         quantity: this.quantity
     });
-
-    // this.inventoryService.getQuantities().subscribe(res => {
-    //   this.quantities = res;
-    // })
-
-    // this.inventoryService.getListCatgory().subscribe(res => {
-    //   this.list_categories = res;
-    // }) 
   }
 
 

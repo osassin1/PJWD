@@ -12,6 +12,9 @@ import { OnInit } from '@angular/core';
 
 import { Inventory } from '../models/inventory.model'
 import { Store } from '../models/store.model'
+import { ListCategory } from '../models/list_category.model'
+import { Quantity } from '../models/quantity.model'
+
 import { InventoryEditComponent } from '../inventory-edit/inventory-edit.component'
 
 
@@ -39,7 +42,11 @@ export class InventoryComponent implements OnInit {
   categoriesToSelectFrom: any[] = [];
 
   // what category was selected - adjust view
-  list_category_id: number = 0;
+  //list_category_id: number = 0;
+  list_category: ListCategory = {
+    list_category_id: 0,
+    name: ""
+  };
 
   // inventory for store
   storeInventory: any[] = [];
@@ -127,11 +134,7 @@ export class InventoryComponent implements OnInit {
   }
 
   onCategorySelectChange(){
-    if(this.fbc['categoriesToSelectFrom'].value){
-      this.list_category_id = this.fbc['categoriesToSelectFrom'].value['list_category_id'];
-    } else {
-      this.list_category_id = 0;
-    }
+    this.list_category = this.fbc['categoriesToSelectFrom'].value;
   }
 
 getBG(e: any){
@@ -190,7 +193,7 @@ onTrash(inventory_id: number){
 
   // Actiavte the add action for a category
   onAddInvetoryItem(list_category_id: number){
-    console.log('onAddInvetoryItem', list_category_id)
+    console.log('onAddInvetoryItem', this.list_category.list_category_id)
   }
 
   //--- get ---

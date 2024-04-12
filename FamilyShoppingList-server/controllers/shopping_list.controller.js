@@ -492,7 +492,7 @@ exports.getListByCategoryGroupByCached = (req, res) => {
 exports.getListByCategoryGroupBy = (req, res) => {
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
     attributes: ['shopping_date', 'family_member_id', 'quantity', 'inventory_id',  'shopping_status_id', 
-                 '`shopping_list_to_inventory`.`name`', '`shopping_list_to_inventory`.`picture`'],
+                 '`shopping_list_to_inventory`.`name`'],
     include: [{
       association: 'shopping_list_to_family_member', attributes: ['first_name', 'last_name', 'color_id'],
       where: { family_id: req.query.family_id },
@@ -500,7 +500,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
     },
     {
       association: 'shopping_list_to_inventory',
-      attributes: ['name', 'list_category_id', 'quantity_id', 'notes', 'picture'],
+      attributes: ['name', 'list_category_id', 'quantity_id', 'notes'],
       include: [{ association: 'inventory_to_store', attributes: ['store_id'] },
       { association: 'inventory_to_list_category', attributes: ['name'] },
       { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'] }],
@@ -558,7 +558,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'inventory_id' : x['inventory_id'],
           'name' : x['shopping_list_to_inventory']['name'],
           'notes' : x['shopping_list_to_inventory']['notes'],
-          'picture': x['shopping_list_to_inventory']['picture'],
+          //'picture': x['shopping_list_to_inventory']['picture'],
           'symbol' : x['shopping_list_to_inventory']['inventory_to_quantity']['symbol'],
           'unit' : x['shopping_list_to_inventory']['inventory_to_quantity']['unit'],
           'family_members' : [ {'name' : x['shopping_list_to_family_member']['family_member_to_color']['name'],
@@ -588,7 +588,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'inventory_id' : x['inventory_id'],
           'name' : y['name'],
           'notes' : y['notes'],
-          'picture': y['picture'],
+          //'picture': y['picture'],
           'symbol' : y['symbol'],
           'unit' : y['unit'],
           'family_members' : family_member_array });

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn } from '@angular/forms';
@@ -24,7 +24,7 @@ import { AuthenticationService } from '../authentication/authentication.service'
   styleUrl: './authentication.component.css'
 })
 
-export class AuthenticationComponent implements OnInit {
+export class AuthenticationComponent implements OnInit, OnDestroy {
 
   formLoginSignup!: FormGroup;  // one form group for login & sign up
 
@@ -46,6 +46,7 @@ export class AuthenticationComponent implements OnInit {
   error = '';               // error message when loading family member
 
   loading = false;          // let's the login or signup button spin
+  private timeOut: any;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -105,10 +106,14 @@ export class AuthenticationComponent implements OnInit {
 
   }
 
+ngOnDestroy(): void {
+  clearTimeout(this.timeOut);
+}
+
   onLogin() {
     this.submittedLogin = true;
     this.loginFamilyMember(this.fgc['username'].value, this.fgc['password'].value);
-    setTimeout(() => {
+    this.timeOut = setTimeout(() => {
       this.loading = false;
     }, 2000);
 

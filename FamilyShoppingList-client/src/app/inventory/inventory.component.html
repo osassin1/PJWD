@@ -41,8 +41,12 @@
             
 
             @if(fbc['storesToSelectFrom'].value && isAddNewInventoryItem){
-                <app-inventory-edit class="d-flex flex-row w-100" [store]="fbc['storesToSelectFrom'].value"
-                    [inventory]="newInventory" [background]="getBG(false)" (done)="onCreateItem(newInventory.inventory_id, $event)">
+                <app-inventory-edit class="d-flex flex-row w-100" 
+                    [store]="fbc['storesToSelectFrom'].value"
+                    [inventory]="newInventory" 
+                    [list_category]="list_category"
+                    [background]="'bg-inventory'" 
+                    (done)="onCreateItem(newInventory.inventory_id, $event)">
                 </app-inventory-edit>          
             }  
 
@@ -51,8 +55,8 @@
             <div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0">
                 @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
                     <!-- filter based on category -->
-                    @if( !this.list_category_id || inventory.inventory_to_list_category.list_category_id ==
-                    this.list_category_id) {
+                    @if( this.list_category && !this.list_category.list_category_id || inventory.inventory_to_list_category.list_category_id ==
+                    this.list_category.list_category_id) {
                         <!-- either just display or call the edit component -->
                         @if(!inventoryEdit[inventory.inventory_id]){
                         <div class="d-flex {{getBG(e)}} pb-1">

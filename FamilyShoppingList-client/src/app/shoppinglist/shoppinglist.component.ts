@@ -55,7 +55,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   isInventoryEdit: boolean[] = [];
 
   // turn on/off monitoring of changes
-  isMonitorOn: boolean = true;
+  isMonitorOn: boolean = false;
 
   isImageDisabled: boolean = false;
   isShopping: boolean = false;
@@ -63,11 +63,11 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   isCheckoutConfirm: boolean = false;
   statusShoppingList: number = 0;
 
-  pollingTimeInSeconds: number = 60000;
+  pollingTimeInSeconds: number = 5000;
   pollingData: any;
   pollingShoppedItems: any;
 
-  stopPolling$ = new Subject<any>();
+  //stopPolling$ = new Subject<any>();
 
   private subChangeCategory: any;
 
@@ -250,7 +250,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     // get all shops that can be shoppedn from
     this.inventoryService.getListOfStores().subscribe((response: any) => {
       this.storesToSelectFrom = response;
-      console.log('this.inventoryService.getListOfStores', this.storesToSelectFrom)
+      //console.log('this.inventoryService.getListOfStores', this.storesToSelectFrom)
     });
 
     // no store is selected yet
@@ -319,7 +319,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if( this.isMonitorOn ) {
-      this.stopPolling$.next(null);
+      //this.stopPolling$.next(null);
       this.pollingShoppedItems.unsubscribe();
       this.subChangeCategory.unsubscribe();
     }
@@ -349,11 +349,12 @@ resetShoppingState(){
 
 
 
-onInventoryEdit(inventory_id: number){
-  this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
+onInventoryEdit(item: ShoppingListInventory){
+  item.picture = this.getPicture(item.inventory_id);
+  this.isInventoryEdit[item.inventory_id] = !this.isInventoryEdit[item.inventory_id];
 }
 onInventoryEditDone(inventory_id: number, $event: any){
-  console.log('shoppinglist::onInventoryEditDone', inventory_id, $event)
+  //console.log('shoppinglist::onInventoryEditDone', inventory_id, $event)
   this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
 
   // if quantity got changed, update the list
@@ -409,15 +410,15 @@ onPenEdit(inventory_id: number, $event: any){
 
             this.getInventoryByCategory(this.store_id, list_category_id);
 
-            this.selectedInventoryFlag[list_category_id] = true;
-            this.selectedInventoryPicture[list_category_id] = "";
-            this.selectedShoppingListQuantity[list_category_id] = "";
-            this.selectedInventoryUnit[list_category_id] = "";
+            //this.selectedInventoryFlag[list_category_id] = true;
+            //this.selectedInventoryPicture[list_category_id] = "";
+            //this.selectedShoppingListQuantity[list_category_id] = "";
+            //this.selectedInventoryUnit[list_category_id] = "";
             //this.selectedInventoryItem[list_category_id] =  null;
 
             // this is needed for new items to make the 
             // increase and decrease buttons work
-            this.newInventoryQuantity[list_category_id] = 0;
+            //this.newInventoryQuantity[list_category_id] = 0;
 
             // reset the formcontrol for selecting existing invenorty items
             // to be added to the shopping list
@@ -573,6 +574,7 @@ onPenEdit(inventory_id: number, $event: any){
 
   // when an inventory item was selected then capture the following
   // what is the picture, quantity (for that family member) and unit
+  /*
   onSelectInventoryItem(list_category_id: number) {
     if (this.selectShoppingListForm.controls['select_shopping_category'].value !== null) {
       var inventory_id = this.selectShoppingListForm.controls['select_shopping_category'].value['inventory_id'];
@@ -585,7 +587,7 @@ onPenEdit(inventory_id: number, $event: any){
     }
     this.selectShoppingListForm.controls['adjust_quantity'].setValue(this.getShoppingListQuantity(inventory_id, list_category_id));
   }
-
+*/
 
 
   // When opening a category in the shopping list,
@@ -596,9 +598,9 @@ onPenEdit(inventory_id: number, $event: any){
   }
 
 
-  onStoreSelectChange() {
+  // onStoreSelectChange() {
 
-  }
+  // }
 
 
 
@@ -677,7 +679,6 @@ onPenEdit(inventory_id: number, $event: any){
   }
 
   get familyMemberID(){
-    console.log('ShoppinglistComponent --> family_member_id', this.authenticationService.familyMemberValue!.family_member_id);
     return this.authenticationService.familyMemberValue!.family_member_id;
   }
 
@@ -712,6 +713,7 @@ onPenEdit(inventory_id: number, $event: any){
             if (p.shopping_status_id >= 2) {
               this.inventoryImage[p.inventory_id] = "disabled";
             }
+//            p.picture = this.getPicture(p.inventory_id);
           }));
         }
       });
@@ -773,7 +775,7 @@ onPenEdit(inventory_id: number, $event: any){
   // Once added then get the new item added to internal storage via getShoppingListByCategory
   //
   // If changes should not be applied, reset everything
-
+/*
   doMakeQuantityChanges(list_category_id: number) {
     this.shoppingListService.updateShoppingList(
       this.selectShoppingListForm.controls['shopping_list_form'].value["shopping_date"],
@@ -802,11 +804,11 @@ onPenEdit(inventory_id: number, $event: any){
     this.selectedInventoryFlag[list_category_id] = true;
     this.selectShoppingListForm.controls['select_shopping_category'].reset();   // patchValue(null);
   }
+*/
 
 
 
-
-
+/*
   doAddNewInventoryItem(list_category_id: number) {
     var name: string = this.selectShoppingListForm.controls['new_inventory_item_name'].value;
     var quantity: number = this.newInventoryQuantity[list_category_id];
@@ -860,7 +862,8 @@ onPenEdit(inventory_id: number, $event: any){
     this.isImageDisabled = false;
 
   }
-
+  */
+/*
   doDiscardNewInventoryItem(list_category_id: number) {
     //console.log('doDiscardNewInventoryItem')
     this.selectedPicture[list_category_id] = null;
@@ -871,7 +874,7 @@ onPenEdit(inventory_id: number, $event: any){
     this.takePicture[list_category_id] = "ok"; //false;
     this.isImageDisabled = false;
   }
-
+*/
 
   adjustForDecimals(x: any, unit: number) {
     if (unit == 2) {  // number
@@ -881,7 +884,7 @@ onPenEdit(inventory_id: number, $event: any){
     return x;
   }
 
-
+/*
   getShoppingListQuantity(inventory_id: number, list_category_id: number) {
     let quantity = 0;
 
@@ -900,7 +903,7 @@ onPenEdit(inventory_id: number, $event: any){
     }
     return quantity;
   }
-
+*/
 
 // --- Shopping ---
 // The list is ready to be shopped, for that purpose, items can be checked-off
@@ -950,6 +953,7 @@ checkInventoryChecked(isActiveOrDisabled: any, inventory_id: number) {
 }
 
 
+/*
 
 // --- Pictures / Upload ----
 //
@@ -1080,4 +1084,5 @@ imageSelectCancel(list_category_id: number) {
   public get triggerObservable(): Observable<void> {
     return this.trigger.asObservable();
   }
+  */
 }

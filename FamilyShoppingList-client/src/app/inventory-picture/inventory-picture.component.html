@@ -2,8 +2,8 @@
     <p class="d-flex justify-content-center fs-4 shoppinglist-card">
         <input class="file-input" #imageInput type="file"
             formControlName="image_upload" accept="image/*, .heic, .heif "
-            (change)="imageSelected($event, list_category_id)"
-            (cancel)="imageSelectCancel(list_category_id)"
+            (change)="imageSelected($event)"
+            (cancel)="imageSelectCancel()"
             [hidden]="true">
     </p>
 </form>

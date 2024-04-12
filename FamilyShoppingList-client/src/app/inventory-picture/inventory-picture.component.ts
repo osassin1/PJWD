@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ElementRef, ViewChild, AfterViewInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, ElementRef, ViewChild, AfterViewInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule, NgStyle } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -25,14 +25,11 @@ import heic2any from "heic2any";
   templateUrl: './inventory-picture.component.html',
   styleUrl: './inventory-picture.component.css'
 })
-export class InventoryPictureComponent implements OnInit, AfterViewInit {
+export class InventoryPictureComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // this will allow the click on loading an image
   // during ngOnInit
   @ViewChild('imageInput', { static: false }) imageInput!: ElementRef;
-
-  // this input is not needed
-  @Input() list_category_id: number = 0;
 
   // this is the return of the image
   @Output() pictureChange = new EventEmitter<string>();
@@ -45,17 +42,14 @@ export class InventoryPictureComponent implements OnInit, AfterViewInit {
   selectShoppingListForm!: FormGroup;
 
   // not sure if needed here
-  isImageDisabled: boolean = false;
+  //isImageDisabled: boolean = false;
 
-  // ok to take a picture to add to inventory
-  // ... maybe obsolete
-  takePicture: string[] = [];  //"ok|no|wait"
 
-    // either uploaded or taken picture (mobil)
-    selectedPicture: any[] = [];
+  // either uploaded or taken picture (mobil)
+  selectedPicture: any;
 
   // debugging
-  imageCompressMessage: string = "";
+  //imageCompressMessage: string = "";
 
   constructor(
     private imageCompress: NgxImageCompressService,
@@ -70,26 +64,14 @@ export class InventoryPictureComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    console.log('InventoryPictureComponent::OnInit')
   this.selectShoppingListForm = this.formBuilder.group({
     image_upload: null,
   });
 
- 
-  console.log(this.selectShoppingListForm.controls['image_upload']);
-
   }
 
-
-  doDiscardNewInventoryItem(list_category_id: number) {
-    console.log('doDiscardNewInventoryItem')
-    this.selectedPicture[list_category_id] = null;
-    // this.selectShoppingListForm.controls['new_inventory_item_name'].reset(null);
-    // this.selectShoppingListForm.controls['new_inventory_item_unit'].reset(null);
-    // this.selectShoppingListForm.controls['image_upload'].reset();
-    // this.newInventoryQuantity[list_category_id] = 0;
-    this.takePicture[list_category_id] = "ok"; //false;
-    this.isImageDisabled = false;
+  ngOnDestroy(){
+    delete this.selectedPicture;
   }
 
 
@@ -100,34 +82,19 @@ export class InventoryPictureComponent implements OnInit, AfterViewInit {
 // converting them (e.g., from iOS HEIC to JPEG) and compressing
 // them with the goal to stay under 100kB.
 //
+// Source: https://alexcorvi.github.io/heic2any/
+//         https://www.npmjs.com/package/ngx-image-compress
+
 
 // Either upload a picture from your computer or if mobile
 // take a picture that will be used
 
-// triggerSnapshot(list_category_id: number): void {
-//   console.log('triggerSnapshot(list_category_id: number): void');
-//   this.list_category_id = list_category_id;
-//   this.trigger.next();
-// }
 
-
-imageSelectCancel(list_category_id: number) {
-  //this.isImageDisabled = true;
-  //console.log('imageSelectCancel')
-  this.takePicture[list_category_id] == "wait"
-  this.doDiscardNewInventoryItem(list_category_id);
+imageSelectCancel() {
+  delete this.selectedPicture;
 }
 
-  imageSelected($event: any, list_category_id: number) {
-    //console.log("imageSelected", $event);
-    this.isImageDisabled = true;
-
-    if (this.takePicture[list_category_id] == "wait") {
-      console.error('this.takePicture[list_category_id]', this.takePicture[list_category_id]);
-      return;
-    }
-    this.imageCompressMessage = "<start>";
-    this.takePicture[list_category_id] = "wait";
+  imageSelected($event: any) {
 
     const fileName = $event.target.files[0];
     if (typeof fileName.size === undefined) {
@@ -147,10 +114,10 @@ imageSelectCancel(list_category_id: number) {
       console.log('heic');
       convProm = heic2any({ blob: fileName, toType: "image/jpeg", quality: 0 }).then((jpgBlob: any) => {
         console.log('(1) jpgBlob', jpgBlob);
-        this.imageCompressMessage += "<t:heic->jpeg>,"
+        
         let newName = fileName.name.replace(/\.[^/.]+$/, ".jpg");
         file = this.blobToFile(jpgBlob, newName);
-        //this.selectedPicture[list_category_id] = jpgBlob as string;
+        
       }).catch(err => {
         //Handle error
       });
@@ -159,18 +126,18 @@ imageSelectCancel(list_category_id: number) {
       //This is not a HEIC image so we can just resolve
       convProm = Promise.resolve(true);
 
-      this.imageCompressMessage += "<t:" + fileName.type + ">,";
+      
       const file = new FileReader();
       file.readAsDataURL(fileName);
       file.onload = () => {
-        this.selectedPicture[list_category_id] = file.result as string;
+        this.selectedPicture = file.result as string;
         this.imageCompress.compressFile(file.result as string, 0, 100, 100, 200, 200).then(
           compressedImage => {
-            this.selectedPicture[list_category_id] = compressedImage;
+            this.selectedPicture = compressedImage;
             this.pictureChange.emit(compressedImage);
           }
         )
-        this.imageCompressMessage += "<c:" + this.selectedPicture[list_category_id].length + ">,";
+        
       }
 
     }
@@ -187,24 +154,17 @@ imageSelectCancel(list_category_id: number) {
       //Listen for FileReader to get ready
       reader.onload = function () {
 
-        _thisComp.selectedPicture[list_category_id] = reader.result;
+        _thisComp.selectedPicture = reader.result;
         _thisComp.imageCompress.compressFile(reader.result as string, 0, 100, 100, 200, 200).then(
           compressedImage => {
-            _thisComp.selectedPicture[list_category_id] = compressedImage;
+            _thisComp.selectedPicture = compressedImage;
             _thisComp.pictureChange.emit(compressedImage);
-            _thisComp.imageCompressMessage += "<c:" + _thisComp.selectedPicture[list_category_id].length + ">,";
+           
           }
         )
 
       }
     });
-
-    this.takePicture[list_category_id] = "wait";
-    this.imageCompressMessage += "<end>"
-    //this.newInventoryQuantity[list_category_id] = 1;
-
-    //this.selectShoppingListForm.controls['new_inventory_item_quantity'].setValue(1);
-    //this.selectShoppingListForm.controls['new_inventory_item_unit'].setValue(3);   // item(s)
   }
   private blobToFile = (theBlob: Blob, fileName: string): File => {
     let b: any = theBlob;
