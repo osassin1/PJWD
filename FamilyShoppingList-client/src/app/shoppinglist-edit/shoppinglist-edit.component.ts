@@ -38,8 +38,6 @@ export class ShoppinglistEditComponent implements OnInit{
   shoppingListEditForm!: FormGroup;
 
 
-    //takePicture: boolean = false;
-
     quantity: number = 0;
 
   constructor(
@@ -60,6 +58,8 @@ export class ShoppinglistEditComponent implements OnInit{
     this.shoppingListEditForm = this.formBuilder.group({
         quantity: this.quantity
     });
+
+    //console.log('ShoppinglistEditComponent', this.shoppingListItem )
   }
 
 
@@ -115,4 +115,6 @@ export class ShoppinglistEditComponent implements OnInit{
     }
     return x;
   }
+
+
 }

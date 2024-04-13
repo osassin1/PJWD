@@ -1,7 +1,7 @@
 <div class="d-flex flex-column {{background}}  w-100">
     <div class="d-flex flex-row">
     <form [formGroup]="shoppingListAddForm" class="d-flex flex-grow-1">
-        <ng-select formControlName="inventoryToAdd" [items]="storeInventoryByCategory" bindLabel="inventory_name"
+        <ng-select formControlName="inventoryToAdd" [items]="storeInventoryByCategory" bindLabel="inventory_id"
             placeholder="Select inventory item" class="ng-select-container" name="mySelectBox"
             (change)="storeInventoryByCategory" (clear)="storeInventoryByCategory" (click)="onSelectedInventory()"
             class="w-100 px-2 my-2">
@@ -9,7 +9,7 @@
                 <span>{{item.name}}</span>
             </ng-template>
             <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-                <img class="inventory-picture me-1" height="40" width="40" [src]="item.picture" />
+                <img class="inventory-picture me-1" height="40" width="40" [src]="getPicture(item.inventory_id)" />
                 <span>{{item.name}}</span>
             </ng-template>
         </ng-select>
@@ -32,7 +32,7 @@
             <app-inventory-edit class="d-flex flex-row w-100" [store]="store"
                 [inventory]="newInventory" [background]="background" 
                 [list_category]="list_category"
-                (done)="onNewInventoryDone(newInventory.inventory_id, $event)">
+                (done)="onNewInventoryDone($event)">
             </app-inventory-edit>          
         </div>
         }

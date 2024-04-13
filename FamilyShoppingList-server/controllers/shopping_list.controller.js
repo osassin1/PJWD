@@ -558,7 +558,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'inventory_id' : x['inventory_id'],
           'name' : x['shopping_list_to_inventory']['name'],
           'notes' : x['shopping_list_to_inventory']['notes'],
-          //'picture': x['shopping_list_to_inventory']['picture'],
+          'picture': "no_picture.jpg",
           'symbol' : x['shopping_list_to_inventory']['inventory_to_quantity']['symbol'],
           'unit' : x['shopping_list_to_inventory']['inventory_to_quantity']['unit'],
           'family_members' : [ {'name' : x['shopping_list_to_family_member']['family_member_to_color']['name'],
@@ -588,7 +588,7 @@ exports.getListByCategoryGroupBy = (req, res) => {
           'inventory_id' : x['inventory_id'],
           'name' : y['name'],
           'notes' : y['notes'],
-          //'picture': y['picture'],
+          'picture': y['picture'],
           'symbol' : y['symbol'],
           'unit' : y['unit'],
           'family_members' : family_member_array });

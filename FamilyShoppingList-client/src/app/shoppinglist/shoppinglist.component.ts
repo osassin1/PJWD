@@ -30,8 +30,8 @@ import { Subject } from 'rxjs';
 // compression for pictures (jpeg, png); 
 // if iOS is used then HEIC format needs to
 // be converted to JPEG and then compressed
-import { NgxImageCompressService } from 'ngx-image-compress';
-import heic2any from "heic2any";
+//import { NgxImageCompressService } from 'ngx-image-compress';
+//import heic2any from "heic2any";
 
 
 @Component({
@@ -157,10 +157,10 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   // the picture of the item to be changed and its current quantity 
   // and unit. In the case it's a new item, quantity might be 0 and
   // unit needs to be selected.
-  selectedInventoryFlag: boolean[] = [];
-  selectedInventoryPicture: any[] = [];
-  selectedShoppingListQuantity: any[] = [];
-  selectedInventoryUnit: any[] = [];
+  //selectedInventoryFlag: boolean[] = [];
+  //selectedInventoryPicture: any[] = [];
+  //selectedShoppingListQuantity: any[] = [];
+  //selectedInventoryUnit: any[] = [];
 
   storeInventoryByCategory: any[] = [];
 
@@ -177,7 +177,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     private inventoryService: InventoryService,
     private authenticationService: AuthenticationService,
     private formBuilder: FormBuilder,
-    private imageCompress: NgxImageCompressService,
+    //private imageCompress: NgxImageCompressService,
   ) {
   }
 
@@ -189,15 +189,15 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
       // for a new inventory item
       // these inputs can be made
-      new_inventory_item_name: null,
-      new_inventory_item_quantity: null,
-      new_inventory_item_unit: null,
-      new_inventory: null,
+      // new_inventory_item_name: null,
+      // new_inventory_item_quantity: null,
+      // new_inventory_item_unit: null,
+      // new_inventory: null,
 
       // for existing inventory items, either already on
       // the list for for adding, only the quantity
       // can be entered
-      adjust_quantity: null,
+      //adjust_quantity: null,
 
       // for selecting an inventory item in
       // a category
@@ -277,10 +277,15 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
             this.shoppingListService.getListByCategoryByGroupCached(this.shopping_date, this.store_id, list_category_id, this.authenticationService.familyMemberValue!.family_id)
               .subscribe((res) => {
                 if (res != null && this.shoppingListAll.get(list_category_id) != undefined ) {
-                  this.shoppingListAll.delete(list_category_id);
+                  // this.shoppingListAll.delete(list_category_id);
                   this.shoppingListAllTotal.delete(list_category_id);
-                  this.shoppingListAll.set(list_category_id, res['inventory']);
+                  //this.shoppingListAll.set(list_category_id, res['inventory']);
                   this.shoppingListAllTotal.set(list_category_id, res['category']);
+
+                  const inventory = res['inventory'];
+
+                  this.updateListInventory(this.shoppingListAll.get(list_category_id)!, res['inventory'], list_category_id);
+
                   this.getInventoryByCategory(this.store_id, list_category_id);
                 }
               })
@@ -292,7 +297,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
           // it needs to to be synced amongst all family_members
           // the event of checking out mut be propergated to all active
           // sessions
-
           this.shoppingToSelectFrom.forEach(x=>{
             if( this.selectShoppingListForm.controls['shopping_list_form'].value && 
                 this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_date'] == x['shopping_date'] &&
@@ -303,7 +307,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
               if(this.newShoppingListCreated) {  
                 this.newShoppingListCreated = false;  // a new shopping list that was created, is now stored
               }
-
             }
           })
 
@@ -316,6 +319,54 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
         })
       }
   }
+
+
+  // updateShopInventory(localShopInventory: ShoppingListInventory[], remoteInventory: ShoppingListInventory[], list_category_id: number) { 
+
+  // }
+
+  updateListInventory(localInventory: ShoppingListInventory[], remoteInventory: ShoppingListInventory[], list_category_id: number) { 
+
+    //this.selectInventoryByCategory[list_category_id]
+    let madeChanges: boolean = false;
+
+    localInventory.forEach(li=>{
+      const item = remoteInventory.find((item)=>item.inventory_id == li.inventory_id);
+
+      // if another family member removed an item from the list (remote)
+      // we also need to update our local list.
+      if( item == undefined ) {
+        const itemNo = localInventory.findIndex((item)=>item.inventory_id == li.inventory_id);
+        localInventory.splice(itemNo, 1);
+        madeChanges = true;
+      }
+
+      // if some changes happended to name or notes or quantity or number of items
+      // we need to refresh the local list
+      if( !madeChanges ) {
+        if( item?.name != li.name || item.notes != li.notes || item.quantity != li.quantity  || item.num_of_items != li.num_of_items ) {
+          let indexForUpdate = localInventory.findIndex((item)=>item.inventory_id == li.inventory_id);
+          const picture = li.picture;  // remember the pciture
+          localInventory[indexForUpdate] = item!;
+          localInventory[indexForUpdate].picture = picture;
+          madeChanges = true;
+        }
+      }
+     })
+
+      // if the remote list has additional (new) items, then we need to update the local list
+      remoteInventory.forEach(ri=>{
+          const item = localInventory.findIndex((item)=>item.inventory_id == ri.inventory_id);
+          if( item == -1 ){
+            ri.picture = this.inventoryService.loadPicture(ri.inventory_id);
+            localInventory.push(ri);
+            madeChanges = true;
+          }
+      })
+
+      return madeChanges;
+  }
+
 
   ngOnDestroy() {
     if( this.isMonitorOn ) {
@@ -353,8 +404,13 @@ onInventoryEdit(item: ShoppingListInventory){
   item.picture = this.getPicture(item.inventory_id);
   this.isInventoryEdit[item.inventory_id] = !this.isInventoryEdit[item.inventory_id];
 }
+
+
+
+
+
 onInventoryEditDone(inventory_id: number, $event: any){
-  //console.log('shoppinglist::onInventoryEditDone', inventory_id, $event)
+  console.log('shoppinglist::onInventoryEditDone', inventory_id, $event)
   this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
 
   // if quantity got changed, update the list
@@ -395,12 +451,19 @@ onPenEdit(inventory_id: number, $event: any){
           this.store_id = this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.store_id'];
           this.store_name = this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.name'];
 
+          // load inventory for store
+          this.inventoryService.loadInventoryByStore(this.store_id);
+          console.log('storeInventory', this.storeInventory);
+
           this.hasStore = true;
           this.selectedShoppingList = false;
 
+          //console.log('onSelectShoppingList  --> store_id', this.store_id)
+          //console.log('onSelectShoppingList  --> store', this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store'])
+
           for (let item in this.listCategories) {
             const list_category_id = this.listCategories[item]['list_category_id'];
-            this.takePicture[list_category_id] = "ok"; //true; // can take pictures of that category
+            //this.takePicture[list_category_id] = "ok"; //true; // can take pictures of that category
 
             // The method performs the following:
             // (1) fills shoppingListAll contains all inventory items for a category on the shopping list
@@ -606,9 +669,9 @@ onPenEdit(inventory_id: number, $event: any){
 
   // When the clearAll (x) is being pressed within
   // the select: <Select inventory item>
-  onClearQuantityChanges(list_category_id: number) {
-    this.selectedInventoryFlag[list_category_id] = true;
-  }
+  // onClearQuantityChanges(list_category_id: number) {
+  //   this.selectedInventoryFlag[list_category_id] = true;
+  // }
 
 
   // The shopping status determine where in the process
@@ -723,6 +786,8 @@ onPenEdit(inventory_id: number, $event: any){
   // initialize the inventory items by category one can select from
   // click the circle-plus to open the selection of item in that category
   getInventoryByCategory(store_id: number, list_category_id: number) {
+    console.log('getInventoryByCategory', store_id, list_category_id)
+
     this.inventoryService.getInventoryByCategory(store_id, list_category_id)
       .subscribe({
         next: (v) => {
@@ -732,13 +797,24 @@ onPenEdit(inventory_id: number, $event: any){
             this.inventoryService.loadPicture(inventory_id);
 
           })
+        },
+        complete: () => {
+          console.log('complete')
         }
       })
   }
 
 
+//--- get ---
 
+// InventoryService has all inventory items for a store by store_id
+get storeInventory(){
+  return this.inventoryService.storeInventory;
+}
 
+  getInventoryByCategory2(list_category_id: number){
+    return this.selectInventoryByCategory[list_category_id];
+  }
 
 
 
@@ -769,112 +845,6 @@ onPenEdit(inventory_id: number, $event: any){
 
 
 
-
-
-  // Make changes to an item on the shopping list (or to be added if doesn't exist yet)  
-  // Once added then get the new item added to internal storage via getShoppingListByCategory
-  //
-  // If changes should not be applied, reset everything
-/*
-  doMakeQuantityChanges(list_category_id: number) {
-    this.shoppingListService.updateShoppingList(
-      this.selectShoppingListForm.controls['shopping_list_form'].value["shopping_date"],
-      this.authenticationService.familyMemberValue?.family_member_id || 0,
-      this.selectShoppingListForm.controls['select_shopping_category'].value['inventory_id'],
-      this.selectedShoppingListQuantity[list_category_id]).subscribe({
-        next: (v) => {
-        },
-        error: (e) => {
-          console.error('error', e);
-        },
-        complete: () => {
-          this.getShoppingListByCategory(this.selectShoppingListForm.controls['shopping_list_form'].value["shopping_date"],
-            this.selectShoppingListForm.controls['shopping_list_form'].value["shopping_list_to_inventory.inventory_to_store.store_id"],
-            list_category_id);
-
-          this.selectedInventoryFlag[list_category_id] = true;
-          this.selectShoppingListForm.controls['select_shopping_category'].reset();  //patchValue(null);
-        }
-      });
-  }
-
-  doCancelQuantityChanges(list_category_id: number) {
-    var inventory_id = this.selectShoppingListForm.controls['select_shopping_category'].value['inventory_id'];
-    this.selectedShoppingListQuantity[list_category_id] = this.getShoppingListQuantity(inventory_id, list_category_id);
-    this.selectedInventoryFlag[list_category_id] = true;
-    this.selectShoppingListForm.controls['select_shopping_category'].reset();   // patchValue(null);
-  }
-*/
-
-
-
-/*
-  doAddNewInventoryItem(list_category_id: number) {
-    var name: string = this.selectShoppingListForm.controls['new_inventory_item_name'].value;
-    var quantity: number = this.newInventoryQuantity[list_category_id];
-    var quantity_id: number = this.selectShoppingListForm.controls['new_inventory_item_unit'].value;
-    var picture = this.selectedPicture[list_category_id];
-    var store_id = this.store_id;
-    var shopping_date: string = this.shopping_date;
-    var inventory_id: number = 0;
-    var family_member_id = this.authenticationService.familyMemberValue?.family_member_id || 0;
-
-    this.inventoryService.createInventoryItemAddToShoppingList(
-      name,
-      picture,
-      store_id,
-      list_category_id,
-      quantity_id,
-      quantity,
-      shopping_date,
-      family_member_id
-    ).subscribe({
-      next: (v) => {
-        inventory_id = v['inventory_id'];
-        //this.loggingService.logEntry('doAddNewInventoryItem', 'inventory_id', inventory_id);
-      },
-      error: (e) => {
-        console.error('error', e);
-        //this.loggingService.logEntry('doAddNewInventoryItem', 'error', JSON.stringify(e) );        
-        this.selectShoppingListForm.controls['new_inventory_item_name'].reset(null);
-        this.selectShoppingListForm.controls['new_inventory_item_unit'].reset(null);
-        this.newInventoryQuantity[list_category_id] = 0;
-        this.selectedPicture[list_category_id] = null;
-      },
-      complete: () => {
-        this.takePicture[list_category_id] = "ok";  // true
-        this.getShoppingListByCategory(shopping_date, store_id, list_category_id);
-        this.getInventoryByCategory(store_id, list_category_id);
-        //this.loggingService.logEntry('doAddNewInventoryItem', 'complete', -1);      
-
-
-        //formControlName="select_shopping_category"
-
-        this.selectShoppingListForm.controls['new_inventory_item_name'].reset(null);
-        this.selectShoppingListForm.controls['new_inventory_item_unit'].reset(null);
-        this.newInventoryQuantity[list_category_id] = 0;
-        this.selectedPicture[list_category_id] = null;
-
-      }
-    })
-
-    this.takePicture[list_category_id] = "ok"; //false;
-    this.isImageDisabled = false;
-
-  }
-  */
-/*
-  doDiscardNewInventoryItem(list_category_id: number) {
-    //console.log('doDiscardNewInventoryItem')
-    this.selectedPicture[list_category_id] = null;
-    this.selectShoppingListForm.controls['new_inventory_item_name'].reset(null);
-    this.selectShoppingListForm.controls['new_inventory_item_unit'].reset(null);
-    this.selectShoppingListForm.controls['image_upload'].reset();
-    this.newInventoryQuantity[list_category_id] = 0;
-    this.takePicture[list_category_id] = "ok"; //false;
-    this.isImageDisabled = false;
-  }
-*/
 
   adjustForDecimals(x: any, unit: number) {
     if (unit == 2) {  // number
@@ -952,137 +922,4 @@ checkInventoryChecked(isActiveOrDisabled: any, inventory_id: number) {
   return retIsActiveOrDisabled
 }
 
-
-/*
-
-// --- Pictures / Upload ----
-//
-// This entire section handles the upload of pictures incl.
-// converting them (e.g., from iOS HEIC to JPEG) and compressing
-// them with the goal to stay under 100kB.
-//
-
-// Either upload a picture from your computer or if mobile
-// take a picture that will be used
-
-// triggerSnapshot(list_category_id: number): void {
-//   console.log('triggerSnapshot(list_category_id: number): void');
-//   this.list_category_id = list_category_id;
-//   this.trigger.next();
-// }
-
-
-// this was used for debugging 
-imageLength(image: string) {
-  return image.length;
-}
-
-imageSelectCancel(list_category_id: number) {
-  //this.isImageDisabled = true;
-  //console.log('imageSelectCancel')
-  this.takePicture[list_category_id] == "wait"
-  this.doDiscardNewInventoryItem(list_category_id);
-}
-
-  imageSelected($event: any, list_category_id: number) {
-    //console.log("imageSelected", $event);
-    this.isImageDisabled = true;
-
-    if (this.takePicture[list_category_id] == "wait") {
-      console.error('this.takePicture[list_category_id]', this.takePicture[list_category_id]);
-      return;
-    }
-    this.imageCompressMessage = "<start>";
-    this.takePicture[list_category_id] = "wait";
-
-    const fileName = $event.target.files[0];
-    if (typeof fileName.size === undefined) {
-      console.error('no file selected');
-      return;
-    }
-    console.log("size", fileName.size);
-    console.log("type", fileName.type);
-
-    let blob: Blob = fileName;
-    let file: File = fileName;
-
-
-    let convProm: Promise<any>;
-
-    if (/image\/hei(c|f)/.test(fileName.type) || fileName.type == "") {
-      console.log('heic');
-      convProm = heic2any({ blob: fileName, toType: "image/jpeg", quality: 0 }).then((jpgBlob: any) => {
-        console.log('(1) jpgBlob', jpgBlob);
-        this.imageCompressMessage += "<t:heic->jpeg>,"
-        let newName = fileName.name.replace(/\.[^/.]+$/, ".jpg");
-        file = this.blobToFile(jpgBlob, newName);
-        //this.selectedPicture[list_category_id] = jpgBlob as string;
-      }).catch(err => {
-        //Handle error
-      });
-    } else {
-      console.log('type', fileName.type);
-      //This is not a HEIC image so we can just resolve
-      convProm = Promise.resolve(true);
-
-      this.imageCompressMessage += "<t:" + fileName.type + ">,";
-      const file = new FileReader();
-      file.readAsDataURL(fileName);
-      file.onload = () => {
-        this.selectedPicture[list_category_id] = file.result as string;
-        this.imageCompress.compressFile(file.result as string, 0, 100, 100, 200, 200).then(
-          compressedImage => {
-            this.selectedPicture[list_category_id] = compressedImage;
-          }
-        )
-        this.imageCompressMessage += "<c:" + this.selectedPicture[list_category_id].length + ">,";
-      }
-
-    }
-
-    convProm.then(() => {
-
-      let reader = new FileReader();
-      let _thisComp = this;
-
-      //Add file to FileReader
-      if (file) {
-        reader.readAsDataURL(file);
-      }
-      //Listen for FileReader to get ready
-      reader.onload = function () {
-
-        _thisComp.selectedPicture[list_category_id] = reader.result;
-        _thisComp.imageCompress.compressFile(reader.result as string, 0, 100, 100, 200, 200).then(
-          compressedImage => {
-            _thisComp.selectedPicture[list_category_id] = compressedImage;
-            _thisComp.imageCompressMessage += "<c:" + _thisComp.selectedPicture[list_category_id].length + ">,";
-          }
-        )
-
-      }
-    });
-
-    this.takePicture[list_category_id] = "wait";
-    this.imageCompressMessage += "<end>"
-    this.newInventoryQuantity[list_category_id] = 1;
-
-    this.selectShoppingListForm.controls['new_inventory_item_quantity'].setValue(1);
-    this.selectShoppingListForm.controls['new_inventory_item_unit'].setValue(3);   // item(s)
-  }
-  private blobToFile = (theBlob: Blob, fileName: string): File => {
-    let b: any = theBlob;
-
-    //A Blob() is almost a File() - it's just missing the two properties below which we will add
-    b.lastModified = new Date();
-    b.name = fileName;
-
-    //Cast to a File() type
-    return <File>theBlob;
-  }
-
-  public get triggerObservable(): Observable<void> {
-    return this.trigger.asObservable();
-  }
-  */
 }

@@ -334,9 +334,11 @@ exports.getInventoryByCategory = (req, res) => {
      }
   )
   .then(data => {
+    
    //console.log(data);
 
    //var newInventoryData = Map();
+   var list_category_id = parseInt(req.query.list_category_id);
    var inventoryDataByCategory = new List();
 
   //  var colorForCategory = new List();
@@ -355,13 +357,23 @@ exports.getInventoryByCategory = (req, res) => {
     inventoryDataByCategory = inventoryDataByCategory.push(
       {
         'inventory_id' : x['inventory_id'],
-        'inventory_name' : x['name'],
-        'inventory_notes' : x['notes'],
-        'inventory_symbol' : x['inventory_to_quantity']['symbol'],
-        'quantity_id': x['inventory_to_quantity']['quantity_id'],
-        'quantity_unit' : x['inventory_to_quantity']['unit'],
-        'quantity_name' : x['inventory_to_quantity']['name'],
-        'quantity_symbol' : x['inventory_to_quantity']['symbol'],
+        'picture' : "no_picture.jpg",
+        'name' : x['name'],
+        'notes' : x['notes'],
+        'symbol' : x['inventory_to_quantity']['symbol'],
+        'unit' : x['inventory_to_quantity']['unit'],
+        'family_members': null,
+        'inventory_to_quantity' : {
+            'quantity_id': x['inventory_to_quantity']['quantity_id'],
+            'name' : x['inventory_to_quantity']['name'],
+            'symbol' : x['inventory_to_quantity']['symbol'],
+            'unit' : x['inventory_to_quantity']['unit'],
+        },
+        'inventory_to_list_category' : {
+          'list_category_id' : list_category_id,
+          'name' : null,
+          'description': null,
+        }
       });
     })
 

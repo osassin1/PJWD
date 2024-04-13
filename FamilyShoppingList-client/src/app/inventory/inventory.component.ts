@@ -49,7 +49,7 @@ export class InventoryComponent implements OnInit {
   };
 
   // inventory for store
-  storeInventory: any[] = [];
+  //storeInventory: any[] = [];
 
   // activate inventory edit
   inventoryEdit: boolean[] = [];
@@ -119,18 +119,19 @@ export class InventoryComponent implements OnInit {
 
   onStoreSelectChange(){
     this.store_id=this.fbc['storesToSelectFrom'].value['store_id'];
-    this.storeInventory = [];
+    //this.storeInventory = [];
+    this.inventoryService.loadInventoryByStore(this.store_id);
 
-    this.inventoryService.getInventoryByStoreForEdit(this.store_id).subscribe({
-      next: (v) => {
-        let a = JSON.parse(v);
-        this.storeInventory = a;
-      }, error: (e) => {
-        console.error(e.error.message);
-      },
-      complete: () => {
-      }
-    })
+    // this.inventoryService.getInventoryByStoreForEdit(this.store_id).subscribe({
+    //   next: (v) => {
+    //     let a = JSON.parse(v);
+    //     this.storeInventory = a;
+    //   }, error: (e) => {
+    //     console.error(e.error.message);
+    //   },
+    //   complete: () => {
+    //   }
+    // })
   }
 
   onCategorySelectChange(){
@@ -199,6 +200,10 @@ onTrash(inventory_id: number){
   //--- get ---
   get fbc(){
     return this.inventoryForm.controls;
+  }
+
+  get storeInventory(){
+    return this.inventoryService.storeInventory;
   }
 
     // Get the picture information as a string
