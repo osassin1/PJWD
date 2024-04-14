@@ -34,6 +34,7 @@ export class ShoppinglistEditComponent implements OnInit{
   @Input() background: string = "";
   @Input() disabledString: string = "";
   @Output() done = new EventEmitter<boolean>();
+  @Input() shoppingList: any;
 
   shoppingListEditForm!: FormGroup;
 
@@ -59,7 +60,7 @@ export class ShoppinglistEditComponent implements OnInit{
         quantity: this.quantity
     });
 
-    //console.log('ShoppinglistEditComponent', this.shoppingListItem )
+    console.log('ShoppinglistEditComponent--this.shoppingList', this.shoppingList)
   }
 
 
@@ -115,6 +116,4 @@ export class ShoppinglistEditComponent implements OnInit{
     }
     return x;
   }
-
-
 }

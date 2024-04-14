@@ -1,0 +1,39 @@
+<form [formGroup]="shoppinglistNewForm" class="w-100">
+    <div class="card card-body {{background}}">
+        <div class="d-flex flex-row">
+            <div class="d-flex flex-column">
+                <label for="shoppingDateInput" class="input-label">Shopping Date</label>
+                <input class="input-frame-color" type="date" id="shoppingDateInput" name="input"
+                    formControlName="newShoppingListDate" placeholder="dd/MM/yyyy" required style="width: 7rem;" />
+            </div>
+            <div class="d-flex flex-column ms-2 w-50">
+                <label for="storesToSelectFrom" class="input-label">Store</label>
+                <ng-select [items]="storesToSelectFrom" placeholder="Select Store" labelForId="storesToSelectFrom"
+                    formControlName="storesToSelectFrom" [tabIndex]=0 [clearable]="false"
+                    [ngClass]="{ 'is-invalid': slnf['storesToSelectFrom'].errors }">
+
+                    <ng-template ng-label-tmp let-item="item">
+                        <span class="label-text">{{item.name}}</span>
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item" let-index="index">
+                        <span class="label-text">{{item.name}}</span>
+                    </ng-template>
+                </ng-select>
+                <div *ngIf="slnf['storesToSelectFrom'].errors" class="invalid-feedback">
+                    store is required
+                </div>
+            </div>
+            <div class="d-flex flex-grow-1 justify-content-end">
+                <div class="d-flex align-items-center p-3">
+                    <button type="button" class="ok-cancel-button {{background}} bi bi-x-circle"
+                        (click)="onCancelAddNewShoppingList()"> </button>
+                    <button type="button" class="ok-cancel-button {{background}} bi bi-check-circle "
+                        [disabled]="slnf['storesToSelectFrom'].invalid ||slnf['newShoppingListDate'].invalid"
+                        (click)="onConfirmAddNewShoppingList()"></button>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

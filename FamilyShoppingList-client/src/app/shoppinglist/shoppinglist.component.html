@@ -3,8 +3,19 @@
     <div class="col-md-8">
         <!-- select an existing shopping list by <date> <store name> -->
         <form [formGroup]="selectShoppingListForm">
-            <div class="d-flex flex-row shoppinglist-card py-1 bg-blue">
-                    <button type="button" class="icon-add-shopping" data-bs-toggle="collapse"
+            @if( true ){
+
+
+                <app-shoppinglist-cntrl class="d-flex flex-row w-100"
+                [familyMemberID]="familyMemberID"
+                
+                [background]="inventoryBackground"
+                (done)="onShoppinglistCtrlDone($event)">
+                </app-shoppinglist-cntrl>
+
+
+            <!-- <div class="d-flex flex-row shoppinglist-card py-1 bg-blue">
+                    <button #newShoppingList type="button" class="icon-add-shopping" data-bs-toggle="collapse"
                         data-bs-target="#collapseNewShoppingList" (click)="onIconPlusMinus()"
                         [disabled]="fb.controls['shopping_list_form'].disabled">
                             <i class="bi {{iconPlusMinus}} icon-style" ></i>
@@ -43,7 +54,7 @@
                     </button>
                 </div>
             </div>
-            <!-- Two buttons to either close the list or go back -->
+            
             <div *ngIf="isCheckoutConfirm">
                 <div class="d-flex justify-content-center">
                     <br>
@@ -55,61 +66,24 @@
                     </button>
                 </div>
             </div>
-            <!-- Create a new shopping list -->
-            <div class="collapse" id="collapseNewShoppingList" >
-                <div class="card card-body bg-light ">
-                    <div class="d-flex flex-row">
-                        <div class="d-flex flex-column">
-                            <label for="shoppingDateInput" class="input-label">Shopping Date</label>
-                            <input class="input-frame-color" type="date" id="shoppingDateInput" name="input"
-                                formControlName="newShoppingListDate" placeholder="dd/MM/yyyy" required 
-                                style="width: 7rem;"/>
-                        </div>
-                        <div class="d-flex flex-column ms-2">
-                            <label for="storesToSelectFrom" class="input-label">Store</label>
-                            <ng-select [items]="storesToSelectFrom" placeholder="Select Store"
-                                labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0
-                                [clearable]="false"  required
-                                [ngClass]="{ 'is-invalid': fb.controls['storesToSelectFrom'].errors }">
-                                <ng-template ng-label-tmp let-item="item">
-                                    <span class="label-text">{{item.name}}</span>
-                                </ng-template>
-                                <ng-template ng-option-tmp let-item="item" let-index="index">
-                                    <span class="label-text">{{item.name}}</span>
-                                </ng-template>
-                            </ng-select>
-                            <div *ngIf="fb.controls['storesToSelectFrom'].errors" class="invalid-feedback">
-                                store is required
-                            </div>
-                        </div>
-                        <div class="d-flex flex-grow-1 justify-content-end">
-                            <div class="d-flex align-items-center">
-                                <button type="button" class="ok-cancel-button bg-light bi bi-x-circle"
-                                        data-bs-toggle="collapse" data-bs-target="#collapseNewShoppingList" 
-                                        (click)="onCancelAddNewShoppingList()">
-                                </button>
-                                <div class="d-flex align-items-center">
-                                    <button type="button" class="ok-cancel-button bg-light bi bi-check-circle"
-                                        data-bs-toggle="collapse" data-bs-target="#collapseNewShoppingList"
-                                        [disabled]="fb.controls['storesToSelectFrom'].invalid || fb.controls['newShoppingListDate'].invalid"
-                                        (click)="onConfirmAddNewShoppingList()">
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            Create a new shopping list -->
+            <!-- <div class="collapse" id="collapseNewShoppingList" >
+                <app-shoppinglist-new class="d-flex flex-row w-100"
+                    [familyMemberID]="familyMemberID"
+                    [storesToSelectFrom]="storesToSelectFrom"
+                    [background]="inventoryBackground"
+                    (done)="onShoppinglistNewDone($event)">
+                </app-shoppinglist-new>
+            </div> -->
+        }
             <!-- get the defined categories that will be populated once a shopping list has been selected -->
             <!-- once a shopping list is selected then fill up the categories with the items -->
             <div class="accordion" id="shopping_list_accordion">
-                @for (item of listCategories; track item) {
+                @for (item of listCategory; track item) {
                 <div class="accordion-item shoppinglist-card">
                     <div class="accordion-header" id="heading_shopping_list_accordion_{{item.list_category_id}}">
                         <button class="accordion-button category-total-display d-flex collapsed" type="button"
-                            [disabled]="!hasStore" data-bs-toggle="collapse"
+                            [disabled]="!(shoppingList!=undefined)" data-bs-toggle="collapse"
                             attr.data-bs-target="#collapse_shopping_list_category_{{item.list_category_id}}"
                             aria-expanded="false"
                             attr.aria-controls="collapse_shopping_list_category_{{item.list_category_id}}"
@@ -144,7 +118,7 @@
                         class="accordion-collapse collapse"
                         attr.aria-labelledby="heading_shopping_list_accordion_{{item.list_category_id}}"
                         data-bs-parent="#shopping_list_accordion">
-                        <div *ngIf="hasStore" class="accordion" id="addInventory_category_{{item.list_category_id}}">
+                        <div *ngIf="(shoppingList!=undefined)" class="accordion" id="addInventory_category_{{item.list_category_id}}">
                             <div class="accordion-item shoppinglist-card">
                                 <div class="accordion-header" id="heading_category_{{item.list_category_id}}">
                                     <span class="d-flex justify-content-center fs-4">
@@ -167,7 +141,6 @@
                                             <div class="bg-light">
 
 
-                                        @if(true){
                                                 <!-- {{selectInventoryByCategory[item.list_category_id]|json}} -->
                                                 <app-shoppinglist-add class="d-flex flex-row w-100"
                                                     [storeID]="store_id"
@@ -179,7 +152,6 @@
                                                     [background]="inventoryBackground"
                                                     (done)="onInventoryEditDone(item.inventory_id, $event)">
                                                  </app-shoppinglist-add>
-                                                }
 
                                                 <!-- take/load a picture and define what it is-->
                                                 <!-- end of take/load a picture -->

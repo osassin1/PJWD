@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -27,9 +26,6 @@ import { InventoryPictureComponent } from '../inventory-picture/inventory-pictur
   ],
   templateUrl: './inventory-edit.component.html',
   styleUrl: './inventory-edit.component.css',
-  //changeDetection: ChangeDetectionStrategy.OnPush,
-	//encapsulation: ViewEncapsulation.None  
-
 })
 export class InventoryEditComponent implements OnInit, OnDestroy {
 
@@ -53,16 +49,9 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
 
   constructor(private inventoryService: InventoryService,
     private formBuilder: FormBuilder ){
-
-
-  
   }
 
   ngOnInit() {
-
-    // console.log ('this.inventory.inventory_to_quantity', this.inventory.inventory_to_quantity)
-    // console.log ('this.inventory.inventory_to_list_category', this.inventory.inventory_to_list_category)
-    // console.log ('this.inventory.list_category', this.list_category)
 
     this.inventoryEditForm = this.formBuilder.group({
       name: [this.inventory.name, Validators.required],
@@ -82,20 +71,14 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
 
     this.inventoryService.getListCatgory().subscribe(res => {
       this.list_categories = res;
-      //console.log('list_categories', this.list_categories)
     }) 
 
     this.inventoryService.getQuantities().subscribe(res => {
       this.quantities = res;
-      //console.log('quantities', this.quantities)
       if( !this.inventory.inventory_to_quantity.quantity_id ) {
         this.inventoryEditForm.controls['quantity'].setValue( this.quantities.find((item)=> item.quantity_id == 3) );
       }
     })
-    
-    
-
-
     
   }
 

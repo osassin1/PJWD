@@ -10,7 +10,6 @@ import { ShoppingListService } from '../shoppinglist/shoppinglist.service';
 
 import { ShoppinglistEditComponent } from '../shoppinglist-edit/shoppinglist-edit.component';
 import { InventoryEditComponent } from '../inventory-edit/inventory-edit.component'
-//import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 import { Inventory } from '../models/inventory.model'
 import { Store } from '../models/store.model'
 import { ListCategory } from '../models/list_category.model'
@@ -32,11 +31,7 @@ import { ListCategory } from '../models/list_category.model'
 
 export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
 
-  //@Input() shoppingListItem!: ShoppingListInventory;
   @Input() storeID: number = 0;
-//  @Input() listCategoryID: number = 0;
-
-//  @Input() store!: Store;
   @Input() inventoryList: Inventory[] = [];
   @Input() list_category!: ListCategory;  
 

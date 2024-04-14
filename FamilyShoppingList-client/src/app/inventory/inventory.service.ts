@@ -11,17 +11,26 @@ import { catchError, map } from 'rxjs/operators';
 
 import{ ListCategory } from '../models/list_category.model';
 
-//const baseUrl = 'http://localhost:8080/api/inventory';
-//const baseUrl = 'http://192.168.1.193:8080/api/inventory';
+// appsettings.json contains the serverUrl
+/*
+{
+    "Application" : {
 
-//const baseUrl = 
+    "___serverUrl": "http://localhost:8085",
+    "__serverUrl": "http://192.168.1.195:8085",
+    "serverUrl": "http://osassin.tplinkdns.com:8085",
+    "devUrl" : "http://192.168.1.195:8085",
+    "prodUrl" : "http://osassin.tplinkdns.com:8085"
+    }
+
+}
+*/
 
 const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/inventory";
 
 @Injectable({
     providedIn: 'root',
 })
-
 
 
 export class InventoryService  {
@@ -132,20 +141,20 @@ export class InventoryService  {
         return this.http.get<any>(`${baseUrl}/units`);
     }
 
-    getInventoryByID(inventory_id: number){
-        console.log('this.getInventoryByID',inventory_id);
+    // getInventoryByID(inventory_id: number){
+    //     console.log('this.getInventoryByID',inventory_id);
 
-        if(!this.inventoryData.has(inventory_id)){
-            this.categoryInventoryNew.forEach(e => {
-                e.forEach(i => {
-                    var id = i['inventory_id'];
-                    if(!this.inventoryData.has(id)){
-                        this.inventoryData.set(id, i);
-                    }
-                })
-        })}
-        return this.inventoryData.get(inventory_id);
-    }
+    //     if(!this.inventoryData.has(inventory_id)){
+    //         this.categoryInventoryNew.forEach(e => {
+    //             e.forEach(i => {
+    //                 var id = i['inventory_id'];
+    //                 if(!this.inventoryData.has(id)){
+    //                     this.inventoryData.set(id, i);
+    //                 }
+    //             })
+    //     })}
+    //     return this.inventoryData.get(inventory_id);
+    // }
 
 
     loadInventory(store_id : number, list_category_id: number) {
