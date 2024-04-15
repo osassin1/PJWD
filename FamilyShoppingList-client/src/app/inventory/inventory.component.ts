@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { InventoryService } from '../inventory/inventory.service';
+
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
 
@@ -14,6 +14,9 @@ import { Inventory } from '../models/inventory.model'
 import { Store } from '../models/store.model'
 import { ListCategory } from '../models/list_category.model'
 import { Quantity } from '../models/quantity.model'
+
+import { InventoryService } from '../inventory/inventory.service';
+import { ShoppingListService } from '../shoppinglist/shoppinglist.service';
 
 import { InventoryEditComponent } from '../inventory-edit/inventory-edit.component'
 
@@ -87,6 +90,7 @@ export class InventoryComponent implements OnInit {
 
   constructor(
     private inventoryService: InventoryService,
+    private shoppingListService: ShoppingListService,
     private formBuilder: FormBuilder,
     ) {
   }
@@ -94,8 +98,10 @@ export class InventoryComponent implements OnInit {
  
   ngOnInit() {
 
+    console.log('InventoryComponent -- store:', this.shoppingListService.store)
+
     this.inventoryForm = this.formBuilder.group({
-      storesToSelectFrom:  null,
+      storesToSelectFrom:   this.shoppingListService.store,
       categoriesToSelectFrom: null,
     });
 
@@ -110,7 +116,10 @@ export class InventoryComponent implements OnInit {
       this.categoriesToSelectFrom = response;
     });
 
-    
+    //this.fbc['categoriesToSelectFrom'].
+    this.fbc['categoriesToSelectFrom'].setValue(null);
+
+    console.log("ngOnInit', this.fbc['categoriesToSelectFrom'].value:", this.fbc['categoriesToSelectFrom'].value)
   }
 
 
@@ -134,8 +143,16 @@ export class InventoryComponent implements OnInit {
     // })
   }
 
+  onClearCategoriesToSelectFrom(){
+    console.log('onClearCategoriesToSelectFrom', this.fbc['categoriesToSelectFrom'].value)
+    this.fbc['categoriesToSelectFrom'].setValue(null);
+    this.fbc['categoriesToSelectFrom'].clearValidators();
+  }
+
   onCategorySelectChange(){
+    console.log('(1) onCategorySelectChange', this.fbc['categoriesToSelectFrom'].value)
     this.list_category = this.fbc['categoriesToSelectFrom'].value;
+    console.log('(2) onCategorySelectChange', this.fbc['categoriesToSelectFrom'].value)
   }
 
 getBG(e: any){

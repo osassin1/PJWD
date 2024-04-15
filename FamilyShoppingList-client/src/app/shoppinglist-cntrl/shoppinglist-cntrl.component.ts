@@ -16,6 +16,7 @@ import { ShoppingListTotal } from '../models/shopping_list_total.model';
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 import { Inventory } from '../models/inventory.model'
 import { ShoppingListDates } from '../models/shopping_list_dates.model';
+import { Store } from '../models/store.model';
 import { ListCategory } from '../models/list_category.model';
 
 @Component({
@@ -67,7 +68,7 @@ export class ShoppinglistCntrlComponent implements OnInit{
   
   ngOnInit(): void {
     this.shoppinglistCntrlForm = this.formBuilder.group({
-      shopping_list_form: null,
+      shopping_list_form: this.shoppingListService.shoppingList,
     });   
 
     // Get all shopping dates currently available; it's the content
@@ -77,6 +78,7 @@ export class ShoppinglistCntrlComponent implements OnInit{
       this.shoppingToSelectFrom = response;
       //this.selectedShoppingList = true; 
       console.log('this.shoppingToSelectFrom', this.shoppingToSelectFrom)
+      console.log('this.shoppingListService.shoppingList', this.shoppingListService.shoppingList)
     });
 
     this.inventoryService.getListCatgory().subscribe(res => {
@@ -287,6 +289,8 @@ export class ShoppinglistCntrlComponent implements OnInit{
   onSelectShoppingList() {
         this.shoppingListService.hasStore = false;
 
+       
+
         //initialize the shopping list
         // need to review
         for (let item in this.listCategory) {
@@ -297,10 +301,15 @@ export class ShoppinglistCntrlComponent implements OnInit{
 
         if (this.slf.value['shopping_list_form']) {
 
+          this.shoppingListService.store = <Store>{
+            store_id: this.slf.value['shopping_list_form'].store_id,
+            name: this.slf.value['shopping_list_form'].name,            
+          }
+
           this.shoppingListService.shoppingList = <ShoppingListDates>{
-            shopping_date: this.slf.value['shopping_list_form']['shopping_date'],
-            store_id: this.slf.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.store_id'],
-            name: this.slf.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.name'],
+            shopping_date: this.slf.value['shopping_list_form'].shopping_date,
+            store_id: this.slf.value['shopping_list_form'].store_id,
+            name: this.slf.value['shopping_list_form'].name,
             family_id: this.authenticationService.familyMemberValue!.family_id
           }
 

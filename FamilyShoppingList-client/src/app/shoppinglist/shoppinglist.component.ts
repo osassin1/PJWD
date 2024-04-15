@@ -59,9 +59,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
   // isImageDisabled: boolean = false;
    isShopping: boolean = false;
-  // isCheckout: boolean = false;
-  // isCheckoutConfirm: boolean = false;
-  // statusShoppingList: number = 0;
+
 
   // monitoring changes
   private subChangeCategory: any;
@@ -108,34 +106,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   // iconPlusMinus: string = "bi-plus";
 
 
-  // determine if a store was selected
-  //hasStore: boolean = false;
-
-  // // get all stores that family/members can shop from
-  // storesToSelectFrom: any[] = [];
-
-  // // get all dates and store as existing shopping list
-  // shoppingToSelectFrom: any[] = [];
-
-  // // Once a shopping list has ben selected from the
-  // // available list in shoppingToSelectFrom, keep track 
-  // // with selectedShoppingList
-  // selectedShoppingList: any = "";
-
-  // get all categories defined for the app
-  //listCategories: any[] = [];
-
-  // // this contains all inventory items on the shopping lisy by 
-  // // category, which is the key (string) for the Map<string, 
-  // // ShoppingListItems[]>. The array ShoppingListItems[] contains
-  // // the shopping item from inventory + quantity
-  // shoppingListAll: Map<number, ShoppingListInventory[]> = new Map<0, []>();
-
-  // // It's the summary/totals of each category, e.g.
-  // // who (family member) has items in this category, how many
-  // // items are there. There's also a total of units, which
-  // // might be to complicated when summing up item(s) and weights.
-  // shoppingListAllTotal: Map<number, ShoppingListTotal> = new Map<0, any>();
 
 
 
@@ -160,36 +130,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
       select_shopping_category: null,
 
     });
-
-    // Get all defined shopping categories that can be used 
-    // for a list. The identifier is list_category_id within
-    // this component (and also database)
-    // this.inventoryService.getListCatgory().subscribe((response: any) => {
-    //   this.listCategories = response;
-
-    //   // trying to initialize the accordion
-    //   for (let item in this.listCategories) {
-    //     const list_category_id = this.listCategories[item]['list_category_id'];
-    //   }
-    // });
-
-    // // Get all shopping dates currently available; it's the content
-    // // for the first selector <Select Shopping List>
-
-    // this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
-    //   this.shoppingToSelectFrom = response;
-    //   this.selectedShoppingList = true; 
-    // });
-
-
-    // // get all shops that can be shoppedn from
-    // this.inventoryService.getListOfStores().subscribe((response: any) => {
-    //   this.storesToSelectFrom = response;
-    //   //console.log('this.inventoryService.getListOfStores', this.storesToSelectFrom)
-    // });
-
-    // no store is selected yet
-    //this.hasStore = false;
 
     this.inventoryService.getListCatgory().subscribe((response: any) => {
       response.forEach((x:ListCategory) => {
@@ -356,22 +296,33 @@ onInventoryEdit(item: ShoppingListInventory){
   this.isInventoryEdit[item.inventory_id] = !this.isInventoryEdit[item.inventory_id];
 }
 
+//(inventory_id)="onInventoryID($id)">
+
+onInventoryID($id: any){
+  console.log('shoppinglist::this.isInventoryEdit[$id]', this.isInventoryEdit[$id], $id )
+  // only display item (turn off edit mode)
+  //this.inventoryService.loadPicture($id);
+  this.isInventoryEdit[$id] = false;
+}
 
 
+onInventoryEditDone($event: any){
+  console.log('shoppinglist::onInventoryEditDone', $event )
 
-
-onInventoryEditDone(inventory_id: number, $event: any){
-  console.log('shoppinglist::onInventoryEditDone', inventory_id, $event)
-  this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
+//  this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
 
   // if quantity got changed, update the list
+  // by fetching everything in this catgeory on
+  // the shopping list.
+  //
+  // ToDo: might want to optimize that
+  //
   if( $event ){
-    this.shoppingListService.getShoppingListByCategory(this.shopping_date,
-     this.store_id,
-     this.list_category_id);
-
-  // this.selectedInventoryFlag[list_category_id] = true;
-  // this.selectShoppingListForm.controls['select_shopping_category'].reset();  //patchValue(null);
+    this.shoppingListService.getShoppingListByCategory(
+      this.shoppingList.shopping_date,
+      this.shoppingList.store_id,
+      this.list_category_id
+    );
   }
 }
 
@@ -392,152 +343,6 @@ onShoppinglistCtrlDone($event:any){
 }
 
 
-
-  // // When a shopping list is selected from the <Select Shopping List>,
-  // // then extract the the shopping_date and store_id to identify the
-  // // list for that store + date.
-  // //
-  // // Bases on the available categories to shop from, initialize the various
-  // // data sections, which are usually based on its category. So, there's
-  // // and array from [first_category, ..., last_category] and for each item
-  // // store what is on the list and what is available (or known) for that store.
-  // onSelectShoppingList() {
-  //   this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe({
-  //     next: (v) => {
-  //       this.hasStore = false;
-  //       for (let item in this.listCategories) {
-  //         const list_category_id = this.listCategories[item]['list_category_id'];
-  //         this.shoppingListAll.delete(list_category_id);
-  //         this.shoppingListAllTotal.delete(list_category_id);
-  //       }
-
-  //       if (this.selectShoppingListForm.value['shopping_list_form']) {
-  //         this.shopping_date = this.selectShoppingListForm.value['shopping_list_form']['shopping_date'];
-  //         this.store_id = this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.store_id'];
-  //         this.store_name = this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.name'];
-
-  //         // load inventory for store
-  //         this.inventoryService.loadInventoryByStore(this.store_id);
-  //         console.log('storeInventory', this.storeInventory);
-
-  //         this.hasStore = true;
-
-  //         //*** need to REVIEW THAT****/
-  //         //this.selectedShoppingList = false;
-
-  //         //console.log('onSelectShoppingList  --> store_id', this.store_id)
-  //         //console.log('onSelectShoppingList  --> store', this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store'])
-
-  //         for (let item in this.listCategories) {
-  //           const list_category_id = this.listCategories[item]['list_category_id'];
-
-  //           // The method performs the following:
-  //           // (1) fills shoppingListAll contains all inventory items for a category on the shopping list
-  //           // (2) fills shoppingListAllTotal (it's the summary of what the category contains
-  //           //     and is the accordion's button: <category name>  <family member dots> <total number of items>)
-  //           this.getShoppingListByCategory(this.shopping_date, this.store_id, list_category_id);
-  //           this.getInventoryByCategory(this.store_id, list_category_id);
-
-  //           // reset the formcontrol for selecting existing invenorty items
-  //           // to be added to the shopping list
-  //           this.selectShoppingListForm.controls['select_shopping_category'].patchValue(null);
-
-  //           // uncheck all elements checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])
-  //           this.inventoryImage.splice(0, this.inventoryImage.length);
-
-  //           //*** NEEDS TO BE REVIEWED *** */
-  //           //this.loadShoppingListStatus();
-
-  //           this.iconPlusDash[list_category_id] = "bi-plus-circle";
-  //         }
-  //       }
-  //     }, error: (e) => {
-  //       console.error("Error in selecting shopping list", e);
-  //     }
-  //   });
-
-  // }
-
-
-  // ---- Confirm/Cancel Events -------------------------------------------------  
-  // Handling of events associated with html components,
-  // which start with 'on'. So, buttons' click event
-  // is of the format: on<Confirm | Cancel)<some event>
-
-
-
-  // // When confirming that the shopping
-  // // process is done and a new shopping 
-  // // prcess can start.
-  // //
-  
-  // onConfirmCheckout() {
-  //   this.selectShoppingListForm.controls['shopping_list_form'].enable();
-  //   this.isCheckoutConfirm = false;
-  //   this.isCheckout = false;
-  //   this.isCheckoutConfirm = false;
-  //   this.saveShoppingListStatus();
-  //   this.shoppingListService.checkoutShoppingList(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id)
-  //     .subscribe({
-  //       next: (v) => {
-  //       }, error: (e) => {
-  //         console.error(e);
-  //       }, complete: () => {
-  //         this.selectShoppingListForm.controls['shopping_list_form'].reset();
-  //         this.onSelectShoppingList()
-  //         this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
-  //           this.shoppingToSelectFrom = response;
-  //           this.selectedShoppingList = true;
-  //         });
-      
-  //       }
-  //     })
-  // }
-
-  // onCancelCheckout() {
-  //   this.selectShoppingListForm.controls['shopping_list_form'].enable();
-  //   this.isCheckoutConfirm = false;
-  //   this.isCheckout = false;
-  //   this.isCheckoutConfirm = false;
-  //   this.saveShoppingListStatus();
-
-  // }
-
-
-
-
-  // // When clicking the 'arrow going into the box' icon after it's
-  // // enable based on a selected shopping list, the shopping
-  // // process starts with changing the list by adding a check box
-  // // in front of each item on the list. The icon now changes
-  // // to 'check mark in square box', which means 'stop' shopping.
-  // //
-  // // The checkout is enabled next and when pressed, it can either
-  // // confirmed or cancelled.
-
-  // onShopping() {
-  //   var shopping_status: string = "";
-
-  //   if (this.isShopping) {
-  //     this.isShopping = false;
-  //     this.isCheckout = true;
-  //     shopping_status = "stop";
-
-  //   } else {
-  //     this.isShopping = true;
-  //     shopping_status = "start";
-  //     this.selectShoppingListForm.controls['shopping_list_form'].disable();
-  //   }
-  //   this.saveShoppingListStatus();
-  // }
-
-  // onCheckout() {
-  //   this.isCheckoutConfirm = true;
-  //   this.isCheckout = false;
-  //   this.saveShoppingListStatus();
-  // }
-
-
   // Changing icons when clicking one, for example,
   // circle (+) should change to circle (-),
   // + should change to -,
@@ -551,15 +356,6 @@ onShoppinglistCtrlDone($event:any){
     }
   }
 
-  // onIconPlusMinus() {
-  //   if (this.iconPlusMinus == "bi-plus") {
-  //     this.iconPlusMinus = "bi-dash";
-  //   } else {
-  //     this.iconPlusMinus = "bi-plus";
-  //   }
-  // }
-
-
 
   // When opening a category in the shopping list,
   // store the category_id
@@ -569,89 +365,8 @@ onShoppinglistCtrlDone($event:any){
   }
 
 
-  // When the clearAll (x) is being pressed within
-  // the select: <Select inventory item>
-  // onClearQuantityChanges(list_category_id: number) {
-  //   this.selectedInventoryFlag[list_category_id] = true;
-  // }
-
-
-  // // The shopping status determine where in the process
-  // // of shopping a list is, i.e., start shopping, stop (done)
-  // // shopping, checkout (paying and going home).
-  // //
-  // // statusCode 0 : still adding items to the list
-  // //            1 : in the store shopping, checkoff the item in the cart
-  // //            2 : done and at the register
-  // //            3 : checked out (paid) and confirming
-
-  // saveShoppingListStatus() {
-  //   var statusCode: number = 0;
-  //   if (this.isShopping && !this.isCheckout && !this.isCheckoutConfirm) {
-  //     statusCode = 1;
-  //   } else if (!this.isShopping && this.isCheckout && !this.isCheckoutConfirm) {
-  //     statusCode = 2;
-  //   } else if (!this.isShopping && !this.isCheckout && this.isCheckoutConfirm) {
-  //     statusCode = 3;
-  //   }
-  //   this.shoppingListService.changeShoppingStatus(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, statusCode)
-  //     .subscribe({
-  //       next: (v) => {
-  //       }, error: (e) => {
-  //         console.error(e);
-  //       }, complete: () => {
-  //       }
-  //     })
-  // }
-
-  // loadShoppingListStatus(): number {
-  //   //console.log('loadShoppingListStatus')
-  //   this.shoppingListService.getShoppingListStatus(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id)
-  //     .subscribe({
-  //       next: (v) => {
-  //         this.statusShoppingList = v['status'];
-  //         if (this.statusShoppingList == 0) {
-  //           this.isShopping = false;
-  //           this.isCheckout = false;
-  //           this.isCheckoutConfirm = false;
-  //         } else if (this.statusShoppingList == 1) {
-  //           this.isShopping = true;
-  //           this.isCheckout = false;
-  //           this.isCheckoutConfirm = false;
-  //         } else if (this.statusShoppingList == 2) {
-  //           this.isShopping = false;
-  //           this.isCheckout = true;
-  //           this.isCheckoutConfirm = false;
-  //         } else if (this.statusShoppingList == 3) {
-  //           this.isShopping = false;
-  //           this.isCheckout = false;
-  //           this.isCheckoutConfirm = true;
-  //         }
-  //       }, error: (e) => {
-  //         console.error(e);
-  //       }, complete: () => {
-  //         if (this.statusShoppingList > 0) {
-  //           this.selectShoppingListForm.controls['shopping_list_form'].disable();
-  //         } else {
-  //           this.selectShoppingListForm.controls['shopping_list_form'].enable();
-  //         }
-  //         //console.log('loadShoppingListStatus', this.statusShoppingList)
-
-  //         return this.statusShoppingList;
-  //       }
-  //     })
-  //   return 0;
-  // }
-
-  // get hasStore(){
-  //   if( this.shoppingListService.shoppingList != undefined ){
-  //     return this.shoppingListService.shoppingList.hasStore;
-  //   } 
-  //   return false;
-  // }
-
   get familyMemberID(){
-    return this.authenticationService.familyMemberValue!.family_member_id;
+    return this.shoppingListService.familyMemberID;
   }
 
   get shoppingDate(){
@@ -666,52 +381,6 @@ onShoppinglistCtrlDone($event:any){
     return "bg-inventory";
   }
 
-  // // Load the shopping list by categories to match the accordion selector
-  // // and handle each section individually.
-  // getShoppingListByCategory(shopping_date: string, store_id: number, list_category_id: number) {
-  //   this.shoppingListService.shoppingListAll.delete(list_category_id);
-  //   this.shoppingListService.shoppingListAllTotal.delete(list_category_id);
-
-  //   this.shoppingListService.getListByCategoryByGroup(shopping_date, store_id, list_category_id, this.authenticationService.familyMemberValue!.family_id)
-  //     .subscribe({
-  //       next: (v) => {
-  //         this.shoppingListService.shoppingListAll.set(list_category_id, v['inventory']);
-  //         this.shoppingListService.shoppingListAllTotal.set(list_category_id, v['category']);
-  //       }, error: (e) => {
-  //         console.error(e.error.message);
-  //       },
-  //       complete: () => {
-  //         // load pictures, they will be cached in the
-  //         // inventory service
-  //         this.shoppingListService.shoppingListAll.get(list_category_id)?.forEach(((p:any) => {
-  //           // this.inventoryService.loadPicture(p.inventory_id);
-  //           // this.inventoryService.loadInventory(store_id, p.inventory_id);
-  //           if (p.shopping_status_id >= 2) {
-  //             this.inventoryImage[p.inventory_id] = "disabled";
-  //           }
-  //         }));
-  //       }
-  //     });
-  // }
-
-
-  // // initialize the inventory items by category one can select from
-  // // click the circle-plus to open the selection of item in that category
-  // getInventoryByCategory(store_id: number, list_category_id: number) {
-  //   this.inventoryService.getInventoryByCategory(store_id, list_category_id)
-  //     .subscribe({
-  //       next: (v) => {
-  //         this.selectInventoryByCategory[list_category_id] = v;
-  //         v.forEach((i: any) => {
-  //           var inventory_id = i['inventory_id'];
-  //           this.inventoryService.loadPicture(inventory_id);
-  //         })
-  //       },
-  //       complete: () => {
-  //         console.log('complete')
-  //       }
-  //     })
-  // }
 
 
 //--- get ---

@@ -13,11 +13,11 @@
                 (ngModelChange)="onSelectShoppingList()">
                 <ng-template ng-label-tmp let-item="item">
                     <span class="label-text">
-                        {{item['shopping_list_to_inventory.inventory_to_store.name']}} </span>
+                        {{item.name}} </span>
                 </ng-template>
                 <ng-template ng-option-tmp let-item="item" let-index="index">
                     <span class="label-text"> {{item.shopping_date}}
-                        {{item['shopping_list_to_inventory.inventory_to_store.name']}} </span>
+                        {{item.name}} </span>
                 </ng-template>
                 
             </ng-select>

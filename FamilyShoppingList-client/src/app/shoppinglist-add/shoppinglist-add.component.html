@@ -22,8 +22,10 @@
     @if(selectedInventory){
     <div>
         <app-shoppinglist-edit class="d-flex flex-row w-100 px-1" [shoppingListItem]="selectedInventory"
-            [familyMemberID]="familyMemberID" [shoppingDate]="shoppingDate" [background]="background"
-            (done)="onInventoryEditDone(selectedInventory.inventory_id, $event)">
+            [background]="background"
+            (inventory_id)="onInventoryID($event)"
+            (done)="onInventoryEditDone($event)"
+           >
         </app-shoppinglist-edit>
     </div>
     }
@@ -32,6 +34,7 @@
             <app-inventory-edit class="d-flex flex-row w-100" [store]="store"
                 [inventory]="newInventory" [background]="background" 
                 [list_category]="list_category"
+                (inventory_id)="onInventoryID($event)"
                 (done)="onNewInventoryDone($event)">
             </app-inventory-edit>          
         </div>

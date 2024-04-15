@@ -83,14 +83,15 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    //console.log('InventoryEditComponent', 'ngOnDestroy')  
+    console.log('InventoryEditComponent', 'ngOnDestroy')  
     //this.inventory.picture = "no_picture.jpg";
   }
 
   get ief(){
     return this.inventoryEditForm.value['inventoryForm'];
   }
-  
+
+ 
   onPicture(){
     console.log('onPicture');
     this.takePicture = !this.takePicture;
@@ -120,6 +121,11 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
           }
         }) 
     } else {
+
+      // console.log('InventoryEditComponent this.inventory', this.inventory)
+      // console.log('InventoryEditComponent this.store', this.store)
+
+
         this.inventoryService.createInventoryItem(
           this.inventory.name,
           this.inventory.notes,
@@ -130,6 +136,9 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
           ).subscribe({
             next: (v) => {
               this.inventory.inventory_id = v;
+
+              // add the new picture to the inventory (of pictures)
+              this.inventoryService.pictureInventory.set(this.inventory.inventory_id, this.inventory.picture)
             },
             complete: () => {
               this.done.emit(true);

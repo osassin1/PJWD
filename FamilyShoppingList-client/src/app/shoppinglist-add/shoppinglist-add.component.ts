@@ -31,7 +31,6 @@ import { ListCategory } from '../models/list_category.model'
 
 export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
 
-  @Input() storeID: number = 0;
   @Input() inventoryList: Inventory[] = [];
   @Input() list_category!: ListCategory;  
 
@@ -39,9 +38,8 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
   @Input() shoppingDate: string = "";
   @Input() background: string = "";
   @Input() disabledString: string = "";
-  @Output() done = new EventEmitter<boolean>();
-
-  store!: Store; 
+  @Output() done = new EventEmitter<any>();
+  @Output() inventory_id = new EventEmitter<number>();
 
   shoppingListAddForm!: FormGroup;
 
@@ -62,10 +60,6 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
     this.shoppingListAddForm = this.formBuilder.group({
         inventoryToAdd: null
     });
-
-
-    this.store = { store_id: this.storeID, name: ""};
-
   }
 
   ngOnDestroy(){
@@ -89,30 +83,43 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
     return this.inventoryService.storeInventory;
   }
 
+  get store(){
+    return this.shoppingListService.store;
+  }
 
-  onInventoryEditDone(inventory_id: number, $event: any){
-    //console.log('shoppinglist-add::onInventoryEditDone',$event)
+
+  onInventoryEditDone($event: any){
+    // adjustment are made and the selected (current) item
+    // needs to be reset
     this.selectedInventory=null;
     this.done.emit($event);
   }
 
-
-
+  onInventoryID($id: any){
+    this.inventory_id.emit($id);
+  }
+  
   onNewInventoryDone($event: any){
-    this.storeInventory.push(this.newInventory);
-    this.storeInventoryByCategory.push(this.newInventory);
+    if( $event ) {
+      console.log('ShoppinglistAddComponent::onNewInventoryDone',this.newInventory )
+      this.storeInventory.push(this.newInventory);
+      this.storeInventoryByCategory.push(this.newInventory);
 
-    // find the newly added item
-    const idx = this.storeInventoryByCategory.find((item:any) => item.inventory_id == this.newInventory.inventory_id);
+      // find the newly added item
+      const idx = this.storeInventoryByCategory.find((item:any) => item.inventory_id == this.newInventory.inventory_id);
 
-    // set the new item as selected in ng-select 
-    this.shoppingListAddForm.controls['inventoryToAdd'].updateValueAndValidity();
-    this.shoppingListAddForm.controls['inventoryToAdd'].reset;
+      // set the new item as selected in ng-select 
+      this.shoppingListAddForm.controls['inventoryToAdd'].updateValueAndValidity();
+      this.shoppingListAddForm.controls['inventoryToAdd'].reset;
 
-    // and also have it in edit mode
-    this.selectedInventory = idx;
+      // and also have it in edit mode
+      this.selectedInventory = idx;
+
+      this.inventory_id.emit(this.newInventory.inventory_id);
+    }
 
     delete this.newInventory;
+    //console.log('shoppinglist-add::onNewInventoryDone', $event)
     this.done.emit($event);
   }
 
@@ -144,10 +151,6 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
             description: "",
           }
     };
-  }
-
-  doNothing(){
-
   }
 }
 

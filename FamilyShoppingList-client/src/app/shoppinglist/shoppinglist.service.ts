@@ -38,11 +38,6 @@ export class ShoppingListService implements OnInit{
     pollingTimeInMilliSeconds: number = 5000;
     private subChangeCategory: any;
 
-    // this.shoppingListService.shoppingList = JSON.parse('{ "shopping_date": "' + newDateString +
-    //   '", "shopping_list_to_family_member.family_id": "' + this.authenticationService.familyMemberValue!.family_id +
-    //   '", "shopping_list_to_inventory.inventory_to_store.store_id": "' + this.slnf['storesToSelectFrom'].value['store_id'] +
-    //   '", "shopping_list_to_inventory.inventory_to_store.name": "' + this.slnf['storesToSelectFrom'].value['name'] +
-    //   '" } ');
 
     /*
     export interface ShoppingListDates {
@@ -89,6 +84,8 @@ export class ShoppingListService implements OnInit{
     _selectInventoryByCategory: any[] = [];
 
     _hasStore: boolean = false;
+
+    _store!: Store;
       
     constructor(
         private inventoryService:InventoryService,
@@ -155,11 +152,20 @@ ngOnInit(): void {
     set hasStore(s:any){
         this._hasStore=s;
     }
+    get store(){
+        return this._store;
+    }
+    set store(s:any){
+        this._store = s;
+    }
     get listCategory(){
         return this._listCategory;
     }
     set listCategory(s:any){
         this._listCategory = s;
+    }
+    get familyMemberID(){
+        return this.authenticationService.familyMemberValue!.family_member_id;
     }
 
   // Load the shopping list by categories to match the accordion selector
@@ -168,10 +174,10 @@ ngOnInit(): void {
     this.shoppingListAll.delete(list_category_id);
     this.shoppingListAllTotal.delete(list_category_id);
 
-    console.log('getShoppingListByCategory:: shopping_date', shopping_date)
-    console.log('getShoppingListByCategory:: store_id', store_id)
-    console.log('getShoppingListByCategory:: list_category_id', list_category_id)
-    console.log('getShoppingListByCategory:: this.shoppingList.family_id', this.shoppingList.family_id)
+    // console.log('getShoppingListByCategory:: shopping_date', shopping_date)
+    // console.log('getShoppingListByCategory:: store_id', store_id)
+    // console.log('getShoppingListByCategory:: list_category_id', list_category_id)
+    // console.log('getShoppingListByCategory:: this.shoppingList.family_id', this.shoppingList.family_id)
 
 
     this.getListByCategoryByGroup(shopping_date, store_id, list_category_id, this.shoppingList.family_id)

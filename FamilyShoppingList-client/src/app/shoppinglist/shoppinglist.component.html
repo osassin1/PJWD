@@ -3,79 +3,12 @@
     <div class="col-md-8">
         <!-- select an existing shopping list by <date> <store name> -->
         <form [formGroup]="selectShoppingListForm">
-            @if( true ){
-
-
-                <app-shoppinglist-cntrl class="d-flex flex-row w-100"
+            <app-shoppinglist-cntrl class="d-flex flex-row w-100"
                 [familyMemberID]="familyMemberID"
                 
                 [background]="inventoryBackground"
                 (done)="onShoppinglistCtrlDone($event)">
-                </app-shoppinglist-cntrl>
-
-
-            <!-- <div class="d-flex flex-row shoppinglist-card py-1 bg-blue">
-                    <button #newShoppingList type="button" class="icon-add-shopping" data-bs-toggle="collapse"
-                        data-bs-target="#collapseNewShoppingList" (click)="onIconPlusMinus()"
-                        [disabled]="fb.controls['shopping_list_form'].disabled">
-                            <i class="bi {{iconPlusMinus}} icon-style" ></i>
-                    </button>
-                <div class="d-inline-flex flex-column" style="min-width: 11rem;">
-                    <ng-select [items]="shoppingToSelectFrom" placeholder="Select Shopping List"
-                        labelForId="shoppingToSelectFrom" formControlName="shopping_list_form" [tabIndex]=0
-                        (change)="selectedShoppingList" [clearable]="false" aria-label="SelectShoppingList"
-                        (ngModelChange)="onSelectShoppingList()">
-                        <ng-template ng-label-tmp let-item="item">
-                            <span class="label-text">
-                                {{item['shopping_list_to_inventory.inventory_to_store.name']}} </span>
-                        </ng-template>
-                        <ng-template ng-option-tmp let-item="item" let-index="index">
-                            <span class="label-text"> {{item.shopping_date}}
-                                {{item['shopping_list_to_inventory.inventory_to_store.name']}} </span>
-                        </ng-template>
-                        
-                    </ng-select>
-                    <div style="font-size: xx-small;">
-                        {{shopping_date}}
-                    </div>
-                </div>
-                <div class="d-inline-flex" >
-                    <button type="button" class="icon-start-shopping"
-                        [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm || isShopping" (click)="onShopping()">
-                                <i class="bi bi-box-arrow-in-right icon-style"></i>
-                    </button>
-                    <button type="button" class="icon-stop-shopping"
-                            [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm || !isShopping" (click)="onShopping()">
-                                <i class="bi bi-check-square icon-style"></i>
-                    </button>
-                    <button type="button"  class="icon-checkout" [disabled]="!isCheckout" (click)="onCheckout()">
-                            <i class=" bi bi-box-arrow-right icon-style" ></i>
-                            
-                    </button>
-                </div>
-            </div>
-            
-            <div *ngIf="isCheckoutConfirm">
-                <div class="d-flex justify-content-center">
-                    <br>
-                    <button type="button" class="ok-cancel-button shoppinglist-card bi bi-x-circle"
-                        (click)="onCancelCheckout()">
-                    </button>
-                    <button type="button" class="ok-cancel-button shoppinglist-card bi bi-check-circle"
-                        (click)="onConfirmCheckout()">
-                    </button>
-                </div>
-            </div>
-            Create a new shopping list -->
-            <!-- <div class="collapse" id="collapseNewShoppingList" >
-                <app-shoppinglist-new class="d-flex flex-row w-100"
-                    [familyMemberID]="familyMemberID"
-                    [storesToSelectFrom]="storesToSelectFrom"
-                    [background]="inventoryBackground"
-                    (done)="onShoppinglistNewDone($event)">
-                </app-shoppinglist-new>
-            </div> -->
-        }
+            </app-shoppinglist-cntrl>
             <!-- get the defined categories that will be populated once a shopping list has been selected -->
             <!-- once a shopping list is selected then fill up the categories with the items -->
             <div class="accordion" id="shopping_list_accordion">
@@ -103,8 +36,8 @@
                             </div>
                             <div class="p-2"
                                 *ngIf="shoppingListAllTotal.size>0 && 
-                                                    shoppingListAllTotal.get(item.list_category_id) &&
-                                                    shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items">
+                                        shoppingListAllTotal.get(item.list_category_id) &&
+                                        shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items">
                                 #{{shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items}}
                             </div>
                         </button>
@@ -139,18 +72,16 @@
                                         attr.data-bs-parent="#addInventory_category_{{item.list_category_id}}">
                                         <div class=""> <!-- accordion-body -->
                                             <div class="bg-light">
-
-
                                                 <!-- {{selectInventoryByCategory[item.list_category_id]|json}} -->
                                                 <app-shoppinglist-add class="d-flex flex-row w-100"
-                                                    [storeID]="store_id"
                                                     [shoppingDate]="shoppingDate"
                                                     [familyMemberID]="familyMemberID"
                                                     [inventoryList]="selectInventoryByCategory[item.list_category_id]"
     
                                                     [list_category]="item"
                                                     [background]="inventoryBackground"
-                                                    (done)="onInventoryEditDone(item.inventory_id, $event)">
+                                                    (inventory_id)="onInventoryID($event)"
+                                                    (done)="onInventoryEditDone($event)">
                                                  </app-shoppinglist-add>
 
                                                 <!-- take/load a picture and define what it is-->
@@ -167,10 +98,9 @@
                         <div class="d-flex flex-row align-items-center w-100 py-1">
                             <div class="form-check" [hidden]="!isShopping">
                                 <input class="form-check-input large-checkbox" type="checkbox" value=""
-                                    
                                     (click)="checkInventoryItem(inventoryItem.inventory_id)"
-                                    [checked]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id], inventoryItem.inventory_id)">
-
+                                    [checked]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id], 
+                                    inventoryItem.inventory_id)">
                             </div>
                                 @if( !isInventoryEdit[inventoryItem.inventory_id] ) {
                                 <button type="button" (click)="onInventoryEdit(inventoryItem)" class="d-flex w-100 align-items-center shoppinglist-card">
@@ -205,11 +135,10 @@
                                 } @else {
                                     <app-shoppinglist-edit class="d-flex flex-row w-100" 
                                         [shoppingListItem]="inventoryItem"
-                                        [familyMemberID]="familyMemberID"
-                                        [shoppingDate]="shoppingDate"
                                         [background]="inventoryBackground"
                                         [disabledString]="inventoryImage[inventoryItem.inventory_id]"
-                                        (done)="onInventoryEditDone(inventoryItem.inventory_id, $event)">
+                                        (done)="onInventoryEditDone($event)"
+                                        (inventory_id)="onInventoryID($event)">
                                     </app-shoppinglist-edit>
                                 } 
                         </div>

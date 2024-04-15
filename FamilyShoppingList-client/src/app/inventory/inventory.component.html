@@ -6,7 +6,7 @@
                     <label for="storesToSelectFrom" class="input-label">Store</label>
                     <ng-select [items]="storesToSelectFrom" placeholder="Select Store" style="min-width: 10rem;"
                         labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0
-                        [clearable]="false" (ngModelChange)="onStoreSelectChange()" required>
+                        [clearable]="false" (ngModelChange)="onStoreSelectChange()">
                         <ng-template ng-label-tmp let-item="item">
                             <span class="label-text">{{item.name}}</span>
                         </ng-template>
@@ -19,6 +19,7 @@
                     <label for="categoriesToSelectFrom" class="input-label">Category</label>
                     <ng-select [items]="categoriesToSelectFrom" placeholder="All Categories" style="min-width: 10rem;"
                         labelForId="categoriesToSelectFrom" formControlName="categoriesToSelectFrom" [tabIndex]=0
+                        (clear)="onClearCategoriesToSelectFrom()"
                         [clearable]="true" (ngModelChange)="onCategorySelectChange()" required>
                         <ng-template ng-label-tmp let-item="item">
                             <span class="label-text">{{item.name}}</span>
@@ -55,8 +56,14 @@
             <div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0">
                 @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
                     <!-- filter based on category -->
-                    @if( this.list_category && !this.list_category.list_category_id || inventory.inventory_to_list_category.list_category_id ==
-                    this.list_category.list_category_id) {
+                    list_category!=undefined: {{ list_category!=undefined}}
+                    <br>
+
+
+                    <!-- @if( (list_category!=undefined && (!list_category.list_category_id || inventory.inventory_to_list_category.list_category_id ==
+                    this.list_category.list_category_id)))  -->
+                    @if( (list_category!=undefined && list_category.list_category_id) || (list_category!=undefined))
+                    {
                         <!-- either just display or call the edit component -->
                         @if(!inventoryEdit[inventory.inventory_id]){
                         <div class="d-flex {{getBG(e)}} pb-1">

@@ -413,30 +413,39 @@ exports.updateShoppingList = (req, res) => {
 };
 
 exports.getShoppingDates = (req, res) => {
-  shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
-    raw: true,
-    attributes: ['shopping_date'],
-    include: [{
-      association: 'shopping_list_to_family_member', attributes: ['family_id'],
-      where: {
-        family_id: req.query.family_id
-      }
-      },{
-      association: 'shopping_list_to_inventory', attributes: [], exclude: ['inventory_id', 'store_id'],
-      include: { association: 'inventory_to_store', attributes: ['name'], exclude: ['store_id'] }
-    }],
-    where: {
-      shopping_status_id: {
-        [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
-      }
-    },
-    order : [['shopping_date', 'ASC']],
-    group: ['shopping_date', 'shopping_list_to_inventory->inventory_to_store.store_id'],
-    
+  // shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
+  //   raw: true,
+  //   attributes: ['shopping_date'],
+  //   include: [{
+  //     association: 'shopping_list_to_family_member', attributes: ['family_id'],
+  //     where: {
+  //       family_id: req.query.family_id
+  //     }
+  //     },{
+  //     association: 'shopping_list_to_inventory', attributes: [], exclude: ['inventory_id', 'store_id'],
+  //     include: { association: 'inventory_to_store', attributes: ['name'], exclude: ['store_id'] }
+  //   }],
+  //   where: {
+  //     shopping_status_id: {
+  //       [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
+  //     }
+  //   },
+  //   order : [['shopping_date', 'ASC']],
+  //   group: ['shopping_date', 'shopping_list_to_inventory->inventory_to_store.store_id'],
 
-  }).then(data => {
+
+  db.sequelize.query(
+          `SELECT DISTINCT shopping_list.shopping_date, family_member.family_id AS family_id, 
+          store.store_id AS store_id, 
+          store.name AS name 
+          FROM shopping_list INNER JOIN family_member ON shopping_list.family_member_id = family_member.family_member_id
+          AND family_member.family_id = ${req.query.family_id} 
+          LEFT OUTER JOIN inventory AS shopping_list_to_inventory ON shopping_list.inventory_id = shopping_list_to_inventory.inventory_id
+          LEFT OUTER JOIN store ON store.store_id = shopping_list_to_inventory.store_id
+          WHERE shopping_list.shopping_status_id < 3 ORDER BY shopping_list.shopping_date ASC;`
+).then(data => {
     console.log('getShoppingDates', JSON.stringify(data) )
-    res.send(data);
+    res.send(data[0]);
   })
     .catch(err => {
       res.status(500).send({

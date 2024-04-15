@@ -27,14 +27,11 @@ import { Inventory } from '../models/inventory.model'
 })
 export class ShoppinglistEditComponent implements OnInit{
 
-  // @Input() store!: Store;
   @Input() shoppingListItem!: ShoppingListInventory | Inventory;
-  @Input() familyMemberID: number = 0;
-  @Input() shoppingDate: string = "";
   @Input() background: string = "";
   @Input() disabledString: string = "";
-  @Output() done = new EventEmitter<boolean>();
-  @Input() shoppingList: any;
+  @Output() done = new EventEmitter<any>();
+  @Output() inventory_id = new EventEmitter<number>();
 
   shoppingListEditForm!: FormGroup;
 
@@ -63,21 +60,35 @@ export class ShoppinglistEditComponent implements OnInit{
     console.log('ShoppinglistEditComponent--this.shoppingList', this.shoppingList)
   }
 
+get shoppingList(){
+  return this.shoppingListService.shoppingList;
+}
+
+get familyMemberID(){
+  return this.shoppingListService.familyMemberID;
+}
+
 
 
   onDoneEdit(){
+    // console.log('shoppinglist-edit::onDoneEdit  this.familyMemberID',  this.familyMemberID)
+    // console.log('shoppinglist-edit::onDoneEdit  this.shoppingListItem.inventory_id',  this.shoppingListItem.inventory_id)
+    // console.log('shoppinglist-edit::onDoneEdit  this.shoppingListItem',  this.shoppingListItem)
+    // console.log('shoppinglist-edit::onDoneEdit  this.shoppingList',  this.shoppingList)
+
       this.shoppingListService.updateShoppingList(
-        this.shoppingDate,
+        this.shoppingList.shopping_date,
         this.familyMemberID,
         this.shoppingListItem.inventory_id, 
         this.quantity).subscribe({
           next: (v) => {
-            console.log('shoppinglist-edit::onDoneEdit',v)
+            console.log('shoppinglist-edit::onDoneEdit v:',v)
           },
           error: (e) => {
             console.error('error', e);
           },
           complete: () => {
+            this.inventory_id.emit(this.shoppingListItem.inventory_id);
             this.done.emit(true);
           }
         });
@@ -85,7 +96,7 @@ export class ShoppinglistEditComponent implements OnInit{
   
 
   onCancelEdit(){
-    console.log('onDoneEdit')
+    this.inventory_id.emit(this.shoppingListItem.inventory_id);
     this.done.emit(false);
   }  
 
