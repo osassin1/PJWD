@@ -11,10 +11,20 @@ import { catchError, map } from 'rxjs/operators';
 
 import{ ListCategory } from '../models/list_category.model';
 
-//const baseUrl = 'http://localhost:8080/api/inventory';
-//const baseUrl = 'http://192.168.1.193:8080/api/inventory';
+// appsettings.json contains the serverUrl
+/*
+{
+    "Application" : {
 
-//const baseUrl = 
+    "___serverUrl": "http://localhost:8085",
+    "__serverUrl": "http://192.168.1.195:8085",
+    "serverUrl": "http://osassin.tplinkdns.com:8085",
+    "devUrl" : "http://192.168.1.195:8085",
+    "prodUrl" : "http://osassin.tplinkdns.com:8085"
+    }
+
+}
+*/
 
 const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/inventory";
 
@@ -23,10 +33,11 @@ const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/in
 })
 
 
-
 export class InventoryService  {
    public pictureInventory : Map<number,SafeUrl> = new Map<0,"">();
    public inventoryData  : Map<number,any> = new Map<0,"">;
+
+   storeInventory!: Inventory[];
 
    public categoryInventoryNew : Map<number,any[]> = new Map<0,[]>;
 
@@ -87,6 +98,25 @@ export class InventoryService  {
              (`${baseUrl}/inventory_by_store_for_edit?store_id=${store_id}`,httpOptions);
     }
 
+    loadInventoryByStore(store_id : number)  {
+        console.log('loadInventoryByStore::store_id', store_id)
+        this.storeInventory = [];
+        this.getInventoryByStoreForEdit(store_id).subscribe({
+            next: (v) => {
+              let a = JSON.parse(v);
+              this.storeInventory = a;
+            }, error: (e) => {
+              console.error(e.error.message);
+            },
+            complete: () => {
+            }
+          })        
+    }
+
+
+
+
+
     getInventoryByStoreForEditByCategory(store_id : number, list_category_id: number): Observable<any>{
         //  const httpOptions: Object = {
         //      headers: new HttpHeaders({'Accept': 'image/png'}),
@@ -111,20 +141,20 @@ export class InventoryService  {
         return this.http.get<any>(`${baseUrl}/units`);
     }
 
-    getInventoryByID(inventory_id: number){
-        console.log('this.getInventoryByID',inventory_id);
+    // getInventoryByID(inventory_id: number){
+    //     console.log('this.getInventoryByID',inventory_id);
 
-        if(!this.inventoryData.has(inventory_id)){
-            this.categoryInventoryNew.forEach(e => {
-                e.forEach(i => {
-                    var id = i['inventory_id'];
-                    if(!this.inventoryData.has(id)){
-                        this.inventoryData.set(id, i);
-                    }
-                })
-        })}
-        return this.inventoryData.get(inventory_id);
-    }
+    //     if(!this.inventoryData.has(inventory_id)){
+    //         this.categoryInventoryNew.forEach(e => {
+    //             e.forEach(i => {
+    //                 var id = i['inventory_id'];
+    //                 if(!this.inventoryData.has(id)){
+    //                     this.inventoryData.set(id, i);
+    //                 }
+    //             })
+    //     })}
+    //     return this.inventoryData.get(inventory_id);
+    // }
 
 
     loadInventory(store_id : number, list_category_id: number) {
@@ -142,21 +172,46 @@ export class InventoryService  {
     }
 
 
+
+
+//     this.inventoryService.getInventoryByCategory(store_id, list_category_id)
+//       .subscribe({
+//         next: (v) => {
+//           this.selectInventoryByCategory[list_category_id] = v;
+//           v.forEach((i: any) => {
+//             var inventory_id = i['inventory_id'];
+//             this.inventoryService.loadPicture(inventory_id);
+
+//           })
+//         },
+//         complete: () => {
+//           console.log('complete')
+//         }
+//       })
+//   }
+
+
     loadPicture(inventory_id: number) : SafeUrl {
         if (!this.pictureInventory.has(inventory_id)) {
             this.getPicture(inventory_id)
-                .subscribe(picture => {
-                    let objectURL = picture;   
-                    // picture is a string containing the correct format of 
-                    // an image to be display via <img [src]  (property binding)
-                    const cleanedPicture = this.domSanatizer.bypassSecurityTrustUrl(objectURL);
+                .subscribe({
+                    next: (picture) => {
+                        let objectURL = picture;   
+                        // picture is a string containing the correct format of 
+                        // an image to be display via <img [src]  (property binding)
+                        const cleanedPicture = this.domSanatizer.bypassSecurityTrustUrl(objectURL);
 
-                    this.pictureInventory.set(inventory_id, cleanedPicture);
+                        this.pictureInventory.set(inventory_id, cleanedPicture);
+                    },
+                    complete: () => {
+                        // the function needs to retunr SafeUrl
+                        // but Map.get() could be SafeUrl or undefined
+                        return this.pictureInventory.get(inventory_id) ?? "no_picture.jpg";    
+                    }
                 })
         }
-        return this.pictureInventory.get(inventory_id) ?? "no_picture.jpg";    // the function needs to retunr SafeUrl
-                                                                        // but Map.get() could be SafeUrl or undefined
-        }
+        return this.pictureInventory.get(inventory_id) ?? "no_picture.jpg"; 
+    }
 
         capturePicture(temp_inventory_id: number, list_category_id: number){
             console.log('temp_inventory_id:', temp_inventory_id);

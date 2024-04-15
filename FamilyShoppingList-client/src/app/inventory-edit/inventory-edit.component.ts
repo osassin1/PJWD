@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -27,9 +26,6 @@ import { InventoryPictureComponent } from '../inventory-picture/inventory-pictur
   ],
   templateUrl: './inventory-edit.component.html',
   styleUrl: './inventory-edit.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-	encapsulation: ViewEncapsulation.None  
-
 })
 export class InventoryEditComponent implements OnInit, OnDestroy {
 
@@ -53,16 +49,9 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
 
   constructor(private inventoryService: InventoryService,
     private formBuilder: FormBuilder ){
-
-
-  
   }
 
   ngOnInit() {
-
-    console.log ('this.inventory.inventory_to_quantity', this.inventory.inventory_to_quantity)
-    console.log ('this.inventory.inventory_to_list_category', this.inventory.inventory_to_list_category)
-    console.log ('this.inventory.list_category', this.list_category)
 
     this.inventoryEditForm = this.formBuilder.group({
       name: [this.inventory.name, Validators.required],
@@ -82,25 +71,19 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
 
     this.inventoryService.getListCatgory().subscribe(res => {
       this.list_categories = res;
-      console.log('list_categories', this.list_categories)
     }) 
 
     this.inventoryService.getQuantities().subscribe(res => {
       this.quantities = res;
-      console.log('quantities', this.quantities)
       if( !this.inventory.inventory_to_quantity.quantity_id ) {
         this.inventoryEditForm.controls['quantity'].setValue( this.quantities.find((item)=> item.quantity_id == 3) );
       }
     })
     
-    
-
-
-    
   }
 
   ngOnDestroy(): void {
-    console.log('InventoryEditComponent', 'ngOnDestroy')  
+    //console.log('InventoryEditComponent', 'ngOnDestroy')  
     //this.inventory.picture = "no_picture.jpg";
   }
 
@@ -114,24 +97,20 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
   }
 
   onDoneEdit(){
-    // console.log('edonDoneEditit')
-    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].name );
-    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].notes );
-    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].picture );
-    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].list_category.list_category_id );
-    // console.log('onDoneEdit', this.inventoryEditForm.value['inventoryForm'].quantity.quantity_id );
-
-    // console.log('InventoryEditComponent', this.store);
+    this.inventory.name = this.inventoryEditForm.controls['name'].value;
+    this.inventory.notes = this.inventoryEditForm.controls['notes'].value;
+    this.inventory.inventory_to_quantity.quantity_id = this.inventoryEditForm.controls['quantity'].value['quantity_id'];
+    this.inventory.inventory_to_list_category.list_category_id = this.inventoryEditForm.controls['list_category'].value['list_category_id'];
 
     if( this.inventory.inventory_id ){
       this.inventoryService.updateInventoryItem(
         this.inventory.inventory_id,
-        this.inventoryEditForm.controls['name'].value,
-        this.inventoryEditForm.controls['notes'].value,
+        this.inventory.name,
+        this.inventory.notes,
         this.inventory.picture,
         this.store.store_id, 
-        this.inventoryEditForm.controls['list_category'].value['list_category_id'],
-        this.inventoryEditForm.controls['quantity'].value['quantity_id']
+        this.inventory.inventory_to_list_category.list_category_id,
+        this.inventory.inventory_to_quantity.quantity_id,
         ).subscribe({
           next: (v) => {
             console.log('updateInventoryItem', v)
@@ -142,12 +121,12 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
         }) 
     } else {
         this.inventoryService.createInventoryItem(
-          this.inventoryEditForm.controls['name'].value,
-          this.inventoryEditForm.controls['notes'].value,
+          this.inventory.name,
+          this.inventory.notes,
           this.inventory.picture,
           this.store.store_id, 
-          this.inventoryEditForm.controls['list_category'].value['list_category_id'],
-          this.inventoryEditForm.controls['quantity'].value['quantity_id']
+          this.inventory.inventory_to_list_category.list_category_id,
+          this.inventory.inventory_to_quantity.quantity_id,
           ).subscribe({
             next: (v) => {
               this.inventory.inventory_id = v;

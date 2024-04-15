@@ -34,11 +34,10 @@ export class ShoppinglistEditComponent implements OnInit{
   @Input() background: string = "";
   @Input() disabledString: string = "";
   @Output() done = new EventEmitter<boolean>();
+  @Input() shoppingList: any;
 
   shoppingListEditForm!: FormGroup;
 
-
-    //takePicture: boolean = false;
 
     quantity: number = 0;
 
@@ -60,6 +59,8 @@ export class ShoppinglistEditComponent implements OnInit{
     this.shoppingListEditForm = this.formBuilder.group({
         quantity: this.quantity
     });
+
+    console.log('ShoppinglistEditComponent--this.shoppingList', this.shoppingList)
   }
 
 

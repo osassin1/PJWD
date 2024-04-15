@@ -25,7 +25,7 @@ import heic2any from "heic2any";
   templateUrl: './inventory-picture.component.html',
   styleUrl: './inventory-picture.component.css'
 })
-export class InventoryPictureComponent implements OnInit, AfterViewInit, OnDestroy {
+export class InventoryPictureComponent implements AfterViewInit, OnDestroy {
 
   // this will allow the click on loading an image
   // during ngOnInit
@@ -38,18 +38,11 @@ export class InventoryPictureComponent implements OnInit, AfterViewInit, OnDestr
   //not needed
   //@Input() background: string = "";
 
-  // don't need that
-  selectShoppingListForm!: FormGroup;
-
-  // not sure if needed here
-  //isImageDisabled: boolean = false;
-
 
   // either uploaded or taken picture (mobil)
   selectedPicture: any;
 
-  // debugging
-  //imageCompressMessage: string = "";
+
 
   constructor(
     private imageCompress: NgxImageCompressService,
@@ -63,12 +56,6 @@ export class InventoryPictureComponent implements OnInit, AfterViewInit, OnDestr
     this.imageInput.nativeElement.dispatchEvent(event);
   }
 
-  ngOnInit() {
-  this.selectShoppingListForm = this.formBuilder.group({
-    image_upload: null,
-  });
-
-  }
 
   ngOnDestroy(){
     delete this.selectedPicture;
