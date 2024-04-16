@@ -71,6 +71,10 @@ export class ShoppinglistCntrlComponent implements OnInit{
       shopping_list_form: this.shoppingListService.shoppingList,
     });   
 
+    this.shoppingListService.shoppingListObservable.subscribe(((z:any)=>{
+       console.log('ShoppinglistComponent --> subscribed to shoppingListDate z=', z)
+     }))
+
     // Get all shopping dates currently available; it's the content
     // for the first selector <Select Shopping List>    
     console.log('this.authenticationService.familyMemberValue!.family_id', this.authenticationService.familyMemberValue!.family_id)
@@ -116,11 +120,15 @@ export class ShoppinglistCntrlComponent implements OnInit{
     return this.shoppingListService.shoppingListAllTotal;
   }
 
+  get shoppingList(){
+    return this.shoppingListService.shoppingList;
+  }
+
 
   onShoppinglistNewDone($event:any){
     if( $event ) {
       //this.newShoppingListCreated = true; 
-      this.slcf['shopping_list_form'].setValue(this.shoppingListService.shoppingList);
+      // this.slcf['shopping_list_form'].setValue(this.shoppingListService.shoppingList);
     }
     else {
       //this.newShoppingListCreated = false;
@@ -131,6 +139,14 @@ export class ShoppinglistCntrlComponent implements OnInit{
     this.newShoppingListButton.nativeElement.dispatchEvent(event);
   }
   
+  onShoppingListNew($event: any){
+    console.log('ShoppinglistCntrlComponent --> any:', $event)
+
+    this.shoppingListService.shoppingList = $event;
+    this.slcf['shopping_list_form'].reset();
+    this.slcf['shopping_list_form'].setValue($event);
+  }
+
 
     // When confirming that the shopping
   // process is done and a new shopping 
@@ -309,6 +325,8 @@ export class ShoppinglistCntrlComponent implements OnInit{
             name: this.slf.value['shopping_list_form'].name,            
           }
 
+          console.log('onSelectShoppingList', this.slf.value['shopping_list_form'])
+
           this.shoppingListService.shoppingList = <ShoppingListDates>{
             shopping_date: this.slf.value['shopping_list_form'].shopping_date,
             store_id: this.slf.value['shopping_list_form'].store_id,
@@ -330,36 +348,36 @@ export class ShoppinglistCntrlComponent implements OnInit{
           //console.log('onSelectShoppingList  --> store_id', this.store_id)
           //console.log('onSelectShoppingList  --> store', this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store'])
 
-          for (let item in this.listCategory) {
-            const list_category_id = this.listCategory[item]['list_category_id'];
+          // for (let item in this.listCategory) {
+          //   const list_category_id = this.listCategory[item]['list_category_id'];
 
-            // The method performs the following:
-            // (1) fills shoppingListAll contains all inventory items for a category on the shopping list
-            // (2) fills shoppingListAllTotal (it's the summary of what the category contains
-            //     and is the accordion's button: <category name>  <family member dots> <total number of items>)
-            this.shoppingListService.getShoppingListByCategory(
-              this.shoppingListService.shoppingList.shopping_date, 
-              this.shoppingListService.shoppingList.store_id, 
-              list_category_id);
-            this.shoppingListService.getInventoryByCategory(this.shoppingListService.shoppingList.store_id, list_category_id);
+          //   // The method performs the following:
+          //   // (1) fills shoppingListAll contains all inventory items for a category on the shopping list
+          //   // (2) fills shoppingListAllTotal (it's the summary of what the category contains
+          //   //     and is the accordion's button: <category name>  <family member dots> <total number of items>)
+          //   this.shoppingListService.getShoppingListByCategory(
+          //     this.shoppingListService.shoppingList.shopping_date, 
+          //     this.shoppingListService.shoppingList.store_id, 
+          //     list_category_id);
+          //   this.shoppingListService.getInventoryByCategory(this.shoppingListService.shoppingList.store_id, list_category_id);
 
-            console.log('shoppingListAllTotal', this.shoppingListAllTotal);
-            //console.log('shoppingListTotal', this.shoppingListTotal);
+          //   console.log('shoppingListAllTotal', this.shoppingListAllTotal);
+          //   //console.log('shoppingListTotal', this.shoppingListTotal);
 
-            // reset the formcontrol for selecting existing invenorty items
-            // to be added to the shopping list
-            //this.slcf['select_shopping_category'].patchValue(null);
+          //   // reset the formcontrol for selecting existing invenorty items
+          //   // to be added to the shopping list
+          //   //this.slcf['select_shopping_category'].patchValue(null);
 
-            // uncheck all elements checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])
-            this.shoppingListService.inventoryImage.splice(0, this.shoppingListService.inventoryImage.length);
+          //   // uncheck all elements checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])
+          //   this.shoppingListService.inventoryImage.splice(0, this.shoppingListService.inventoryImage.length);
 
               
           
-            //*** NEEDS TO BE REVIEWED *** */
-            //this.loadShoppingListStatus();
-            //this.iconPlusDash[list_category_id] = "bi-plus-circle";
+          //   //*** NEEDS TO BE REVIEWED *** */
+          //   //this.loadShoppingListStatus();
+          //   //this.iconPlusDash[list_category_id] = "bi-plus-circle";
 
-          }
+          // }
         }
 
   }

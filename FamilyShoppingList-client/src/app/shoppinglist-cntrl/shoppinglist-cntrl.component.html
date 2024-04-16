@@ -1,16 +1,15 @@
-
-<form [formGroup]="shoppinglistCntrlForm">
-    <div class="d-flex flex-row shoppinglist-card py-1">
-            <button #newShoppingList type="button" class="icon-add-shopping" data-bs-toggle="collapse"
-                data-bs-target="#collapseNewShoppingList" (click)="onIconPlusMinus()"
-                [disabled]="slcf['shopping_list_form'].disabled">
-                    <i class="bi {{iconPlusMinus}} icon-style" ></i>
-            </button>
+<div class="d-flex flex-column py-1 w-100">
+    <form [formGroup]="shoppinglistCntrlForm">
+        <button #newShoppingList type="button" class="icon-add-shopping" data-bs-toggle="collapse"
+            data-bs-target="#collapseNewShoppingList" (click)="onIconPlusMinus()"
+            [disabled]="slcf['shopping_list_form'].disabled">
+            <i class="bi {{iconPlusMinus}} icon-style"></i>
+        </button>
         <div class="d-inline-flex flex-column" style="min-width: 11rem;">
             <ng-select [items]="shoppingToSelectFrom" placeholder="Select Shopping List"
                 labelForId="shoppingToSelectFrom" formControlName="shopping_list_form" [tabIndex]=0
                 (change)="selectedShoppingList" [clearable]="false" aria-label="SelectShoppingList"
-                (ngModelChange)="onSelectShoppingList()">
+                (click)="onSelectShoppingList()">
                 <ng-template ng-label-tmp let-item="item">
                     <span class="label-text">
                         {{item.name}} </span>
@@ -19,45 +18,52 @@
                     <span class="label-text"> {{item.shopping_date}}
                         {{item.name}} </span>
                 </ng-template>
-                
+
             </ng-select>
             <div style="font-size: xx-small;">
                 {{shopping_date}}
             </div>
         </div>
-        <div class="d-inline-flex" >
+        <div class="d-inline-flex">
             <button type="button" class="icon-start-shopping"
-                [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm || isShopping" (click)="onShopping()">
-                        <i class="bi bi-box-arrow-in-right icon-style"></i>
+                [disabled]="!(shoppingList!=undefined) || isCheckout || isCheckoutConfirm || isShopping"
+                (click)="onShopping()">
+                <i class="bi bi-box-arrow-in-right icon-style"></i>
             </button>
             <button type="button" class="icon-stop-shopping"
-                    [disabled]="selectedShoppingList || isCheckout || isCheckoutConfirm || !isShopping" (click)="onShopping()">
-                        <i class="bi bi-check-square icon-style"></i>
+                [disabled]="!(shoppingList!=undefined) || isCheckout || isCheckoutConfirm || !isShopping"
+                (click)="onShopping()">
+                <i class="bi bi-check-square icon-style"></i>
             </button>
-            <button type="button"  class="icon-checkout" [disabled]="!isCheckout" (click)="onCheckout()">
-                    <i class=" bi bi-box-arrow-right icon-style" ></i>
-                    
-            </button>
-        </div>
-    </div>
-    <!-- Two buttons to either close the list or go back -->
-    <div *ngIf="isCheckoutConfirm">
-        <div class="d-flex justify-content-center">
-            <br>
-            <button type="button" class="ok-cancel-button shoppinglist-card bi bi-x-circle"
-                (click)="onCancelCheckout()">
-            </button>
-            <button type="button" class="ok-cancel-button shoppinglist-card bi bi-check-circle"
-                (click)="onConfirmCheckout()">
+            <button type="button" class="icon-checkout" [disabled]="!isCheckout" (click)="onCheckout()">
+                <i class=" bi bi-box-arrow-right icon-style"></i>
+
             </button>
         </div>
-    </div>
+
+        <!-- Two buttons to either close the list or go back -->
+        <div *ngIf="isCheckoutConfirm">
+            <div class="d-flex justify-content-center ">
+                <br>
+                <button type="button" class="ok-cancel-button bi bi-x-circle" style="background-color: white"
+                    (click)="onCancelCheckout()">
+                </button>
+                <button type="button" class="ok-cancel-button bi bi-check-circle" style="background-color: white"
+                    (click)="onConfirmCheckout()">
+                </button>
+            </div>
+        </div>
+    </form>
+
+
     <!-- Create a new shopping list -->
-    <div class="collapse" id="collapseNewShoppingList" >
-        <app-shoppinglist-new class="d-flex flex-row w-100"
-            [familyMemberID]="familyMemberID"
-            [background]="background"
-            (done)="onShoppinglistNewDone($event)">
-        </app-shoppinglist-new>
+    <div class="bg-green">
+        <div class="collapse" id="collapseNewShoppingList">
+            <app-shoppinglist-new [familyMemberID]="familyMemberID"
+                [background]="background" 
+                (shoppingListNew)="onShoppingListNew($event)"
+                (done)="onShoppinglistNewDone($event)">
+            </app-shoppinglist-new>
+        </div>
     </div>
-</form>
+</div>

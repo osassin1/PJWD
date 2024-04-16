@@ -131,6 +131,10 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
     });
 
+  //   this.shoppingListService.shoppingListDates.subscribe((y=>{
+  //     console.log('ShoppinglistComponent --> subscribed to shoppingListDate y=', y)
+  // }))
+
     this.inventoryService.getListCatgory().subscribe((response: any) => {
       response.forEach((x:ListCategory) => {
         this.iconPlusDash[x.list_category_id] = "bi-plus-circle";
@@ -140,16 +144,16 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
     if( this.isMonitorOn ) {
     
-      this.pollingShoppedItems = this.shoppingListService.pollShoppedItemStatus()
-        .subscribe((v) => {
-          if (v && v['inventory_id']) {
-            let inventoryList: number[] = v['inventory_id'];
-            this.shoppingListService.inventoryImage = [];
-            inventoryList.forEach((inventory_id: number) => {
-              this.shoppingListService.inventoryImage[inventory_id] = "disabled";
-            })
-          }
-        })
+      // this.pollingShoppedItems = this.shoppingListService.pollShoppedItemStatus()
+      //   .subscribe((v) => {
+      //     if (v && v['inventory_id']) {
+      //       let inventoryList: number[] = v['inventory_id'];
+      //       this.shoppingListService.inventoryImage = [];
+      //       inventoryList.forEach((inventory_id: number) => {
+      //         this.shoppingListService.inventoryImage[inventory_id] = "disabled";
+      //       })
+      //     }
+      //   })
 
       this.subChangeCategory = interval(this.pollingTimeInSeconds)
         .subscribe(() => {
@@ -260,6 +264,8 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     return this.selectShoppingListForm;
   }
 
+  // this controls the graying out of the shopping list item
+  // when the checkbox is checked.
   get inventoryImage(){
     return this.shoppingListService.inventoryImage;
   }
@@ -317,13 +323,13 @@ onInventoryEditDone($event: any){
   //
   // ToDo: might want to optimize that
   //
-  if( $event ){
-    this.shoppingListService.getShoppingListByCategory(
-      this.shoppingList.shopping_date,
-      this.shoppingList.store_id,
-      this.list_category_id
-    );
-  }
+  // if( $event ){
+  //   this.shoppingListService.getShoppingListByCategory(
+  //     this.shoppingList.shopping_date,
+  //     this.shoppingList.store_id,
+  //     this.list_category_id
+  //   );
+  // }
 }
 
 

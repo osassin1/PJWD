@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, interval, switchMap, BehaviorSubject } from 'rxjs';
+import { Observable, interval, switchMap, BehaviorSubject, Subject } from 'rxjs';
 
 import { ShoppingListDates } from '../models/shopping_list_dates.model';
 import { ShoppingListStore } from '../models/shopping_list_store.model';
@@ -28,12 +28,15 @@ const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/sh
 
 
 
-export class ShoppingListService implements OnInit{
+export class ShoppingListService {
 
     private authenticated = false;
 
-    private shoppingListDatesSubject: BehaviorSubject<ShoppingListDates | null>;
-    public shoppingListDates : Observable<ShoppingListDates | null>;
+    //private shoppingListDatesSubject: BehaviorSubject<ShoppingListDates | null>;
+    //public shoppingListDates : Observable<ShoppingListDates | null>;
+
+    private shoppingListSubject = new Subject<ShoppingListDates>();
+    public shoppingListObservable : Observable<ShoppingListDates>;
 
     pollingTimeInMilliSeconds: number = 5000;
     private subChangeCategory: any;
@@ -98,14 +101,63 @@ export class ShoppingListService implements OnInit{
         private authenticationService:AuthenticationService,
         private http: HttpClient
     ) {
-        this.shoppingListDatesSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('shoppingListDates')!));
-        this.shoppingListDates = this.shoppingListDatesSubject.asObservable();        
+        console.log('ShoppingListService::constructor')
+        //this.shoppingListDatesSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('shoppingListDates')!));
+        //this.shoppingListDates = this.shoppingListDatesSubject.asObservable();  
+        this.shoppingListObservable = this.shoppingListSubject.asObservable();
+        this.onInit();      
     }
 
-ngOnInit(): void {
-    this.subChangeCategory = interval(this.pollingTimeInMilliSeconds)
-    .subscribe(() => {
-        console.log('subChangeCategory:_shoppingList',this._shoppingList )
+onInit() {
+    console.log('ShoppingListService:: ngOnInit');
+
+    // this.subChangeCategory = interval(this.pollingTimeInMilliSeconds)
+    // .subscribe(() => {
+    //     console.log('subChangeCategory:_shoppingList',this._shoppingList )
+    // })
+
+    this.shoppingListObservable.subscribe((x:ShoppingListDates)=>{
+        console.log('shoppingListService --> subscribed to shoppingListDate x=', x)
+
+        for (let item in this.listCategory) {
+            const list_category_id = this.listCategory[item]['list_category_id'];
+
+            // The method performs the following:
+            // (1) fills shoppingListAll contains all inventory items for a category on the shopping list
+            // (2) fills shoppingListAllTotal (it's the summary of what the category contains
+            //     and is the accordion's button: <category name>  <family member dots> <total number of items>)
+            // this.getShoppingListByCategory(
+            //   this.shoppingList.shopping_date, 
+            //   this.shoppingList.store_id, 
+            //   list_category_id);
+            // this.getInventoryByCategory(this.shoppingList.store_id, list_category_id);
+
+            this.getShoppingListByCategory(
+                x.shopping_date, 
+                x.store_id, 
+                x.family_id,
+                list_category_id);
+              this.getInventoryByCategory(x.store_id, list_category_id);
+  
+
+
+            console.log('shoppingListAllTotal', this.shoppingListAllTotal);
+            //console.log('shoppingListTotal', this.shoppingListTotal);
+
+            // reset the formcontrol for selecting existing invenorty items
+            // to be added to the shopping list
+            //this.slcf['select_shopping_category'].patchValue(null);
+
+            // uncheck all elements checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])
+            this.inventoryImage.splice(0, this.inventoryImage.length);
+
+              
+          
+            //*** NEEDS TO BE REVIEWED *** */
+            //this.loadShoppingListStatus();
+            //this.iconPlusDash[list_category_id] = "bi-plus-circle";
+
+          }
     })
     
 }
@@ -114,7 +166,11 @@ ngOnInit(): void {
         return this._shoppingList;
     }
     set shoppingList(s: any){
+        //this.shoppingListDatesSubject.next(s);
+        this.shoppingListSubject.next(s);
+
         this._shoppingList = s;
+        
     }
     get shoppingToSelectFrom(){
         return this._shoppingToSelectFrom;
@@ -194,17 +250,17 @@ ngOnInit(): void {
 
   // Load the shopping list by categories to match the accordion selector
   // and handle each section individually.
-  getShoppingListByCategory(shopping_date: string, store_id: number, list_category_id: number) {
+  getShoppingListByCategory(shopping_date: string, store_id: number, family_id: number, list_category_id: number) {
     this.shoppingListAll.delete(list_category_id);
     this.shoppingListAllTotal.delete(list_category_id);
 
-    // console.log('getShoppingListByCategory:: shopping_date', shopping_date)
-    // console.log('getShoppingListByCategory:: store_id', store_id)
-    // console.log('getShoppingListByCategory:: list_category_id', list_category_id)
-    // console.log('getShoppingListByCategory:: this.shoppingList.family_id', this.shoppingList.family_id)
+    console.log('getShoppingListByCategory:: shopping_date', shopping_date)
+    console.log('getShoppingListByCategory:: store_id', store_id)
+    console.log('getShoppingListByCategory:: list_category_id', list_category_id)
+    console.log('getShoppingListByCategory:: family_id', family_id)
 
 
-    this.getListByCategoryByGroup(shopping_date, store_id, list_category_id, this.shoppingList.family_id)
+    this.getListByCategoryByGroup(shopping_date, store_id, list_category_id, family_id)
       .subscribe({
         next: (v) => {
           this.shoppingListAll.set(list_category_id, v['inventory']);
@@ -362,7 +418,7 @@ ngOnInit(): void {
             family_id: family_id,
             name: ""
         }
-        this.shoppingListDatesSubject.next(shoppingListDates);
+        //this.shoppingListDatesSubject.next(shoppingListDates);
         return this.http.get<any>
             (`${baseUrl}/get_shopping_list_status?shopping_date=${shopping_date}&store_id=${store_id}&family_id=${family_id}`
             );
@@ -374,13 +430,13 @@ ngOnInit(): void {
             );
     }
 
-    pollShoppedItemStatus(): Observable<any> {
-        return interval(5000).pipe (
-            switchMap(() =>
-            this.http.get<any>
-            (`${baseUrl}/get_shopped_item_status?shopping_date=${this.shoppingListDatesSubject.value?.shopping_date}&store_id=${this.shoppingListDatesSubject.value?.store_id}&family_id=${this.shoppingListDatesSubject.value?.family_id}`
-            )));
-    }
+    // pollShoppedItemStatus(): Observable<any> {
+    //     return interval(5000).pipe (
+    //         switchMap(() =>
+    //         this.http.get<any>
+    //         (`${baseUrl}/get_shopped_item_status?shopping_date=${this.shoppingListSubject.  value?.shopping_date}&store_id=${this.shoppingListSubject.value?.store_id}&family_id=${this.shoppingListSubject.value?.family_id}`
+    //         )));
+    // }
 
 }
 

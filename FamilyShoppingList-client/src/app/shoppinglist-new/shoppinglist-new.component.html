@@ -1,4 +1,4 @@
-<form [formGroup]="shoppinglistNewForm" class="w-100">
+<form [formGroup]="shoppinglistNewForm">
     <div class="card card-body {{background}}">
         <div class="d-flex flex-row">
             <div class="d-flex flex-column">
@@ -25,11 +25,11 @@
             </div>
             <div class="d-flex flex-grow-1 justify-content-end">
                 <div class="d-flex align-items-center p-3">
-                    <button type="button" class="ok-cancel-button {{background}} bi bi-x-circle"
-                        (click)="onCancelAddNewShoppingList()"> </button>
                     <button type="button" class="ok-cancel-button {{background}} bi bi-check-circle "
                         [disabled]="slnf['storesToSelectFrom'].invalid ||slnf['newShoppingListDate'].invalid"
                         (click)="onConfirmAddNewShoppingList()"></button>
+                    <button type="button" class="ok-cancel-button {{background}} bi bi-x-circle"
+                    (click)="onCancelAddNewShoppingList()"> </button>
                 </div>
                 <div>
                 </div>

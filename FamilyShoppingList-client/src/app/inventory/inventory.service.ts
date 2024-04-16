@@ -42,6 +42,7 @@ export class InventoryService  {
    public categoryInventoryNew : Map<number,any[]> = new Map<0,[]>;
 
     constructor(
+       
         private http: HttpClient,
         private domSanatizer: DomSanitizer,
     ) {

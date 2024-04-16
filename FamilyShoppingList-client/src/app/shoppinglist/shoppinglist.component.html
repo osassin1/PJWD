@@ -5,7 +5,6 @@
         <form [formGroup]="selectShoppingListForm">
             <app-shoppinglist-cntrl class="d-flex flex-row w-100"
                 [familyMemberID]="familyMemberID"
-                
                 [background]="inventoryBackground"
                 (done)="onShoppinglistCtrlDone($event)">
             </app-shoppinglist-cntrl>
@@ -95,7 +94,6 @@
                         <!-- displaying the items of the shopping list -->
                         @for (inventoryItem of shoppingListAll.get(item.list_category_id);
                         track inventoryItem) {
-                            {{isShopping}}
                         <div class="d-flex flex-row align-items-center w-100 py-1">
                             <div class="form-check" [hidden]="!isShopping">
                                 <input class="form-check-input large-checkbox" type="checkbox" value=""
@@ -104,7 +102,9 @@
                                     inventoryItem.inventory_id)">
                             </div>
                                 @if( !isInventoryEdit[inventoryItem.inventory_id] ) {
-                                <button type="button" (click)="onInventoryEdit(inventoryItem)" class="d-flex w-100 align-items-center shoppinglist-card">
+                                <button type="button" (click)="onInventoryEdit(inventoryItem)" 
+                                        [disabled]="inventoryImage[inventoryItem.inventory_id]"
+                                        class="d-flex w-100 align-items-center shoppinglist-card">
                                     <div>
                                         <img class="flex-row inventory-picture {{inventoryImage[inventoryItem.inventory_id]}}"
                                             for="flexCheckIndeterminate" [src]='getPicture(inventoryItem.inventory_id)'>

@@ -34,6 +34,7 @@ export class ShoppinglistNewComponent implements OnInit {
   @Input() familyMemberID: number = 0;
   @Input() background: string = "";
   @Output() done = new EventEmitter<boolean>();
+  @Output() shoppingListNew = new EventEmitter<ShoppingListDates>();
   
   storesToSelectFrom: any;
 
@@ -49,7 +50,7 @@ export class ShoppinglistNewComponent implements OnInit {
   ngOnInit(): void {
     this.shoppinglistNewForm = this.formBuilder.group({
       newShoppingListDate: ['', Validators.required],
-      storesToSelectFrom:  ['', Validators.required],
+      storesToSelectFrom:  [null, Validators.required],
     });   
     
     
@@ -105,16 +106,19 @@ export class ShoppinglistNewComponent implements OnInit {
     }
     */      
 
-    this.shoppingListService.shoppingList = <ShoppingListDates>{ 
+    const newShoppingList = <ShoppingListDates>{ 
       shopping_date: newDateString, 
       store_id: this.slnf['storesToSelectFrom'].value['store_id'],
       family_id: this.authenticationService.familyMemberValue!.family_id,
       name: this.slnf['storesToSelectFrom'].value['name']
     };
 
+    //console.log('ShoppinglistNewComponent -->', this.shoppingListService.shoppingList)
+
     this.slnf['storesToSelectFrom'].reset();
     this.slnf['newShoppingListDate'].reset();
   
+    this.shoppingListNew.emit(newShoppingList)
     this.done.emit(true);
 
   }
