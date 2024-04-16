@@ -83,10 +83,16 @@ export class ShoppingListService implements OnInit{
     // for n-select when clicking the circle-plus  
     _selectInventoryByCategory: any[] = [];
 
-    _hasStore: boolean = false;
+    //_hasStore: boolean = false;
 
     _store!: Store;
-      
+
+    
+    _isShopping: boolean = false;
+    _isCheckout: boolean = false;
+    _isCheckoutConfirm: boolean = false;
+    
+    
     constructor(
         private inventoryService:InventoryService,
         private authenticationService:AuthenticationService,
@@ -146,12 +152,12 @@ ngOnInit(): void {
     set selectInventoryByCategory(s: any){
         this._selectInventoryByCategory = s;
     }
-    get hasStore(){
-        return this._hasStore;
-    }
-    set hasStore(s:any){
-        this._hasStore=s;
-    }
+    // get hasStore(){
+    //     return this._hasStore;
+    // }
+    // set hasStore(s:any){
+    //     this._hasStore=s;
+    // }
     get store(){
         return this._store;
     }
@@ -166,6 +172,24 @@ ngOnInit(): void {
     }
     get familyMemberID(){
         return this.authenticationService.familyMemberValue!.family_member_id;
+    }
+    get isShopping(){
+        return this._isShopping;
+    }
+    set isShopping(s:any){
+        this._isShopping=s;
+    }
+    get isCheckout(){
+        return this._isCheckout;
+    }
+    set isCheckout(s:any){
+        this._isCheckout = s;
+    }
+    get isCheckoutConfirm(){
+        return this._isCheckoutConfirm;
+    }
+    set isCheckoutConfirm(s:any){
+        this._isCheckoutConfirm = s;
     }
 
   // Load the shopping list by categories to match the accordion selector

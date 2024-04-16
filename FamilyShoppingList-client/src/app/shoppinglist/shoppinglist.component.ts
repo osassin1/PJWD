@@ -58,7 +58,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   isMonitorOn: boolean = false;
 
   // isImageDisabled: boolean = false;
-   isShopping: boolean = false;
+   //isShopping: boolean = false;
 
 
   // monitoring changes
@@ -402,6 +402,9 @@ get listCategory(){
   return this.shoppingListService.listCategory;
 }
 
+get isShopping(){
+  return this.shoppingListService.isShopping;
+}
   getInventoryByCategory2(list_category_id: number){
     return this.shoppingListService.selectInventoryByCategory[list_category_id];
   }

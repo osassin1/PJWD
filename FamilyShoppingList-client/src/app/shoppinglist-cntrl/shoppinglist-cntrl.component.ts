@@ -53,9 +53,9 @@ export class ShoppinglistCntrlComponent implements OnInit{
 
   // shopping process
   isImageDisabled: boolean = false;
-  isShopping: boolean = false;
-  isCheckout: boolean = false;
-  isCheckoutConfirm: boolean = false;
+  // isShopping: boolean = false;
+  // isCheckout: boolean = false;
+  // isCheckoutConfirm: boolean = false;
   statusShoppingList: number = 0;
 
 
@@ -139,9 +139,9 @@ export class ShoppinglistCntrlComponent implements OnInit{
   
   onConfirmCheckout() {
     this.slcf['shopping_list_form'].enable();
-    this.isCheckoutConfirm = false;
-    this.isCheckout = false;
-    this.isCheckoutConfirm = false;
+    this.shoppingListService.isCheckoutConfirm = false;
+    this.shoppingListService.isCheckout = false;
+    this.shoppingListService.isCheckoutConfirm = false;
     this.saveShoppingListStatus();
     this.shoppingListService.checkoutShoppingList(
       this.shoppingListService.shoppingList.shopping_date, 
@@ -165,9 +165,9 @@ export class ShoppinglistCntrlComponent implements OnInit{
 
   onCancelCheckout() {
     this.slcf['shopping_list_form'].enable();
-    this.isCheckoutConfirm = false;
-    this.isCheckout = false;
-    this.isCheckoutConfirm = false;
+    this.shoppingListService.isCheckoutConfirm = false;
+    this.shoppingListService.isCheckout = false;
+    this.shoppingListService.isCheckoutConfirm = false;
     this.saveShoppingListStatus();
 
   }
@@ -182,24 +182,27 @@ export class ShoppinglistCntrlComponent implements OnInit{
   // confirmed or cancelled.
 
   onShopping() {
-    var shopping_status: string = "";
+    console.log('onShopping', this.shoppingListService.isShopping)
+    //var shopping_status: string = "";
 
-    if (this.isShopping) {
-      this.isShopping = false;
-      this.isCheckout = true;
-      shopping_status = "stop";
+    if (this.shoppingListService.isShopping) {
+      this.shoppingListService.isShopping = false;
+      this.shoppingListService.isCheckout = true;
+      //shopping_status = "stop";
+      console.log('onShopping (change 1)', this.shoppingListService.isShopping)
 
     } else {
-      this.isShopping = true;
-      shopping_status = "start";
+      this.shoppingListService.isShopping = true;
+      //shopping_status = "start";
+      console.log('onShopping (change 2)', this.shoppingListService.isShopping)
       this.slcf['shopping_list_form'].disable();
     }
     this.saveShoppingListStatus();
   }
 
   onCheckout() {
-    this.isCheckoutConfirm = true;
-    this.isCheckout = false;
+    this.shoppingListService.isCheckoutConfirm = true;
+    this.shoppingListService.isCheckout = false;
     this.saveShoppingListStatus();
   }
 
@@ -214,11 +217,11 @@ export class ShoppinglistCntrlComponent implements OnInit{
 
   saveShoppingListStatus() {
     var statusCode: number = 0;
-    if (this.isShopping && !this.isCheckout && !this.isCheckoutConfirm) {
+    if (this.shoppingListService.isShopping && !this.shoppingListService.isCheckout && !this.shoppingListService.isCheckoutConfirm) {
       statusCode = 1;
-    } else if (!this.isShopping && this.isCheckout && !this.isCheckoutConfirm) {
+    } else if (!this.shoppingListService.isShopping && this.shoppingListService.isCheckout && !this.shoppingListService.isCheckoutConfirm) {
       statusCode = 2;
-    } else if (!this.isShopping && !this.isCheckout && this.isCheckoutConfirm) {
+    } else if (!this.shoppingListService.isShopping && !this.shoppingListService.isCheckout && this.shoppingListService.isCheckoutConfirm) {
       statusCode = 3;
     }
     this.shoppingListService.changeShoppingStatus(
@@ -245,21 +248,21 @@ export class ShoppinglistCntrlComponent implements OnInit{
         next: (v) => {
           this.statusShoppingList = v['status'];
           if (this.statusShoppingList == 0) {
-            this.isShopping = false;
-            this.isCheckout = false;
-            this.isCheckoutConfirm = false;
+            this.shoppingListService.isShopping = false;
+            this.shoppingListService.isCheckout = false;
+            this.shoppingListService.isCheckoutConfirm = false;
           } else if (this.statusShoppingList == 1) {
-            this.isShopping = true;
-            this.isCheckout = false;
-            this.isCheckoutConfirm = false;
+            this.shoppingListService.isShopping = true;
+            this.shoppingListService.isCheckout = false;
+            this.shoppingListService.isCheckoutConfirm = false;
           } else if (this.statusShoppingList == 2) {
-            this.isShopping = false;
-            this.isCheckout = true;
-            this.isCheckoutConfirm = false;
+            this.shoppingListService.isShopping = false;
+            this.shoppingListService.isCheckout = true;
+            this.shoppingListService.isCheckoutConfirm = false;
           } else if (this.statusShoppingList == 3) {
-            this.isShopping = false;
-            this.isCheckout = false;
-            this.isCheckoutConfirm = true;
+            this.shoppingListService.isShopping = false;
+            this.shoppingListService.isCheckout = false;
+            this.shoppingListService.isCheckoutConfirm = true;
           }
         }, error: (e) => {
           console.error(e);
@@ -287,7 +290,7 @@ export class ShoppinglistCntrlComponent implements OnInit{
   // and array from [first_category, ..., last_category] and for each item
   // store what is on the list and what is available (or known) for that store.
   onSelectShoppingList() {
-        this.shoppingListService.hasStore = false;
+        //this.shoppingListService.hasStore = false;
 
        
 
@@ -314,15 +317,12 @@ export class ShoppinglistCntrlComponent implements OnInit{
           }
 
           console.log('this.shoppingListService.shoppingList', this.shoppingListService.shoppingList)
-          // this.shopping_date = this.slf.value['shopping_list_form']['shopping_date'];
-          // this.store_id = this.slf.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.store_id'];
-          // this.store_name = this.slf.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.name'];
 
           // load inventory for store
           this.inventoryService.loadInventoryByStore(this.shoppingListService.shoppingList.store_id);
           //console.log('storeInventory', this.shoppingListService.storeInventory);
 
-          this.shoppingListService.hasStore = true;
+          //this.shoppingListService.hasStore = true;
 
           //*** need to REVIEW THAT****/
           //this.selectedShoppingList = false;
@@ -382,6 +382,17 @@ get shopping_date(){
   }
   return null;
 }
+
+get isCheckout(){
+  return this.shoppingListService.isCheckout;
+} 
+get isCheckoutConfirm(){
+  return this.shoppingListService.isCheckoutConfirm;
+}
+get isShopping(){
+  return this.shoppingListService.isShopping;
+}
+
 
   onIconPlusMinus() {
     if (this.iconPlusMinus == "bi-plus") {

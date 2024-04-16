@@ -95,6 +95,7 @@
                         <!-- displaying the items of the shopping list -->
                         @for (inventoryItem of shoppingListAll.get(item.list_category_id);
                         track inventoryItem) {
+                            {{isShopping}}
                         <div class="d-flex flex-row align-items-center w-100 py-1">
                             <div class="form-check" [hidden]="!isShopping">
                                 <input class="form-check-input large-checkbox" type="checkbox" value=""

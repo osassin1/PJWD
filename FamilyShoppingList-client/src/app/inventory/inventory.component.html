@@ -20,7 +20,7 @@
                     <ng-select [items]="categoriesToSelectFrom" placeholder="All Categories" style="min-width: 10rem;"
                         labelForId="categoriesToSelectFrom" formControlName="categoriesToSelectFrom" [tabIndex]=0
                         (clear)="onClearCategoriesToSelectFrom()"
-                        [clearable]="true" (ngModelChange)="onCategorySelectChange()" required>
+                        [clearable]="true" (ngModelChange)="onCategorySelectChange()">
                         <ng-template ng-label-tmp let-item="item">
                             <span class="label-text">{{item.name}}</span>
                         </ng-template>
@@ -56,13 +56,10 @@
             <div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0">
                 @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
                     <!-- filter based on category -->
-                    list_category!=undefined: {{ list_category!=undefined}}
-                    <br>
+                    <!-- @if( (list_category!=undefined && list_category.list_category_id) || (list_category!=undefined)) -->
 
-
-                    <!-- @if( (list_category!=undefined && (!list_category.list_category_id || inventory.inventory_to_list_category.list_category_id ==
-                    this.list_category.list_category_id)))  -->
-                    @if( (list_category!=undefined && list_category.list_category_id) || (list_category!=undefined))
+                    @if( (list_category!=undefined && (!list_category.list_category_id || inventory.inventory_to_list_category.list_category_id ==
+                    this.list_category.list_category_id))) 
                     {
                         <!-- either just display or call the edit component -->
                         @if(!inventoryEdit[inventory.inventory_id]){

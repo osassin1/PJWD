@@ -145,8 +145,11 @@ export class InventoryComponent implements OnInit {
 
   onClearCategoriesToSelectFrom(){
     console.log('onClearCategoriesToSelectFrom', this.fbc['categoriesToSelectFrom'].value)
-    this.fbc['categoriesToSelectFrom'].setValue(null);
-    this.fbc['categoriesToSelectFrom'].clearValidators();
+
+    this.list_category = <ListCategory> {
+      list_category_id: 0,
+      name: ""
+    };
   }
 
   onCategorySelectChange(){
