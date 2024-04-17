@@ -89,6 +89,11 @@ export class ShoppinglistCntrlComponent implements OnInit{
       this.listCategory = res;
       console.log('listCategory', this.listCategory)
     }) 
+
+    this.shoppingListService.shoppingListRemovedObservable.subscribe(x=>{
+      console.log('this.shoppingListService.shoppingListRemovedObservable', x)
+    })
+
     
   }
 
@@ -169,11 +174,19 @@ export class ShoppinglistCntrlComponent implements OnInit{
           console.error(e);
         }, complete: () => {
           this.slcf['shopping_list_form'].reset();
-          this.onSelectShoppingList()
-          this.shoppingListService.getAllDates(this.shoppingListService.shoppingList.family_id).subscribe((response: any) => {
-            this.shoppingToSelectFrom = response;
-            this.selectedShoppingList = true;
-          });
+//          this.shoppingListService.shoppingListRemovedObservable.
+          //this.onSelectShoppingList()
+
+          this.shoppingListService.getAllShoppingDates(
+            this.shoppingListService.shoppingList.family_id
+          );
+          
+          this.shoppingListService.shoppingList = <ShoppingListDates>{
+            shopping_date: "",
+            store_id: 0,
+            name: "",
+            family_id: this.authenticationService.familyMemberValue!.family_id
+          }
       
         }
       })
@@ -312,11 +325,11 @@ export class ShoppinglistCntrlComponent implements OnInit{
 
         //initialize the shopping list
         // need to review
-        for (let item in this.listCategory) {
-          const list_category_id = this.listCategory[item]['list_category_id'];
-          this.shoppingListService.shoppingListAll.delete(list_category_id);
-          this.shoppingListService.shoppingListAllTotal.delete(list_category_id);
-        }
+        // for (let item in this.listCategory) {
+        //   const list_category_id = this.listCategory[item]['list_category_id'];
+        //   this.shoppingListService.shoppingListAll.delete(list_category_id);
+        //   this.shoppingListService.shoppingListAllTotal.delete(list_category_id);
+        // }
 
         if (this.slf.value['shopping_list_form']) {
 
@@ -327,17 +340,24 @@ export class ShoppinglistCntrlComponent implements OnInit{
 
           console.log('onSelectShoppingList', this.slf.value['shopping_list_form'])
 
-          this.shoppingListService.shoppingList = <ShoppingListDates>{
+          
+          const tempShoppingList = <ShoppingListDates>{
             shopping_date: this.slf.value['shopping_list_form'].shopping_date,
             store_id: this.slf.value['shopping_list_form'].store_id,
             name: this.slf.value['shopping_list_form'].name,
             family_id: this.authenticationService.familyMemberValue!.family_id
           }
 
+          // Check if the two objects are different by comparing their string
+          // representation. It's a simple way to compare two objects.
+          if( JSON.stringify(tempShoppingList) != JSON.stringify(this.shoppingListService.shoppingList) ){
+              this.shoppingListService.shoppingList = tempShoppingList;
+          }
+
           console.log('this.shoppingListService.shoppingList', this.shoppingListService.shoppingList)
 
           // load inventory for store
-          this.inventoryService.loadInventoryByStore(this.shoppingListService.shoppingList.store_id);
+          // this.inventoryService.loadInventoryByStore(this.shoppingListService.shoppingList.store_id);
           //console.log('storeInventory', this.shoppingListService.storeInventory);
 
           //this.shoppingListService.hasStore = true;

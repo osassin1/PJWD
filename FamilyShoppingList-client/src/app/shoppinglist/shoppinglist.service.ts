@@ -38,6 +38,9 @@ export class ShoppingListService {
     private shoppingListSubject = new Subject<ShoppingListDates>();
     public shoppingListObservable : Observable<ShoppingListDates>;
 
+    private shoppingListRemovedSubject = new BehaviorSubject<boolean>(false);
+    public shoppingListRemovedObservable : Observable<boolean>;
+
     pollingTimeInMilliSeconds: number = 5000;
     private subChangeCategory: any;
 
@@ -105,6 +108,11 @@ export class ShoppingListService {
         //this.shoppingListDatesSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('shoppingListDates')!));
         //this.shoppingListDates = this.shoppingListDatesSubject.asObservable();  
         this.shoppingListObservable = this.shoppingListSubject.asObservable();
+
+        // When a shopping list is removed (after checkout confirmed) then
+        // this will be TRUE - initial value is FALSE
+        this.shoppingListRemovedObservable = this.shoppingListRemovedSubject.asObservable();
+
         this.onInit();      
     }
 
@@ -116,6 +124,8 @@ onInit() {
     //     console.log('subChangeCategory:_shoppingList',this._shoppingList )
     // })
 
+    // If the shoppingList changes then load the shopping list from
+    // the service/db
     this.shoppingListObservable.subscribe((x:ShoppingListDates)=>{
         console.log('shoppingListService --> subscribed to shoppingListDate x=', x)
 
@@ -126,12 +136,6 @@ onInit() {
             // (1) fills shoppingListAll contains all inventory items for a category on the shopping list
             // (2) fills shoppingListAllTotal (it's the summary of what the category contains
             //     and is the accordion's button: <category name>  <family member dots> <total number of items>)
-            // this.getShoppingListByCategory(
-            //   this.shoppingList.shopping_date, 
-            //   this.shoppingList.store_id, 
-            //   list_category_id);
-            // this.getInventoryByCategory(this.shoppingList.store_id, list_category_id);
-
             this.getShoppingListByCategory(
                 x.shopping_date, 
                 x.store_id, 
@@ -139,19 +143,8 @@ onInit() {
                 list_category_id);
               this.getInventoryByCategory(x.store_id, list_category_id);
   
-
-
-            console.log('shoppingListAllTotal', this.shoppingListAllTotal);
-            //console.log('shoppingListTotal', this.shoppingListTotal);
-
-            // reset the formcontrol for selecting existing invenorty items
-            // to be added to the shopping list
-            //this.slcf['select_shopping_category'].patchValue(null);
-
-            // uncheck all elements checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])
+            this.inventoryService.loadInventoryByStore(x.store_id);
             this.inventoryImage.splice(0, this.inventoryImage.length);
-
-              
           
             //*** NEEDS TO BE REVIEWED *** */
             //this.loadShoppingListStatus();
@@ -298,6 +291,12 @@ onInit() {
           console.log('complete')
         }
       })
+  }
+
+  getAllShoppingDates(family_id: number){
+    this.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
+        this.shoppingToSelectFrom = response;
+      });
   }
 
     getAllDates(family_id: number): Observable<ShoppingListDates[]> {

@@ -315,21 +315,30 @@ onInventoryID($id: any){
 onInventoryEditDone($event: any){
   console.log('shoppinglist::onInventoryEditDone', $event )
 
-//  this.isInventoryEdit[inventory_id] = !this.isInventoryEdit[inventory_id];
+  // If true then either the quantity changed or a new inventory
+  // item was created and added to the list. Update by fetching everything 
+  // in this catgeory for current the shopping list and inventory for
+  // that store.
+  if( $event ){
+    this.shoppingListService.getShoppingListByCategory(
+      this.shoppingList.shopping_date,
+      this.shoppingList.store_id,
+      this.shoppingList.family_id,
+      this.list_category_id
+    );
 
-  // if quantity got changed, update the list
-  // by fetching everything in this catgeory on
-  // the shopping list.
-  //
-  // ToDo: might want to optimize that
-  //
-  // if( $event ){
-  //   this.shoppingListService.getShoppingListByCategory(
-  //     this.shoppingList.shopping_date,
-  //     this.shoppingList.store_id,
-  //     this.list_category_id
-  //   );
-  // }
+    this.shoppingListService.getInventoryByCategory(
+      this.shoppingList.store_id, 
+      this.list_category_id
+    ); 
+
+
+    // This is only necessary when a new shopping list
+    // has been created.
+    this.shoppingListService.getAllShoppingDates(
+      this.authenticationService.familyMemberValue!.family_id
+    );
+  }
 }
 
 
