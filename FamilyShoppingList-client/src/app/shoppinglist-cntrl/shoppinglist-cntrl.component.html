@@ -26,7 +26,7 @@
         </div>
         <div class="d-inline-flex">
             <button type="button" class="icon-start-shopping"
-                [disabled]="!(shoppingList!=undefined) || isCheckout || isCheckoutConfirm || isShopping"
+                [disabled]="!(shoppingList!=undefined) || shoppingList.store_id==0 || isCheckout || isCheckoutConfirm || isShopping"
                 (click)="onShopping()">
                 <i class="bi bi-box-arrow-in-right icon-style"></i>
             </button>
@@ -57,11 +57,10 @@
 
 
     <!-- Create a new shopping list -->
-    <div class="bg-green">
+    <div>
         <div class="collapse" id="collapseNewShoppingList">
-            <app-shoppinglist-new [familyMemberID]="familyMemberID"
+            <app-shoppinglist-new 
                 [background]="background" 
-                (shoppingListNew)="onShoppingListNew($event)"
                 (done)="onShoppinglistNewDone($event)">
             </app-shoppinglist-new>
         </div>

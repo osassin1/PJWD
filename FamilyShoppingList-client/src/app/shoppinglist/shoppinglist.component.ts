@@ -10,6 +10,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { NavigationComponent } from '../navigation/navigation.component';
 import { ShoppingListTotal } from '../models/shopping_list_total.model';
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
+import { ShoppingListDates } from '../models/shopping_list_dates.model';
 
 import { ShoppingListService } from './shoppinglist.service';
 import { InventoryService } from '../inventory/inventory.service';
@@ -17,6 +18,8 @@ import { ShoppinglistEditComponent } from '../shoppinglist-edit/shoppinglist-edi
 import { ShoppinglistAddComponent } from '../shoppinglist-add/shoppinglist-add.component';
 import { ShoppinglistCntrlComponent } from '../shoppinglist-cntrl/shoppinglist-cntrl.component';
 import { AuthenticationService } from '../authentication/authentication.service';
+
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 //import { Inventory } from '../models/inventory.model'
 
@@ -36,6 +39,7 @@ import { ListCategory } from '../models/list_category.model';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule,
     NgSelectModule,
+    NgbModule,
     NgStyle,
     NavigationComponent,
     ShoppinglistEditComponent,
@@ -51,8 +55,13 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
   // @ViewChild('newShoppingList', { static: false }) newShoppingListButton!: ElementRef;
 
+
   newInventoryDisplay: boolean = true;
   isInventoryEdit: boolean[] = [];
+
+  // item.list_category_id
+  showShoppingListCard: boolean[] = [];
+
 
   // turn on/off monitoring of changes
   isMonitorOn: boolean = false;
@@ -107,17 +116,17 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
 
 
-
+  onAccordionCollapse: any;
 
   storeInventoryByCategory: any[] = [];
 
   constructor(private shoppingListService: ShoppingListService,
-    private inventoryService: InventoryService,
-    private authenticationService: AuthenticationService,
-    private formBuilder: FormBuilder,
-    //private imageCompress: NgxImageCompressService,
-  ) {
-  }
+              private inventoryService: InventoryService,
+              private authenticationService: AuthenticationService,
+              private formBuilder: FormBuilder,
+             ) { 
+
+             }
 
 
   ngOnInit() {
@@ -131,13 +140,30 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
     });
 
-  //   this.shoppingListService.shoppingListDates.subscribe((y=>{
-  //     console.log('ShoppinglistComponent --> subscribed to shoppingListDate y=', y)
-  // }))
+    // this.shoppingListService.shoppingList.subscribe((y:any)=>{
+    //   console.log('ShoppinglistComponent --> subscribed to shoppingList y=', y)
+    //   // if( y!=undefined && y.store_id == 0 ){
+    //   //   //this.selectShoppingListForm
+    //   // }
+    // })
+
+    this.shoppingListService.shoppingListDoneObservable.subscribe(x=>{
+      console.log('ShoppinglistComponent::OnInit this.shoppingListService.shoppingListDoneObservable', x)
+      // If shopping list has been checkedout and is done
+      if( x ){
+        this.shoppingListService.listCategory.forEach((l:ListCategory)=>{
+          this.showShoppingListCard[l.list_category_id] = true;
+          //this.showShoppingListCard[l.list_category_id] = true;
+
+          //$('#collapse_shopping_list_category_{{item.list_category_id}}').collapse('toggle')
+        })
+      }
+    })
 
     this.inventoryService.getListCatgory().subscribe((response: any) => {
       response.forEach((x:ListCategory) => {
         this.iconPlusDash[x.list_category_id] = "bi-plus-circle";
+        this.showShoppingListCard[x.list_category_id] = true;
       })
     })
 

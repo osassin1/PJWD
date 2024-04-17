@@ -456,6 +456,31 @@ exports.getShoppingDates = (req, res) => {
 };
 
 
+exports.checkShoppingDate = (req, res) => {
+  db.sequelize.query(
+    `SELECT DISTINCT 
+    shopping_list.shopping_date AS shopping_date, 
+    family_member.family_id AS family_id, 
+    store.store_id AS store_id, 
+    store.name AS name 
+    FROM shopping_list INNER JOIN family_member ON shopping_list.family_member_id = family_member.family_member_id
+    AND family_member.family_id = ${req.query.family_id} 
+    LEFT OUTER JOIN inventory AS shopping_list_to_inventory ON shopping_list.inventory_id = shopping_list_to_inventory.inventory_id
+    LEFT OUTER JOIN store ON store.store_id = shopping_list_to_inventory.store_id
+    WHERE shopping_list.shopping_date = '${req.query.shopping_date}' AND store.store_id = ${req.query.store_id};`
+).then(data => {
+console.log('getShoppingDates', JSON.stringify(data) )
+res.send(data[0]);
+})
+.catch(err => {
+res.status(500).send({
+  message:
+    err.message || "error while retrieving shopping dates."
+});
+});
+}
+
+
 exports.getList = (req, res) => {
   shopping_list.scope('excludeCreatedAtUpdateAt').findAll({
     attributes: ['shopping_date', 'family_member_id'],

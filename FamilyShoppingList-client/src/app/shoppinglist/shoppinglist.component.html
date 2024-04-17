@@ -20,9 +20,11 @@
                             aria-expanded="false"
                             attr.aria-controls="collapse_shopping_list_category_{{item.list_category_id}}"
                             (click)="setListCategoryID(item.list_category_id)">
+                            
                             <!-- <category name, e.g. Fruit>  <who has items in this category by color of the 
                                 family member> <the total number of inventory items, eg. #14 items in Fruit 
                              -->
+                             
                             <div class="flex-grow-1">{{item['name']}}</div>
                             <div class="" *ngIf="shoppingListAllTotal.size>0 && 
                                                 shoppingListAllTotal.get(item.list_category_id)">
@@ -45,9 +47,10 @@
                         adding inventory items, and creating a new one - incl.
                         either selecting a picture or taking a photo via camera (mobil)
                      -->
+                    
                     <!-- for each category build the list of items on the list-->
                     <div id="collapse_shopping_list_category_{{item.list_category_id}}"
-                        class="accordion-collapse collapse"
+                        class="accordion-collapse collapse hide"
                         attr.aria-labelledby="heading_shopping_list_accordion_{{item.list_category_id}}"
                         data-bs-parent="#shopping_list_accordion">
                         <div *ngIf="(shoppingList!=undefined)" class="accordion" id="addInventory_category_{{item.list_category_id}}">

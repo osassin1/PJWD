@@ -31,7 +31,8 @@
     }
     @if(newInventory){
         <div>
-            <app-inventory-edit class="d-flex flex-row w-100" [store]="store"
+            <app-inventory-edit class="d-flex flex-row w-100" 
+                [store]="store"
                 [inventory]="newInventory" [background]="background" 
                 [list_category]="list_category"
                 (inventory_id)="onInventoryID($event)"

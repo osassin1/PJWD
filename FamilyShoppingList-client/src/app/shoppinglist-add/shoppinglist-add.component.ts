@@ -84,6 +84,7 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get store(){
+    console.log('ShoppinglistAddComponent-->store',this.shoppingListService.store)
     return this.shoppingListService.store;
   }
 

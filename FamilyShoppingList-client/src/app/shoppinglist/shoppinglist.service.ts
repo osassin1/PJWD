@@ -38,8 +38,8 @@ export class ShoppingListService {
     private shoppingListSubject = new Subject<ShoppingListDates>();
     public shoppingListObservable : Observable<ShoppingListDates>;
 
-    private shoppingListRemovedSubject = new BehaviorSubject<boolean>(false);
-    public shoppingListRemovedObservable : Observable<boolean>;
+    private shoppingListDoneSubject = new BehaviorSubject<boolean>(false);
+    public shoppingListDoneObservable : Observable<boolean>;
 
     pollingTimeInMilliSeconds: number = 5000;
     private subChangeCategory: any;
@@ -105,19 +105,36 @@ export class ShoppingListService {
         private http: HttpClient
     ) {
         console.log('ShoppingListService::constructor')
+
+        
         //this.shoppingListDatesSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('shoppingListDates')!));
         //this.shoppingListDates = this.shoppingListDatesSubject.asObservable();  
         this.shoppingListObservable = this.shoppingListSubject.asObservable();
 
         // When a shopping list is removed (after checkout confirmed) then
         // this will be TRUE - initial value is FALSE
-        this.shoppingListRemovedObservable = this.shoppingListRemovedSubject.asObservable();
+        this.shoppingListDoneObservable = this.shoppingListDoneSubject.asObservable();
 
-        this.onInit();      
+        this.onInit();   
+
+    
     }
 
 onInit() {
     console.log('ShoppingListService:: ngOnInit');
+
+    this.inventoryService.getListCatgory().subscribe(res => {
+        this.listCategory = res;
+        console.log('listCategory', this.listCategory)
+      }) 
+  
+
+    // this.inventoryService.getListCatgory().subscribe((response: any) => {
+    //     response.forEach((x:ListCategory) => {
+    //       this.iconPlusDash[x.list_category_id] = "bi-plus-circle";
+    //       this.showShoppingListCard[x.list_category_id] = false;
+    //     })
+    //   })
 
     // this.subChangeCategory = interval(this.pollingTimeInMilliSeconds)
     // .subscribe(() => {
@@ -128,6 +145,8 @@ onInit() {
     // the service/db
     this.shoppingListObservable.subscribe((x:ShoppingListDates)=>{
         console.log('shoppingListService --> subscribed to shoppingListDate x=', x)
+
+        this.shoppingListDoneSubject.next(true);
 
         for (let item in this.listCategory) {
             const list_category_id = this.listCategory[item]['list_category_id'];
@@ -217,6 +236,7 @@ onInit() {
         return this._listCategory;
     }
     set listCategory(s:any){
+        console.log('ShoppingListService --> set listCategory', s)
         this._listCategory = s;
     }
     get familyMemberID(){
@@ -298,6 +318,12 @@ onInit() {
         this.shoppingToSelectFrom = response;
       });
   }
+
+
+
+  checkShoppingDate(family_id: number, shopping_date: string, store_id: number): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/check_shopping_date?shopping_date=${shopping_date}&store_id=${store_id}&family_id=${family_id}`);
+}
 
     getAllDates(family_id: number): Observable<ShoppingListDates[]> {
         console.log('getAllDates', family_id, `${baseUrl}/shopping_dates?family_id=${family_id}`)

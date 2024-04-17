@@ -23,6 +23,9 @@
                     store is required
                 </div>
             </div>
+            sln.hasError('shopplistExits'){{sln.hasError('shopplistExits')}}
+            <div *ngIf="sln.hasError('shopplistExits')">shopping list already exists</div>
+
             <div class="d-flex flex-grow-1 justify-content-end">
                 <div class="d-flex align-items-center p-3">
                     <button type="button" class="ok-cancel-button {{background}} bi bi-check-circle "

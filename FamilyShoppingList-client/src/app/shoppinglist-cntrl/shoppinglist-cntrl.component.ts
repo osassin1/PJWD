@@ -85,13 +85,9 @@ export class ShoppinglistCntrlComponent implements OnInit{
       console.log('this.shoppingListService.shoppingList', this.shoppingListService.shoppingList)
     });
 
-    this.inventoryService.getListCatgory().subscribe(res => {
-      this.listCategory = res;
-      console.log('listCategory', this.listCategory)
-    }) 
 
-    this.shoppingListService.shoppingListRemovedObservable.subscribe(x=>{
-      console.log('this.shoppingListService.shoppingListRemovedObservable', x)
+    this.shoppingListService.shoppingListDoneObservable.subscribe(x=>{
+      console.log('this.shoppingListService.shoppingListDoneObservable', x)
     })
 
     
@@ -132,11 +128,7 @@ export class ShoppinglistCntrlComponent implements OnInit{
 
   onShoppinglistNewDone($event:any){
     if( $event ) {
-      //this.newShoppingListCreated = true; 
-      // this.slcf['shopping_list_form'].setValue(this.shoppingListService.shoppingList);
-    }
-    else {
-      //this.newShoppingListCreated = false;
+      this.slcf['shopping_list_form'].setValue(this.shoppingListService.shoppingList);
     }
   
     // this will 'click' on the add (+/-) button

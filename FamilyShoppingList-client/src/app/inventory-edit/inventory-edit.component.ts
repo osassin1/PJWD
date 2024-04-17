@@ -53,6 +53,8 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
+    console.log('store', this.store)
+    
     this.inventoryEditForm = this.formBuilder.group({
       name: [this.inventory.name, Validators.required],
       notes: this.inventory.notes,
