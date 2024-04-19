@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable, BehaviorSubject, map } from 'rxjs';
+import { Observable, BehaviorSubject, map, interval } from 'rxjs';
 
 import { FamilyMember } from '../models/family_member.model';
 import { Color } from '../models/color.model';
@@ -18,11 +18,14 @@ const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/fa
 @Injectable({
     providedIn: 'root',
 })
-export class AuthenticationService {
+export class AuthenticationService implements OnDestroy {
     private familyMemberSubject: BehaviorSubject<FamilyMember | null>;
     public familyMember: Observable<FamilyMember | null>;
 
     //family_id: number = 0;
+
+    pollingTimeInMilliSeconds: number = 60000; // every minute check
+    private checkAuthenticationPolling: any;
 
     constructor(
         private router: Router,
@@ -30,6 +33,17 @@ export class AuthenticationService {
     ) {
         this.familyMemberSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('familyMember')!));
         this.familyMember = this.familyMemberSubject.asObservable();
+
+        this.checkAuthenticationPolling = interval(this.pollingTimeInMilliSeconds)
+            .subscribe(() => {
+                this.checkAuthentication();
+            })
+
+    }
+
+    ngOnDestroy(): void {
+        console.log('AuthenticationService', 'ngOnDestroy')
+        this.checkAuthenticationPolling.unsubscribe();
     }
 
     public get isAuthenticated() {
@@ -96,6 +110,10 @@ export class AuthenticationService {
         }));
     };
 
+    validateToken(token: string, family_member_id: number): Observable<any> {
+        return this.http.get<any>(`${baseUrl}/validate_token?token=${token}&family_member_id=${family_member_id}`);
+    }
+
 
     // logout the current family member; remove data from local storage
     // and navigate back to login screen
@@ -105,21 +123,37 @@ export class AuthenticationService {
         this.router.navigate(['/authentication']);
     }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-
+    checkAuthentication() {
         if (this.familyMemberSubject.value) {
-            // logged in so return true
+            this.validateToken(this.familyMemberSubject.value!.token, this.familyMemberSubject.value!.family_member_id).
+                subscribe({
+                    next: (v) => {
+                        //console.log('isAuthenticated --> validateToken', v)
+                        if (!v) {
+                            this.familyMemberSubject.next(null);
+                            this.logout();
+                        }
+                        return v;
+                    },
+                    error: () => {
+                        this.familyMemberSubject.next(null);
+                        this.logout();
+                        return false;
+                    }
+                })
+        }
+    }
+
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
+        // let isValidated = false;
+        if (this.familyMemberSubject.value) {
             return true;
         }
-
-        // not logged in so redirect to login page with the return url
-        //console.log('AuthenticationService: canActivate --> no : ', state.url);
-        //this.router.navigate(['/authentication'], { queryParams: { returnUrl: state.url } });
         return false;
     }
 }
 
-export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean => {
 
     const authenticationService = inject(AuthenticationService);
 

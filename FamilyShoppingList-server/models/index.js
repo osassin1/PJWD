@@ -23,6 +23,7 @@ if (config.use_env_variable) {
     config.username, 
     config.password, 
     {
+      logging: false,
       host: config.host,
       dialect: config.dialect,
       define : {

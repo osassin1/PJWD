@@ -14,6 +14,10 @@ module.exports = function(app) {
   
     var router = require("express").Router();
   
+    router.get("/validate_token", family_member.validateToken);
+
+    
+
       // retrieve all family_members exclude 'password'
     router.get("/", family_member.findAll);
 

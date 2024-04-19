@@ -423,7 +423,7 @@ export class ShoppingListService implements OnDestroy {
     }
 
     getAllDates(family_id: number): Observable<ShoppingListDates[]> {
-        console.log('getAllDates', family_id, `${baseUrl}/shopping_dates?family_id=${family_id}`)
+        //console.log('getAllDates', family_id, `${baseUrl}/shopping_dates?family_id=${family_id}`)
         return this.http.get<ShoppingListDates[]>(`${baseUrl}/shopping_dates?family_id=${family_id}`);
     }
 

@@ -171,6 +171,19 @@ exports.createFamilyMember = (req, res) => {
 };
 
 
+exports.validateToken = (req, res) => {
+  jwt.verify(req.query.token, "the-secretcy-of-the-family-shopping-list",
+    (err, decoded) => {
+      if( err ) {
+        res.status(500).send( false );
+      }
+      else {
+        if( decoded['family_member_id'] == req.query.family_member_id)
+        res.send(true);
+      }
+
+    });
+};
 
 
 exports.login = (req, res) => {
@@ -212,15 +225,17 @@ exports.login = (req, res) => {
         });
       } 
 
-      const token = jwt.sign({ id: family_member.family_member_id },
-        "the secretc of the family shopping list",
+
+     // bezkoder. “Node.Js Express: JWT Example | Token Based Authentication & Authorization.” 
+     // BezKoder (blog), November 14, 2019. https://www.bezkoder.com/node-js-jwt-authentication-mysql/.
+
+      const token = jwt.sign({ family_member_id: family_member.family_member_id },
+        "the-secretcy-of-the-family-shopping-list",
         {
           algorithm: 'HS256',
           allowInsecureKeySizes: true,
-          expiresIn: 86400, // 24 hours
+          expiresIn: 60*60,    // 60*60 seconds -> 1 hour  // 86400, // 24 hours
         });
-
-        console.log('token : ' + token );
 
         return res.status(200).send({
           family_member_id: family_member.family_member_id,
@@ -233,7 +248,6 @@ exports.login = (req, res) => {
                     name: family_member.family_member_to_color.name },
           token
         });
-  
     })
     .catch(err => {
       res.status(500).send({

@@ -80,6 +80,9 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
       //console.log('this.shoppingListService.shoppingList', this.shoppingListService.shoppingList)
     });
 
+    this.authenticationService.familyMember.subscribe((f) => {
+      console.log('this.authenticationService.familyMember in Shoppinglist-CNTRL --> f', f)
+    })
 
     this.shoppingListService.shoppingListDoneObservable.subscribe(x => {
       console.log('this.shoppingListService.shoppingListDoneObservable', x)

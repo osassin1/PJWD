@@ -145,6 +145,10 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
         this.cd.detectChanges();
     })
 
+    this.authenticationService.familyMember.subscribe((f) => {
+      console.log('this.authenticationService.familyMember in Shoppinglist --> f', f)
+    })
+
   }
 
   ngOnDestroy() {
@@ -183,8 +187,8 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
 
 onInventoryEdit(item: ShoppingListInventory){
-  console.log('onInventoryEdit(item: ShoppingListInventory) item->',item)
-  console.log('onInventoryEdit(item: ShoppingListInventory) this.isInventoryEdit[item.inventory_id]->',this.isInventoryEdit[item.inventory_id])
+  // console.log('onInventoryEdit(item: ShoppingListInventory) item->',item)
+  // console.log('onInventoryEdit(item: ShoppingListInventory) this.isInventoryEdit[item.inventory_id]->',this.isInventoryEdit[item.inventory_id])
   item.picture = this.getPicture(item.inventory_id);
   this.isInventoryEdit[item.inventory_id] = !this.isInventoryEdit[item.inventory_id];
 
@@ -198,7 +202,7 @@ onInventoryEdit(item: ShoppingListInventory){
 //(inventory_id)="onInventoryID($id)">
 
 onInventoryID($id: any){
-  console.log('shoppinglist::this.isInventoryEdit[$id]', this.isInventoryEdit[$id], $id )
+  // console.log('shoppinglist::this.isInventoryEdit[$id]', this.isInventoryEdit[$id], $id )
   // only display item (turn off edit mode)
   //this.inventoryService.loadPicture($id);
 
@@ -208,7 +212,7 @@ onInventoryID($id: any){
 
 
 onInventoryEditDone($event: any){
-  console.log('shoppinglist::onInventoryEditDone', $event )
+  // console.log('shoppinglist::onInventoryEditDone', $event )
 
   // If true then either the quantity changed or a new inventory
   // item was created and added to the list. Update by fetching everything 
@@ -239,7 +243,7 @@ onInventoryEditDone($event: any){
 
 
 onShoppinglistCtrlDone($event:any){
-  console.log('onShoppinglistCtrlDone', $event)
+  //console.log('onShoppinglistCtrlDone', $event)
   if( $event ) {
     //this.newShoppingListCreated = true; 
     //this.selectShoppingListForm.controls['shopping_list_form'].setValue(this.shoppingListService.shoppingList);
