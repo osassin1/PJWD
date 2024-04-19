@@ -1,7 +1,7 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
@@ -11,14 +11,13 @@ import { ShoppingListService } from '../shoppinglist/shoppinglist.service';
 import { ShoppinglistEditComponent } from '../shoppinglist-edit/shoppinglist-edit.component';
 import { InventoryEditComponent } from '../inventory-edit/inventory-edit.component'
 import { Inventory } from '../models/inventory.model'
-import { Store } from '../models/store.model'
 import { ListCategory } from '../models/list_category.model'
 
 @Component({
   selector: 'app-shoppinglist-add',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     NgSelectModule,
     ReactiveFormsModule,
     InventoryEditComponent,
@@ -32,10 +31,10 @@ import { ListCategory } from '../models/list_category.model'
 export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() inventoryList: Inventory[] = [];
-  @Input() list_category!: ListCategory;  
+  @Input() list_category!: ListCategory;
 
-  @Input() familyMemberID: number = 0;
-  @Input() shoppingDate: string = "";
+  // @Input() familyMemberID: number = 0;
+  // @Input() shoppingDate: string = "";
   @Input() background: string = "";
   @Input() disabledString: string = "";
   @Output() done = new EventEmitter<any>();
@@ -44,70 +43,97 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
   shoppingListAddForm!: FormGroup;
 
   selectedInventory: any;
- 
+
   newInventory: any;
-  
-  storeInventoryByCategory:  Inventory[] = [];
+
+  storeInventoryByCategory: Inventory[] = [];
+
+  // lock to modify 
+  editInventoryLock: boolean = false;
 
   constructor(
     private inventoryService: InventoryService,
     private shoppingListService: ShoppingListService,
-    private formBuilder: FormBuilder ){
-  }  
+    private formBuilder: FormBuilder,
+    private cd: ChangeDetectorRef) {
+  }
 
   ngOnInit() {
 
     this.shoppingListAddForm = this.formBuilder.group({
-        inventoryToAdd: null
+      inventoryToAdd: null
     });
+
+    this.shoppingListService.editInventoryLockObservable.subscribe((res: boolean) => {
+      //console.log('ShoppinglistAddComponent::OnInit editInventoryLock:', res)
+      if (this.editInventoryLock != res) {
+        this.editInventoryLock = res;
+      }
+      if (this.shoppingListAddForm.controls['inventoryToAdd']) {
+        if (this.editInventoryLock) {
+          this.shoppingListAddForm.controls['inventoryToAdd'].disable();
+        } else {
+          this.shoppingListAddForm.controls['inventoryToAdd'].enable();
+          this.shoppingListAddForm.controls['inventoryToAdd'].reset();
+        }
+      }
+      this.cd.detectChanges();
+    })
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     console.log('OnDestroy')
   }
 
 
-  ngOnChanges(changes: SimpleChanges){
+  ngOnChanges(changes: SimpleChanges) {
 
-    if( changes['inventoryList'] != undefined && !changes['inventoryList'].firstChange ){
-        this.storeInventoryByCategory = changes['inventoryList'].currentValue;
-    }    
+    if (changes['inventoryList'] != undefined && !changes['inventoryList'].firstChange) {
+      this.storeInventoryByCategory = changes['inventoryList'].currentValue;
+    }
   }
 
 
-  getPicture(inventory_id: number){
-    return this.storeInventory.find(i => i.inventory_id==inventory_id)?.picture;
+  getPicture(inventory_id: number) {
+    return this.storeInventory.find(i => i.inventory_id == inventory_id)?.picture;
   }
 
-  get storeInventory(){
+  get storeInventory() {
     return this.inventoryService.storeInventory;
   }
 
-  get store(){
-    console.log('ShoppinglistAddComponent-->store',this.shoppingListService.store)
+  get store() {
+    //console.log('ShoppinglistAddComponent-->store',this.shoppingListService.store)
     return this.shoppingListService.store;
   }
 
+  get lockInventoryEdit() {
+    return this.shoppingListService.lockInventoryEdit;
+  }
 
-  onInventoryEditDone($event: any){
+  get shoppingList() {
+    return this.shoppingListService.shoppingList;
+  }
+
+  onInventoryEditDone($event: any) {
     // adjustment are made and the selected (current) item
     // needs to be reset
-    this.selectedInventory=null;
+    this.selectedInventory = null;
     this.done.emit($event);
   }
 
-  onInventoryID($id: any){
+  onInventoryID($id: any) {
     this.inventory_id.emit($id);
   }
-  
-  onNewInventoryDone($event: any){
-    if( $event ) {
-      console.log('ShoppinglistAddComponent::onNewInventoryDone',this.newInventory )
+
+  onNewInventoryDone($event: any) {
+    if ($event) {
+      //console.log('ShoppinglistAddComponent::onNewInventoryDone',this.newInventory )
       this.storeInventory.push(this.newInventory);
       this.storeInventoryByCategory.push(this.newInventory);
 
       // find the newly added item
-      const idx = this.storeInventoryByCategory.find((item:any) => item.inventory_id == this.newInventory.inventory_id);
+      const idx = this.storeInventoryByCategory.find((item: any) => item.inventory_id == this.newInventory.inventory_id);
 
       // set the new item as selected in ng-select 
       this.shoppingListAddForm.controls['inventoryToAdd'].updateValueAndValidity();
@@ -124,33 +150,33 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
     this.done.emit($event);
   }
 
-  onSelectedInventory(){
+  onSelectedInventory() {
     this.selectedInventory = this.shoppingListAddForm.controls['inventoryToAdd'].value;
-    if( this.selectedInventory != undefined && this.selectedInventory.inventory_id ) {
+    if (this.selectedInventory != undefined && this.selectedInventory.inventory_id) {
       this.selectedInventory.picture = this.getPicture(this.selectedInventory.inventory_id);
     }
   }
-  
-  doNewInventoryItemForShoppingList(){
+
+  doNewInventoryItemForShoppingList() {
     this.newInventory = <Inventory>{
-           inventory_id:0, 
-          name: "",
-          picture: "no_picture.jpg", 
-          notes: "", 
-          symbol: "",
-          unit: 0,
-          family_members: null,
-          inventory_to_quantity: {
-            quantity_id:0,
-            name: "",
-            symbol: "",
-            unit: 0
-          },
-          inventory_to_list_category: {
-            list_category_id: 0,
-            name: "",
-            description: "",
-          }
+      inventory_id: 0,
+      name: "",
+      picture: "no_picture.jpg",
+      notes: "",
+      symbol: "",
+      unit: 0,
+      family_members: null,
+      inventory_to_quantity: {
+        quantity_id: 0,
+        name: "",
+        symbol: "",
+        unit: 0
+      },
+      inventory_to_list_category: {
+        list_category_id: 0,
+        name: "",
+        description: "",
+      }
     };
   }
 }

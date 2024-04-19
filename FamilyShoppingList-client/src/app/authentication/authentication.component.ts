@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn } from '@angular/forms';
@@ -53,6 +53,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
     private authenticationService: AuthenticationService,
     private route: ActivatedRoute,
     private router: Router,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit() {

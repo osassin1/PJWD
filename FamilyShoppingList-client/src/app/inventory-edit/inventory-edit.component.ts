@@ -87,6 +87,7 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     console.log('InventoryEditComponent', 'ngOnDestroy')  
     //this.inventory.picture = "no_picture.jpg";
+    //this.done.emit(false);
   }
 
   get ief(){

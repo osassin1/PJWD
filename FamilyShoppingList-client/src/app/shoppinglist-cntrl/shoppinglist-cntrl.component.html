@@ -26,16 +26,16 @@
         </div>
         <div class="d-inline-flex">
             <button type="button" class="icon-start-shopping"
-                [disabled]="!(shoppingList!=undefined) || shoppingList.store_id==0 || isCheckout || isCheckoutConfirm || isShopping"
+                [disabled]="!(shoppingList!=undefined) || shoppingList.store_id==0 || isCheckout || isCheckoutConfirm || isShopping || editInventoryLock"
                 (click)="onShopping()">
                 <i class="bi bi-box-arrow-in-right icon-style"></i>
             </button>
             <button type="button" class="icon-stop-shopping"
-                [disabled]="!(shoppingList!=undefined) || isCheckout || isCheckoutConfirm || !isShopping"
+                [disabled]="!(shoppingList!=undefined) || isCheckout || isCheckoutConfirm || !isShopping || editInventoryLock"
                 (click)="onShopping()">
                 <i class="bi bi-check-square icon-style"></i>
             </button>
-            <button type="button" class="icon-checkout" [disabled]="!isCheckout" (click)="onCheckout()">
+            <button type="button" class="icon-checkout" [disabled]="!isCheckout || editInventoryLock" (click)="onCheckout()">
                 <i class=" bi bi-box-arrow-right icon-style"></i>
 
             </button>

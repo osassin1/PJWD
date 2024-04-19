@@ -152,10 +152,28 @@ export class InventoryComponent implements OnInit {
     };
   }
 
-  onCategorySelectChange(){
+  onCategorySelectChange() {
     console.log('(1) onCategorySelectChange', this.fbc['categoriesToSelectFrom'].value)
     this.list_category = this.fbc['categoriesToSelectFrom'].value;
     console.log('(2) onCategorySelectChange', this.fbc['categoriesToSelectFrom'].value)
+
+    this.store_id = this.fbc['storesToSelectFrom'].value['store_id'];
+
+    if (this.fbc['categoriesToSelectFrom'].value != null) {
+      this.inventoryService.getInventoryByStoreForEditByCategory(this.store_id, this.list_category.list_category_id)
+        .subscribe({
+          next: (v) => {
+            let a = JSON.parse(v);
+            this.inventoryService.storeInventory = a;
+          }, error: (e) => {
+            console.error(e.error.message);
+          },
+          complete: () => {
+          }
+        })
+    } else {
+      this.inventoryService.loadInventoryByStore(this.store_id);
+    }
   }
 
 getBG(e: any){
@@ -183,6 +201,7 @@ getBG(e: any){
   onPenEdit(inventory_id: number, $event: any){
     console.log('onPenEdit', 'inventory_id', inventory_id)
     console.log('onPenEdit', '$event', $event)
+    console.log('onPenEdit', 'this.inventoryEdit[inventory_id]', this.inventoryEdit[inventory_id])
 
     this.inventoryEdit[inventory_id] = !this.inventoryEdit[inventory_id];
 

@@ -1,12 +1,9 @@
-<!-- <div class="container-fluid"> -->
-    <div>
+<div>
     <div class="col-md-8">
         <!-- select an existing shopping list by <date> <store name> -->
         <form [formGroup]="selectShoppingListForm">
-            <app-shoppinglist-cntrl class="d-flex flex-row w-100"
-                [familyMemberID]="familyMemberID"
-                [background]="inventoryBackground"
-                (done)="onShoppinglistCtrlDone($event)">
+            <app-shoppinglist-cntrl class="d-flex flex-row w-100" 
+                [background]="inventoryBackground" (done)="onShoppinglistCtrlDone($event)">
             </app-shoppinglist-cntrl>
             <!-- get the defined categories that will be populated once a shopping list has been selected -->
             <!-- once a shopping list is selected then fill up the categories with the items -->
@@ -15,16 +12,15 @@
                 <div class="accordion-item shoppinglist-card">
                     <div class="accordion-header" id="heading_shopping_list_accordion_{{item.list_category_id}}">
                         <button class="accordion-button category-total-display d-flex collapsed" type="button"
-                            [disabled]="!(shoppingList!=undefined)" data-bs-toggle="collapse"
+                            [disabled]="!(shoppingList!=undefined) || lockInventoryEdit" data-bs-toggle="collapse"
                             attr.data-bs-target="#collapse_shopping_list_category_{{item.list_category_id}}"
                             aria-expanded="false"
                             attr.aria-controls="collapse_shopping_list_category_{{item.list_category_id}}"
                             (click)="setListCategoryID(item.list_category_id)">
-                            
+
                             <!-- <category name, e.g. Fruit>  <who has items in this category by color of the 
                                 family member> <the total number of inventory items, eg. #14 items in Fruit 
                              -->
-                             
                             <div class="flex-grow-1">{{item['name']}}</div>
                             <div class="" *ngIf="shoppingListAllTotal.size>0 && 
                                                 shoppingListAllTotal.get(item.list_category_id)">
@@ -35,8 +31,7 @@
                                 </div>
                                 }
                             </div>
-                            <div class="p-2"
-                                *ngIf="shoppingListAllTotal.size>0 && 
+                            <div class="p-2" *ngIf="shoppingListAllTotal.size>0 && 
                                         shoppingListAllTotal.get(item.list_category_id) &&
                                         shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items">
                                 #{{shoppingListAllTotal.get(item.list_category_id)?.total_num_of_items}}
@@ -47,23 +42,26 @@
                         adding inventory items, and creating a new one - incl.
                         either selecting a picture or taking a photo via camera (mobil)
                      -->
-                    
+
                     <!-- for each category build the list of items on the list-->
                     <div id="collapse_shopping_list_category_{{item.list_category_id}}"
                         class="accordion-collapse collapse hide"
                         attr.aria-labelledby="heading_shopping_list_accordion_{{item.list_category_id}}"
                         data-bs-parent="#shopping_list_accordion">
-                        <div *ngIf="(shoppingList!=undefined)" class="accordion" id="addInventory_category_{{item.list_category_id}}">
+                        <div *ngIf="(shoppingList!=undefined)" class="accordion"
+                            id="addInventory_category_{{item.list_category_id}}">
                             <div class="accordion-item shoppinglist-card">
                                 <div class="accordion-header" id="heading_category_{{item.list_category_id}}">
-                                    <span class="d-flex justify-content-center fs-4">
+                                    <span *ngIf="shoppingList.store_id>0" class="d-flex justify-content-center fs-4">
                                         <!-- the puls-circle button to add items from inventory -->
-                                        <button class="bi {{iconPlusDash[item.list_category_id]}} shoppinglist-card" type="button"
-                                            id="plus-circle-button" aria-label="plus-circle" data-bs-toggle="collapse"
+                                        <button class="bi {{iconPlusDash[item.list_category_id]}} shoppinglist-card"
+                                            type="button" id="plus-circle-button" aria-label="plus-circle"
+                                            data-bs-toggle="collapse"
                                             attr.data-bs-target="#collapse_category_{{item.list_category_id}}"
                                             aria-expanded="true"
                                             attr.aria-controls="collapse_category_{{item.list_category_id}}"
-                                            (click)="onIconPlusDash(item.list_category_id)">
+                                            (click)="onIconPlusDash(item.list_category_id)"
+                                            [disabled]="lockInventoryEdit">
                                         </button>
                                     </span>
                                     <!-- provide a select input for adding inventory items; once selected display the picture
@@ -74,20 +72,13 @@
                                         attr.data-bs-parent="#addInventory_category_{{item.list_category_id}}">
                                         <div class=""> <!-- accordion-body -->
                                             <div class="bg-light">
-                                                <!-- {{selectInventoryByCategory[item.list_category_id]|json}} -->
                                                 <app-shoppinglist-add class="d-flex flex-row w-100"
-                                                    [shoppingDate]="shoppingDate"
-                                                    [familyMemberID]="familyMemberID"
+                                                    
                                                     [inventoryList]="selectInventoryByCategory[item.list_category_id]"
-    
-                                                    [list_category]="item"
-                                                    [background]="inventoryBackground"
+                                                    [list_category]="item" [background]="inventoryBackground"
                                                     (inventory_id)="onInventoryID($event)"
                                                     (done)="onInventoryEditDone($event)">
-                                                 </app-shoppinglist-add>
-
-                                                <!-- take/load a picture and define what it is-->
-                                                <!-- end of take/load a picture -->
+                                                </app-shoppinglist-add>
                                             </div>
                                         </div>
                                     </div>
@@ -100,51 +91,47 @@
                         <div class="d-flex flex-row align-items-center w-100 py-1">
                             <div class="form-check" [hidden]="!isShopping">
                                 <input class="form-check-input large-checkbox" type="checkbox" value=""
-                                    (click)="checkInventoryItem(inventoryItem.inventory_id)"
-                                    [checked]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id], 
+                                    (click)="checkInventoryItem(inventoryItem.inventory_id)" [checked]="checkInventoryChecked(inventoryImage[inventoryItem.inventory_id], 
                                     inventoryItem.inventory_id)">
                             </div>
-                                @if( !isInventoryEdit[inventoryItem.inventory_id] ) {
-                                <button type="button" (click)="onInventoryEdit(inventoryItem)" 
-                                        [disabled]="inventoryImage[inventoryItem.inventory_id]"
-                                        class="d-flex w-100 align-items-center shoppinglist-card">
-                                    <div>
-                                        <img class="flex-row inventory-picture {{inventoryImage[inventoryItem.inventory_id]}}"
-                                            for="flexCheckIndeterminate" [src]='getPicture(inventoryItem.inventory_id)'>
+                            @if( !isInventoryEdit[inventoryItem.inventory_id] ) {
+                            <button type="button" (click)="onInventoryEdit(inventoryItem)"
+                                [disabled]="inventoryImage[inventoryItem.inventory_id] || editInventoryLock"
+                                class="d-flex w-100 align-items-center shoppinglist-card">
+                                <div>
+                                    <img class="flex-row inventory-picture {{inventoryImage[inventoryItem.inventory_id]}}"
+                                        for="flexCheckIndeterminate" [src]='getPicture(inventoryItem.inventory_id)'>
+                                </div>
+                                <div class="p-1 flex-grow-1 {{inventoryImage[inventoryItem.inventory_id]}}"
+                                    for="flexCheckIndeterminate" style="text-align: left;">
+                                    {{inventoryItem.name}}
+                                    @for (colorItem of inventoryItem.family_members;
+                                    track colorItem) {
+                                    <div class="d-inline-block family_member_dot p-1"
+                                        [ngStyle]="{ 'background-color': colorItem.name}">
                                     </div>
-                                    <div class="p-1 flex-grow-1 {{inventoryImage[inventoryItem.inventory_id]}}"
-                                        for="flexCheckIndeterminate"
-                                        style="text-align: left;">
-                                        {{inventoryItem.name}}
-                                        @for (colorItem of inventoryItem.family_members;
-                                        track colorItem) {
-                                        <div class="d-inline-block family_member_dot p-1"
-                                            [ngStyle]="{ 'background-color': colorItem.name}">
-                                        </div>
-                                        }
-                                        <div class="p-1 category-item-notes {{inventoryImage[inventoryItem.inventory_id]}}"
-                                            category-item-notes>
-                                            {{inventoryItem.notes}}
-                                        </div>
+                                    }
+                                    <div class="p-1 category-item-notes {{inventoryImage[inventoryItem.inventory_id]}}"
+                                        category-item-notes>
+                                        {{inventoryItem.notes}}
                                     </div>
-                                    <div class="d-flex flex-grow-1 justify-content-end">
-                                        <div attr.class="px-1 {{inventoryImage[inventoryItem.inventory_id]}}">
-                                            {{adjustForDecimals(inventoryItem.quantity,inventoryItem.unit)}}
-                                        </div>
-                                        <div attr.class="p-0 {{inventoryImage[inventoryItem.inventory_id]}}">
-                                            {{inventoryItem.symbol}}
-                                        </div>
+                                </div>
+                                <div class="d-flex flex-grow-1 justify-content-end">
+                                    <div attr.class="px-1 {{inventoryImage[inventoryItem.inventory_id]}}">
+                                        {{adjustForDecimals(inventoryItem.quantity,inventoryItem.unit)}}
                                     </div>
-                                </button>
-                                } @else {
-                                    <app-shoppinglist-edit class="d-flex flex-row w-100" 
-                                        [shoppingListItem]="inventoryItem"
-                                        [background]="inventoryBackground"
-                                        [disabledString]="inventoryImage[inventoryItem.inventory_id]"
-                                        (done)="onInventoryEditDone($event)"
-                                        (inventory_id)="onInventoryID($event)">
-                                    </app-shoppinglist-edit>
-                                } 
+                                    <div attr.class="p-0 {{inventoryImage[inventoryItem.inventory_id]}}">
+                                        {{inventoryItem.symbol}}
+                                    </div>
+                                </div>
+                            </button>
+                            } @else {
+                            <app-shoppinglist-edit class="d-flex flex-row w-100" [shoppingListItem]="inventoryItem"
+                                [background]="inventoryBackground"
+                                [disabledString]="inventoryImage[inventoryItem.inventory_id]"
+                                (done)="onInventoryEditDone($event)" (inventory_id)="onInventoryID($event)">
+                            </app-shoppinglist-edit>
+                            }
                         </div>
                         }
                     </div>

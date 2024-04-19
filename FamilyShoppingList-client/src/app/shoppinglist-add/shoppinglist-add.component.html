@@ -1,9 +1,10 @@
 <div class="d-flex flex-column {{background}}  w-100">
-    <div class="d-flex flex-row">
+    <div *ngIf="shoppingList.store_id>0" class="d-flex flex-row">
     <form [formGroup]="shoppingListAddForm" class="d-flex flex-grow-1">
         <ng-select formControlName="inventoryToAdd" [items]="storeInventoryByCategory" bindLabel="inventory_id"
             placeholder="Select inventory item" class="ng-select-container" name="mySelectBox"
             (change)="storeInventoryByCategory" (clear)="storeInventoryByCategory" (click)="onSelectedInventory()"
+            
             class="w-100 px-2 my-2">
             <ng-template ng-label-tmp let-item="item">
                 <span>{{item.name}}</span>
@@ -16,6 +17,7 @@
     </form>
     <button class="ok-cancel-button bi bi-camera {{background}} py-1 my-1"
             type="button" 
+            [disabled]="lockInventoryEdit"
             (click)="doNewInventoryItemForShoppingList()" [disabled]="false">
     </button>
 </div>

@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild  } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit  } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, NgStyle } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -8,9 +8,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgSelectModule } from '@ng-select/ng-select';
 
 import { NavigationComponent } from '../navigation/navigation.component';
-import { ShoppingListTotal } from '../models/shopping_list_total.model';
+//import { ShoppingListTotal } from '../models/shopping_list_total.model';
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
-import { ShoppingListDates } from '../models/shopping_list_dates.model';
+//import { ShoppingListDates } from '../models/shopping_list_dates.model';
 
 import { ShoppingListService } from './shoppinglist.service';
 import { InventoryService } from '../inventory/inventory.service';
@@ -24,15 +24,10 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 //import { Inventory } from '../models/inventory.model'
 
 import { interval } from 'rxjs';
-//import { Observable } from 'rxjs';
-import { Subject } from 'rxjs';
+
+//import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { ListCategory } from '../models/list_category.model';
 
-// compression for pictures (jpeg, png); 
-// if iOS is used then HEIC format needs to
-// be converted to JPEG and then compressed
-//import { NgxImageCompressService } from 'ngx-image-compress';
-//import heic2any from "heic2any";
 
 @Component({
   selector: 'app-shoppinglist',
@@ -53,15 +48,11 @@ import { ListCategory } from '../models/list_category.model';
 
 export class ShoppinglistComponent implements OnInit, OnDestroy {
 
-  // @ViewChild('newShoppingList', { static: false }) newShoppingListButton!: ElementRef;
-
-
   newInventoryDisplay: boolean = true;
   isInventoryEdit: boolean[] = [];
-
+  
   // item.list_category_id
   showShoppingListCard: boolean[] = [];
-
 
   // turn on/off monitoring of changes
   isMonitorOn: boolean = false;
@@ -69,24 +60,13 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   // isImageDisabled: boolean = false;
    //isShopping: boolean = false;
 
-
   // monitoring changes
   private subChangeCategory: any;
   pollingTimeInSeconds: number = 5000;
   //pollingData: any;
   pollingShoppedItems: any;
 
-  
- 
   selectShoppingListForm!: FormGroup;
-
-  // Take a note that a new shopping list has
-  // been created but not stored yet, it will
-  // only be stored once an inventory item is
-  // added (no race condition if another family
-  // member creates the same list - it's family
-  // member independent)
-  newShoppingListCreated = false;
 
   // // gray filter applied to inventory items in shopping list
   // inventoryImage: string[] = [];
@@ -98,9 +78,7 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
   // The current shopping date, store and what's on
   // the list:
-  shopping_date: string = "";
-  store_id: number = 0;
-  store_name: string = "";
+
   list_category_id: number = 0;
 
 
@@ -124,8 +102,8 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
               private inventoryService: InventoryService,
               private authenticationService: AuthenticationService,
               private formBuilder: FormBuilder,
-             ) { 
-
+              private cd: ChangeDetectorRef
+             ) {              
              }
 
 
@@ -137,25 +115,13 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
       // for selecting an inventory item in
       // a category
       select_shopping_category: null,
-
     });
 
-    // this.shoppingListService.shoppingList.subscribe((y:any)=>{
-    //   console.log('ShoppinglistComponent --> subscribed to shoppingList y=', y)
-    //   // if( y!=undefined && y.store_id == 0 ){
-    //   //   //this.selectShoppingListForm
-    //   // }
-    // })
-
     this.shoppingListService.shoppingListDoneObservable.subscribe(x=>{
-      console.log('ShoppinglistComponent::OnInit this.shoppingListService.shoppingListDoneObservable', x)
       // If shopping list has been checkedout and is done
       if( x ){
         this.shoppingListService.listCategory.forEach((l:ListCategory)=>{
           this.showShoppingListCard[l.list_category_id] = true;
-          //this.showShoppingListCard[l.list_category_id] = true;
-
-          //$('#collapse_shopping_list_category_{{item.list_category_id}}').collapse('toggle')
         })
       }
     })
@@ -167,116 +133,19 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
       })
     })
 
+    this.shoppingListService.editInventoryLockObservable.subscribe((res:boolean) => {
+      console.log('ShoppinglistComponent::OnInit editInventoryLock:', res)
+        this.shoppingListService.lockInventoryEdit = res;
 
-    if( this.isMonitorOn ) {
-    
-      // this.pollingShoppedItems = this.shoppingListService.pollShoppedItemStatus()
-      //   .subscribe((v) => {
-      //     if (v && v['inventory_id']) {
-      //       let inventoryList: number[] = v['inventory_id'];
-      //       this.shoppingListService.inventoryImage = [];
-      //       inventoryList.forEach((inventory_id: number) => {
-      //         this.shoppingListService.inventoryImage[inventory_id] = "disabled";
-      //       })
-      //     }
-      //   })
+        // Child components can change the lock but
+        // the parent's change detection already completed,
+        // therefore, the service shared the lock with all
+        // components. But the parent still needs to invoke
+        // change detection
+        this.cd.detectChanges();
+    })
 
-      this.subChangeCategory = interval(this.pollingTimeInSeconds)
-        .subscribe(() => {
-          let removeShoppingList = true;
-          for (let item in this.listCategory) {
-            const list_category_id = this.listCategory[item]['list_category_id'];
-            this.shoppingListService.getListByCategoryByGroupCached(this.shopping_date, this.store_id, list_category_id, this.authenticationService.familyMemberValue!.family_id)
-              .subscribe((res) => {
-                if (res != null && this.shoppingListService.shoppingListAll.get(list_category_id) != undefined ) {
-                  // this.shoppingListAll.delete(list_category_id);
-                  this.shoppingListService.shoppingListAllTotal.delete(list_category_id);
-                  //this.shoppingListAll.set(list_category_id, res['inventory']);
-                  this.shoppingListService.shoppingListAllTotal.set(list_category_id, res['category']);
-
-                  const inventory = res['inventory'];
-
-                  this.updateListInventory(this.shoppingListService.shoppingListAll.get(list_category_id)!, res['inventory'], list_category_id);
-
-                  this.shoppingListService.getInventoryByCategory(this.store_id, list_category_id);
-                }
-              })
-          }
-          this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
-            this.shoppingListService.shoppingToSelectFrom = response;
-          });
-
-          // it needs to to be synced amongst all family_members
-          // the event of checking out mut be propergated to all active
-          // sessions
-          this.shoppingListService.shoppingToSelectFrom.forEach((x:any)=>{
-            if( this.selectShoppingListForm.controls['shopping_list_form'].value && 
-                this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_date'] == x['shopping_date'] &&
-                this.selectShoppingListForm.controls['shopping_list_form'].value['shopping_list_to_inventory.inventory_to_store.store_id'] == 
-                x['shopping_list_to_inventory.inventory_to_store.store_id'] ) {
-
-              removeShoppingList = false;
-              if(this.newShoppingListCreated) {  
-                this.newShoppingListCreated = false;  // a new shopping list that was created, is now stored
-              }
-            }
-          })
-
-          if( !this.newShoppingListCreated && removeShoppingList ) {
-            this.resetShoppingState();
-            this.selectShoppingListForm.controls['shopping_list_form'].reset();
-
-            //*** NEED REVIEW  */
-            //this.onSelectShoppingList()
-          }
-          //***** NEED REVIEW */
-          //this.loadShoppingListStatus();
-        })
-      }
   }
-
-  updateListInventory(localInventory: ShoppingListInventory[], remoteInventory: ShoppingListInventory[], list_category_id: number) { 
-
-    //this.selectInventoryByCategory[list_category_id]
-    let madeChanges: boolean = false;
-
-    localInventory.forEach(li=>{
-      const item = remoteInventory.find((item)=>item.inventory_id == li.inventory_id);
-
-      // if another family member removed an item from the list (remote)
-      // we also need to update our local list.
-      if( item == undefined ) {
-        const itemNo = localInventory.findIndex((item)=>item.inventory_id == li.inventory_id);
-        localInventory.splice(itemNo, 1);
-        madeChanges = true;
-      }
-
-      // if some changes happended to name or notes or quantity or number of items
-      // we need to refresh the local list
-      if( !madeChanges ) {
-        if( item?.name != li.name || item.notes != li.notes || item.quantity != li.quantity  || item.num_of_items != li.num_of_items ) {
-          let indexForUpdate = localInventory.findIndex((item)=>item.inventory_id == li.inventory_id);
-          const picture = li.picture;  // remember the pciture
-          localInventory[indexForUpdate] = item!;
-          localInventory[indexForUpdate].picture = picture;
-          madeChanges = true;
-        }
-      }
-     })
-
-      // if the remote list has additional (new) items, then we need to update the local list
-      remoteInventory.forEach(ri=>{
-          const item = localInventory.findIndex((item)=>item.inventory_id == ri.inventory_id);
-          if( item == -1 ){
-            ri.picture = this.inventoryService.loadPicture(ri.inventory_id);
-            localInventory.push(ri);
-            madeChanges = true;
-          }
-      })
-
-      return madeChanges;
-  }
-
 
   ngOnDestroy() {
     if( this.isMonitorOn ) {
@@ -301,31 +170,29 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     return this.shoppingListService.shoppingList;
   }
 
+  get editInventoryLock(){
+    return this.shoppingListService.editInventoryLock;
+  }
 
-// after checkout or synced checkout, reset
-// state of the shopping app  
-resetShoppingState(){
+  get lockInventoryEdit(){
+    return this.shoppingListService.lockInventoryEdit;
+  }
 
-  // no store has been selected
-  //this.hasStore = false;
 
-  // no shopping list has been selected
-  // and the selector is active
-  // *** MIGHT NEED THAT ***
-  //this.selectedShoppingList = true;
-
-  // current selection needs to be reset
-  this.shopping_date = "";
-  this.store_id = 0;
-  this.store_name = "";
-  this.list_category_id = 0;
-}
 
 
 
 onInventoryEdit(item: ShoppingListInventory){
+  console.log('onInventoryEdit(item: ShoppingListInventory) item->',item)
+  console.log('onInventoryEdit(item: ShoppingListInventory) this.isInventoryEdit[item.inventory_id]->',this.isInventoryEdit[item.inventory_id])
   item.picture = this.getPicture(item.inventory_id);
   this.isInventoryEdit[item.inventory_id] = !this.isInventoryEdit[item.inventory_id];
+
+    // Item form the shopping list is active for editing
+    // only one item should be worked on at the same time.
+    // Changing this will emit the value to all subscribers
+    // including the one set in ngOnInit
+    this.shoppingListService.changeEditInventoryLock(true);
 }
 
 //(inventory_id)="onInventoryID($id)">
@@ -334,6 +201,8 @@ onInventoryID($id: any){
   console.log('shoppinglist::this.isInventoryEdit[$id]', this.isInventoryEdit[$id], $id )
   // only display item (turn off edit mode)
   //this.inventoryService.loadPicture($id);
+
+
   this.isInventoryEdit[$id] = false;
 }
 
@@ -365,6 +234,7 @@ onInventoryEditDone($event: any){
       this.authenticationService.familyMemberValue!.family_id
     );
   }
+  this.shoppingListService.changeEditInventoryLock(false);
 }
 
 
@@ -410,9 +280,9 @@ onShoppinglistCtrlDone($event:any){
     return this.shoppingListService.familyMemberID;
   }
 
-  get shoppingDate(){
-    return this.shopping_date;
-  }
+  // get shoppingDate(){
+  //   return this.shopping_date;
+  // }
 
   get selectInventoryByCategory(){
     return this.shoppingListService.selectInventoryByCategory;
@@ -468,39 +338,8 @@ get isShopping(){
   }
 
 
-// --- Shopping ---
-// The list is ready to be shopped, for that purpose, items can be checked-off
-// on the list, indicating that they are in the cart now. If the checkmark is
-// removed then the item is no longer in the cart. Items that are in the cart 
-// will be grayed out.
-
-// Update the status of items being in the process of being shopped and
-// set variables according to that status. With inventoryImage[inventory_id] = "disabled"
-// the item will be grayed out.
-
 checkInventoryItem(inventory_id: number) {
-  if (this.shoppingListService.inventoryImage[inventory_id] == "" || this.shoppingListService.inventoryImage[inventory_id] == undefined) {
-    this.shoppingListService.inventoryImage[inventory_id] = "disabled";
-    this.shoppingListService.shoppedItem(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, inventory_id)
-      .subscribe({
-        next: (v) => {
-        }, error: (e) => {
-          console.error(e);
-        }, complete: () => {
-        }
-      })
-  } else {
-    this.shoppingListService.inventoryImage[inventory_id] = "";
-    this.shoppingListService.unShoppedItem(this.shopping_date, this.store_id, this.authenticationService.familyMemberValue!.family_id, inventory_id)
-      .subscribe({
-        next: (v) => {
-        }, error: (e) => {
-          console.error(e);
-        }, complete: () => {
-        }
-      })
-
-  }
+  this.shoppingListService.checkInventoryItem(inventory_id);
 }
 
 // A helper function that goes along with checkInventoryItem

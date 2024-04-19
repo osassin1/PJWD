@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import {  RouterLink, RouterLinkActive } from '@angular/router';
 
 //import { AuthenticationComponent } from '../authentication/authentication.component';
 import { AuthenticationService } from '../authentication/authentication.service';
