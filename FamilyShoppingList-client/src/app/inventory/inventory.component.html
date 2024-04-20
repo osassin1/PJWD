@@ -111,7 +111,8 @@
                         </div>
                         } @else {
                         <app-inventory-edit class="d-flex flex-row w-100" [store]="fbc['storesToSelectFrom'].value"
-                            [inventory]="inventory" [background]="getBG(e)" (done)="onPenEdit(inventory.inventory_id, $event)">
+                            [inventory]="inventory" [background]="getBG(e)" 
+                            (done)="onPenEdit(inventory.inventory_id, $event)">
                         </app-inventory-edit>
                         }
                         <!-- check if the trash icon was clicked and if the item can be deleted -->

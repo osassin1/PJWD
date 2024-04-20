@@ -3,7 +3,7 @@
         <!-- select an existing shopping list by <date> <store name> -->
         <form [formGroup]="selectShoppingListForm">
             <app-shoppinglist-cntrl class="d-flex flex-row w-100" 
-                [background]="inventoryBackground" (done)="onShoppinglistCtrlDone($event)">
+                [background]="inventoryBackground">
             </app-shoppinglist-cntrl>
             <!-- get the defined categories that will be populated once a shopping list has been selected -->
             <!-- once a shopping list is selected then fill up the categories with the items -->

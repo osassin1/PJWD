@@ -1,6 +1,5 @@
 const db = require("../models");
-const { Map, List } = require('immutable');
-const logging = require("../controllers/logging.controller.js");
+const { List } = require('immutable');
 
 const inventory = db.inventory;
 const shopping_list = db.shopping_list;
@@ -8,46 +7,21 @@ const store = db.store;
 const list_category = db.list_category;
 const quantity = db.quantity;
 
-//const color = db.color;
-
 const Op = db.Sequelize.Op;
 
-class InventoryKeyByCategory {
-  constructor(store_id, category_id){
-    this.store_id = parseInt(store_id);
-    this.category_id = parseInt(category_id);
-  }
-
-  key(){
-    return JSON.stringify(this);
-  }
-
-  // valid(){
-  //   if(this.shopping_date=="undefined" ||
-  //     this.store_id==null ||
-  //     this.family_id==null){
-  //       return false;
-  //     }
-  //     return true;
-  // }
-
-}
-
-
-
-let listInventoryByCategory = new Map();
-
+// The client app will check if an inventory item
+// has any active (shoppig_status<3) refrences and if
+// not, it can be deleted.
 exports.checkInventoryForDeletion = (req, res) => {
-  logging.logEntryLocal('checkInventoryForDeletion', req );
-
   shopping_list.findAll({     
   exclude: ['createdAt','updatedAt'],
   where: {
     inventory_id: req.query.inventory_id,
     shopping_status_id:  {
-      [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
-                    // if nothing comes back then it can be marke for deletion, which
-                    // means changing the status to 'D' in the inventory table
+      // on get active shopping lists status_id 3 and 4 means, they are done
+      // if nothing comes back then it can be marke for deletion, which
+      // means changing the status to 'D' in the inventory table
+      [Op.lt]: 3    
     }
   }
  }).then(data => {
@@ -61,33 +35,33 @@ exports.checkInventoryForDeletion = (req, res) => {
   })
 }
 
-
+// An inventory can only be deleted if it's not part of
+// active shopping list (shoppin_stats < 3). Otherwise
+// it would just disappear from someone's list. So, that's
+// need be checked first with providing a count.
 exports.deleteInventoryItem = (req, res) => {
-  logging.logEntryLocal('deleteInventoryItem', req );
-
   shopping_list.count({
   where: {
     inventory_id: req.body.inventory_id,
     shopping_status_id:  {
-      [Op.lt]: 3    // on get active shopping lists status_id 3 and 4 means, they are done
-                    // if nothing comes back then it can be marke for deletion, which
-                    // means changing the status to 'D' in the inventory table
+      // on get active shopping lists status_id 3 and 4 means, they are done
+      // if nothing comes back then it can be marke for deletion, which
+      // means changing the status to 'D' in the inventory table
+      [Op.lt]: 3
     }
   }
  }).then(data => {
-    console.log(data.length);
-    // res.send(`{"NumberOfReferences": ${data.length} }`);
-
+    // If there are any references to this inventory item
+    // then it cannot be deleted and the family member will
+    // be informed through a messge in the client.
     if( data.length > 0 ) {
       res.status(500).send(`{"NumberOfReferences": ${data.length} }`);
-      // res.status(500).send({
-      //   message: "error while deleting inventory item - reference violation."
-      // })
       return;
     }
 
-    console.log('deleteInventoryItem --> update') ;
-
+    // The deletion of an inventory item is performed through
+    // changing its status to 'D' for deleted. It will remain
+    // in the data set.
     inventory.update({
       status: 'D'
     },{
@@ -95,26 +69,21 @@ exports.deleteInventoryItem = (req, res) => {
         inventory_id: req.body.inventory_id
       }
     }).then(result =>{
-      console.log('result', result)
       res.status(200).send(`{"updated": ${result} }`)
     }).catch(error => {
-      console.log('error',error);
       res.status(500).send({
         message: error.message || "error while deleting new inventory item during update"      
       })
     })
-
   }).catch(error => {
-    console.log('error',error);
     res.status(500).send({
       message: error.message || "error while deleting new inventory item"      
     })
   })
 }
 
-
+// Update an inventory item.
 exports.updateInventoryItem = (req, res) => {
-
   inventory.update({
     name : req.body.name,
     notes : req.body.notes,
@@ -127,20 +96,17 @@ exports.updateInventoryItem = (req, res) => {
         inventory_id: req.body.inventory_id
       }
     }).then( result => {
-      console.log('result', result)
       res.status(200).send(`{"updated": ${result} }`)
-
   }).catch(error => {
-    console.log('error',error);
     res.status(500).send({
       message: error.message || "error while updating inventory item."      
     })
   })
 }
 
-
+// Create a new inventory item and return the new
+// inventory_id.
 exports.createInventoryItem = (req, res) => {
-
   inventory.create({
     name : req.body.name,
     notes : req.body.notes,
@@ -162,96 +128,97 @@ exports.createInventoryItem = (req, res) => {
 
 
 
-exports.createInventoryItemAddToShoppingList = (req, res) => {
+// exports.createInventoryItemAddToShoppingList = (req, res) => {
 
-  var inventory_id = 0;
+//   var inventory_id = 0;
 
-  inventory.create({
-    name : req.body.name,
-    picture : req.body.picture,
-    store_id : req.body.store_id,
-    list_category_id : req.body.list_category_id,
-    quantity_id : req.body.quantity_id,
-    created_at: new Date(),
-    updated_at : new Date()    
-  }).then( createResult => {
-    logging.logEntryLocal('createInventoryItem --> createResult', res );
-    logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
-    //console.log('createInventoryItem --> createResult', createResult);
+//   inventory.create({
+//     name : req.body.name,
+//     picture : req.body.picture,
+//     store_id : req.body.store_id,
+//     list_category_id : req.body.list_category_id,
+//     quantity_id : req.body.quantity_id,
+//     created_at: new Date(),
+//     updated_at : new Date()    
+//   }).then( createResult => {
+//     logging.logEntryLocal('createInventoryItem --> createResult', res );
+//     logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
+//     //console.log('createInventoryItem --> createResult', createResult);
 
-    inventory_id = createResult['inventory_id'];
+//     inventory_id = createResult['inventory_id'];
 
-    shopping_list.build({
-      shopping_date: req.body.shopping_date,
-      family_member_id: req.body.family_member_id,
-      inventory_id : inventory_id,
-      quantity: req.body.quantity,
-      shopping_status_id: 1,
-      created_at: new Date(),
-      updated_at : new Date()
-    }).save().then(insertResult =>{
-      logging.logEntryLocal('shopping_list.build --> insertResult', insertResult);
-      res.send(insertResult);
-    }).catch(error_insert => {
-      logging.logEntryLocal('error_insert',error_insert);
-      res.status(500).send({
-        message: error_insert.message || "error while inserting during updating shopping list."      
-      })
-    })
-
-
-
-  }).catch(error => {
-    console.log('error',error);
-    res.status(500).send({
-      message: error.message || "error while creating new inventory item."      
-    })
-  })
-}
+//     shopping_list.build({
+//       shopping_date: req.body.shopping_date,
+//       family_member_id: req.body.family_member_id,
+//       inventory_id : inventory_id,
+//       quantity: req.body.quantity,
+//       shopping_status_id: 1,
+//       created_at: new Date(),
+//       updated_at : new Date()
+//     }).save().then(insertResult =>{
+//       logging.logEntryLocal('shopping_list.build --> insertResult', insertResult);
+//       res.send(insertResult);
+//     }).catch(error_insert => {
+//       logging.logEntryLocal('error_insert',error_insert);
+//       res.status(500).send({
+//         message: error_insert.message || "error while inserting during updating shopping list."      
+//       })
+//     })
 
 
-exports.getInventoryByStore = (req, res) => {
-  inventory.scope('excludeCreatedAtUpdateAt').findAll({
-      attributes: ['inventory_id', 'name', 'notes' ], 
-      include: { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'], exclude : ['createdAt','updatedAt'] },
-      exclude: ['createdAt','updatedAt'],
-      where: {
-        store_id: req.query.store_id,
-        status: 'A'
-      }
-     }
-  )
-  .then(data => {
-   var inventoryDataByStore = new List();
-   data.forEach(x => {
+
+//   }).catch(error => {
+//     console.log('error',error);
+//     res.status(500).send({
+//       message: error.message || "error while creating new inventory item."      
+//     })
+//   })
+// }
+
+
+// exports.getInventoryByStore = (req, res) => {
+//   inventory.scope('excludeCreatedAtUpdateAt').findAll({
+//       attributes: ['inventory_id', 'name', 'notes' ], 
+//       include: { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'], exclude : ['createdAt','updatedAt'] },
+//       exclude: ['createdAt','updatedAt'],
+//       where: {
+//         store_id: req.query.store_id,
+//         status: 'A'
+//       }
+//      }
+//   )
+//   .then(data => {
+//    var inventoryDataByStore = new List();
+//    data.forEach(x => {
     
-    inventoryDataByStore = inventoryDataByStore.push(
-      {
-        'inventory_id' : x['inventory_id'],
-        'inventory_name' : x['name'],
-        'inventory_notes' : x['notes'],
-        'inventory_symbol' : x['inventory_to_quantity']['symbol'],
-        'quantity_id': x['inventory_to_quantity']['quantity_id'],
-        'quantity_unit' : x['inventory_to_quantity']['unit'],
-        'quantity_name' : x['inventory_to_quantity']['name'],
-        'quantity_symbol' : x['inventory_to_quantity']['symbol'],
-      });
-    })
+//     inventoryDataByStore = inventoryDataByStore.push(
+//       {
+//         'inventory_id' : x['inventory_id'],
+//         'inventory_name' : x['name'],
+//         'inventory_notes' : x['notes'],
+//         'inventory_symbol' : x['inventory_to_quantity']['symbol'],
+//         'quantity_id': x['inventory_to_quantity']['quantity_id'],
+//         'quantity_unit' : x['inventory_to_quantity']['unit'],
+//         'quantity_name' : x['inventory_to_quantity']['name'],
+//         'quantity_symbol' : x['inventory_to_quantity']['symbol'],
+//       });
+//     })
 
-    console.log('inventoryDataByStore.toArray():',inventoryDataByStore.toArray());
-    res.send(inventoryDataByStore.toArray());
-  })
-  .catch(err => {
-    res.status(500).send({
-      message:
-        err.message || "error while retrieving inventory by store."
-    });
-  });
-};
+//     console.log('inventoryDataByStore.toArray():',inventoryDataByStore.toArray());
+//     res.send(inventoryDataByStore.toArray());
+//   })
+//   .catch(err => {
+//     res.status(500).send({
+//       message:
+//         err.message || "error while retrieving inventory by store."
+//     });
+//   });
+// };
 
 
 // Get all inventory items for a store, so it can be
-// modified.
+// modified. This request also includes the 'pictures'
+// of the inventory items.
 exports.getInventoryByStoreForEdit = (req, res) => {
   inventory.scope('excludeCreatedAtUpdateAt').findAll({
       attributes: ['inventory_id', 'picture', 'name', 'notes' ], 
@@ -264,13 +231,9 @@ exports.getInventoryByStoreForEdit = (req, res) => {
         store_id: req.query.store_id,
         status: 'A'
       }
-     }
-  )
-  .then(data => {
-    //console.log(data);
+  }).then(data => {
     res.send(data);
-  })
-  .catch(err => {
+  }).catch(err => {
     res.status(500).send({
       message:
         err.message || "error while retrieving inventory by store for edit."
@@ -279,6 +242,9 @@ exports.getInventoryByStoreForEdit = (req, res) => {
 };
 
 
+  // When using the category filter within the inventory page,
+  // just return the list for that category. This seemed to be
+  // easier than dealing with filtering on the client side.
 exports.getInventoryByStoreForEditByCategory = (req, res) => {
   inventory.scope('excludeCreatedAtUpdateAt').findAll({
       attributes: ['inventory_id', 'picture', 'name', 'notes' ], 
@@ -293,12 +259,9 @@ exports.getInventoryByStoreForEditByCategory = (req, res) => {
         status: 'A'
       }
      }
-  )
-  .then(data => {
-    //console.log(data);
+  ).then(data => {
     res.send(data);
-  })
-  .catch(err => {
+  }).catch(err => {
     res.status(500).send({
       message:
         err.message || "error while retrieving inventory by store by category for edit."
@@ -308,20 +271,13 @@ exports.getInventoryByStoreForEditByCategory = (req, res) => {
 
 
 
-
+// This returns the items availabe within a certain category
+// for a particular store. The pictures for items are handeled
+// seperately; the default is the "no_picture.jpg" name that
+// the client uses to display in case there's no picture.
+// This method also simplifies the sequelize structure and 
+// removes the associations.
 exports.getInventoryByCategory = (req, res) => {
-
-  // let keyIventoryByCategory = new InventoryKeyByCategory(req.query.store_id, req.query.list_category_id);
-
-  // if (listInventoryByCategory.has(keyIventoryByCategory.key())) {
-  //   listInventoryByCategory = listInventoryByCategory.set(key.key(), shoppingInventory.get(key.key()).add(inventory_id));
-  // } else {
-  //   let inventoryList = new Set();
-  //   inventoryList = inventoryList.add(inventory_id);
-  //   shoppingInventory = shoppingInventory.set(key.key(), inventoryList);
-  // }
-
-
   inventory.scope('excludeCreatedAtUpdateAt').findAll({
       attributes: ['inventory_id', 'name', 'notes' ], 
       include: { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'], exclude : ['createdAt','updatedAt'] },
@@ -332,28 +288,10 @@ exports.getInventoryByCategory = (req, res) => {
         status: 'A'
       }
      }
-  )
-  .then(data => {
-    
-   //console.log(data);
-
-   //var newInventoryData = Map();
+  ).then(data => {
    var list_category_id = parseInt(req.query.list_category_id);
    var inventoryDataByCategory = new List();
-
-  //  var colorForCategory = new List();
-  //  var categoryName = "";
-  //  var categoryTotalNumOfItems = 0;
-
    data.forEach(x => {
-
-    //  colorForCategory = colorForCategory.push(x['shopping_list_to_family_member']['family_member_to_color']['name']);
-    //  if( categoryName.length == 0){
-    //    categoryName = x['shopping_list_to_inventory']['inventory_to_list_category']['name'];
-    //  }
-    //  categoryTotalNumOfItems++;
-
-    
     inventoryDataByCategory = inventoryDataByCategory.push(
       {
         'inventory_id' : x['inventory_id'],
@@ -376,11 +314,8 @@ exports.getInventoryByCategory = (req, res) => {
         }
       });
     })
-
-    //console.log('inventoryDataByCategory.toArray():',inventoryDataByCategory.toArray());
     res.send(inventoryDataByCategory.toArray());
-  })
-  .catch(err => {
+  }).catch(err => {
     res.status(500).send({
       message:
         err.message || "error while retrieving inventory by category."
@@ -388,58 +323,29 @@ exports.getInventoryByCategory = (req, res) => {
   });
 };
 
-
-
-{/* <img style="display:block; width:10em;height:10em;"' +
-                        ' src="' + data['picture'] + '"> 
- */}
-
+// Get the picture for an inventory item. 
 exports.getPicture = (req,res) => {
   inventory.scope('excludeCreatedAtUpdateAt').findByPk(req.query.inventory_id)
   .then(data => {
     if( data ) {
         res.send(data['picture']);
     }
-  })
-  .catch(err => {
+  }).catch(err => {
     res.status(500).send({
       message:
         err.message || "error while retrieving inventory picture."
     });
-  });;
+  });
 }
 
-
-exports.getNoPicture = (req,res) => {
-  const picture = "no_picture.jpg";
-
-  res.send(`{ "picture" : ${picture}}`);
-  
-  // inventory.scope('excludeCreatedAtUpdateAt').findByPk(req.query.inventory_id)
-  // .then(data => {
-  //   if( data ) {
-  //       res.send(data['picture']);
-  //   }
-  // })
-  // .catch(err => {
-  //   res.status(500).send({
-  //     message:
-  //       err.message || "error while retrieving inventory picture."
-  //   });
-  // });;
-}
-
-
-//inventory.getListOfStores
-
+// Get all available stores.
 exports.getListOfStores = (req,res) => {
   store.scope('excludeCreatedAtUpdateAt').findAll()
   .then(data => {
     if( data ) {
         res.send(data);
     }
-  })
-  .catch(err => {
+  }).catch(err => {
     res.status(500).send({
       message:
         err.message || "error while retrieving list of stores."
@@ -447,35 +353,32 @@ exports.getListOfStores = (req,res) => {
   });;
 }
 
+// Get all defined quantities (like pounds/Lbs).
 exports.getQuantities = (req,res) => {
-  console.log('getQuantities');
-
   quantity.scope('excludeCreatedAtUpdateAt').findAll()
   .then(data => {
      res.send(data);
-  })
-  .catch(err => {
+  }).catch(err => {
     res.status(500).send({
       message:
         err.message || "error while retrieving quantities."
     });
-  });;
+  });
 }
 
-
+// Get all defined inventory categories,e.g., fruit, meat.
 exports.getListCategory = (req, res) => {
   list_category.scope('excludeCreatedAtUpdateAt').findAll({
     attributes: ['list_category_id', 'name'],
     order: [['list_category_id', 'ASC']]
   }).then(data => {
     res.send(data);
-  })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "error while retrieving list categories."
-      });
-    });;
+  }).catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "error while retrieving list categories."
+    });
+  });
 }
 
 

@@ -265,8 +265,9 @@ export class ShoppingListService implements OnDestroy {
                         var inventory_id = i['inventory_id'];
                         this.inventoryService.loadPicture(inventory_id);
                     })
-                },
-                complete: () => {
+                }, error: (e) => {
+                    console.error(e.error.message);
+                }, complete: () => {
                     //console.log('complete')
                 }
             })

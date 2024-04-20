@@ -27,7 +27,7 @@ module.exports = function(app) {
 
     router.post("/update_shopping_list", shopping_list.updateShoppingList);
 
-    router.post("/log", shopping_list.logShoppingList)
+    //router.post("/log", shopping_list.logShoppingList)
     
     // start, stop, and mark items shopped
     router.post("/change_shopping_status", shopping_list.changeShoppingStatus);

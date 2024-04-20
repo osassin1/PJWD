@@ -12,7 +12,7 @@ import { AppConfiguration } from "read-appsettings-json";
 //const baseUrl = 'http://localhost:8080/api/family_member'; 
 //const baseUrl = 'http://127.0.0.1:3000/api/family_member';
 
-const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/family_member";
+const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/authentication";
 
 
 @Injectable({
@@ -57,7 +57,7 @@ export class AuthenticationService implements OnDestroy {
     public get familyMemberValue() {
         return this.familyMemberSubject.value;
     }
-
+/*
     getAll(family_id: number): Observable<FamilyMember[]> {
         return this.http.get<FamilyMember[]>(`${baseUrl}?family_id=${family_id}`);
     }
@@ -97,6 +97,7 @@ export class AuthenticationService implements OnDestroy {
             family_id
         });
     };
+*/
 
     login(username: string, password: string): Observable<FamilyMember> {
         return this.http.post<FamilyMember>(`${baseUrl}/login`, {

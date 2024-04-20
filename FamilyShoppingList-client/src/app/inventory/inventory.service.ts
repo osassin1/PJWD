@@ -11,27 +11,14 @@ import { catchError, map } from 'rxjs/operators';
 
 import{ ListCategory } from '../models/list_category.model';
 
-// appsettings.json contains the serverUrl
-/*
-{
-    "Application" : {
 
-    "___serverUrl": "http://localhost:8085",
-    "__serverUrl": "http://192.168.1.195:8085",
-    "serverUrl": "http://osassin.tplinkdns.com:8085",
-    "devUrl" : "http://192.168.1.195:8085",
-    "prodUrl" : "http://osassin.tplinkdns.com:8085"
-    }
 
-}
-*/
-
+// Refer to appsettings.json to see possible 'serverUrl' settings
 const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/inventory";
 
 @Injectable({
     providedIn: 'root',
 })
-
 
 export class InventoryService  {
    public pictureInventory : Map<number,SafeUrl> = new Map<0,"">();
@@ -42,7 +29,6 @@ export class InventoryService  {
    public categoryInventoryNew : Map<number,any[]> = new Map<0,[]>;
 
     constructor(
-       
         private http: HttpClient,
         private domSanatizer: DomSanitizer,
     ) {
@@ -53,40 +39,48 @@ export class InventoryService  {
         return this.http.get<any>(`${baseUrl}/check_inventory_for_deletion?inventory_id=${inventory_id}`);
     }
 
+    // This returns the list of stores defined in the system
     getListOfStores(): Observable<any>{
         return this.http.get<any>(`${baseUrl}/list_of_stores`);
     }
 
-    // load all available quantities from table quantity
+    // Load all available quantities from table quantity
     getQuantities(): Observable<any>{
         return this.http.get<any>(`${baseUrl}/quantities`);
     }
 
-    // get all categories that are defined in list_category
+    // This returns all categories defined in the system
     getListCatgory(): Observable<ListCategory[]> {
         return this.http.get<ListCategory[]>(`${baseUrl}/list_category`);
     }
 
+    // Picture of inventory items are already stored as a string
+    // and just need to be retrieved as string, therefore, responseType
+    // is text and NOT blob.
     getPicture(inventory_id : number): Observable<any>{
+
+        // The following did not work:
+        //
         // const httpOptions: Object = {
         //     headers: new HttpHeaders({'Accept': 'image/png'}),
         //     responseType: 'blob' 
         //   };
 
-        // Picture of inventory items are already stored as a string
-        // and just need to be retrieved as string, therefore, responseType
-        // is text and NOT blob.
         const httpOptions: Object = {
              responseType: 'text'
          };
         return this.http.get<any>(`${baseUrl}/picture?inventory_id=${inventory_id}`, httpOptions);
     }
 
-    getInventoryByStore(store_id : number): Observable<any>{
-        return this.http.get<any>
-             (`${baseUrl}/inventory_by_store?store_id=${store_id}`);
-    }
+    // getInventoryByStore(store_id : number): Observable<any>{
+    //     return this.http.get<any>
+    //          (`${baseUrl}/inventory_by_store?store_id=${store_id}`);
+    // }
 
+
+    // Get all inventory items for a store, so it can be
+    // modified. This request also includes the 'pictures'
+    // of the inventory items.
     getInventoryByStoreForEdit(store_id : number): Observable<any>{
         //  const httpOptions: Object = {
         //      headers: new HttpHeaders({'Accept': 'image/png'}),
@@ -99,8 +93,9 @@ export class InventoryService  {
              (`${baseUrl}/inventory_by_store_for_edit?store_id=${store_id}`,httpOptions);
     }
 
+    // It's wrapper around the actual loading function
+    // to get all inventory items by store to be loaded
     loadInventoryByStore(store_id : number)  {
-        console.log('loadInventoryByStore::store_id', store_id)
         this.storeInventory = [];
         this.getInventoryByStoreForEdit(store_id).subscribe({
             next: (v) => {
@@ -114,10 +109,9 @@ export class InventoryService  {
           })        
     }
 
-
-
-
-
+    // When using the category filter within the inventory page,
+    // just return the list for that category. This seemed to be
+    // easier than dealing with filtering on the client side.
     getInventoryByStoreForEditByCategory(store_id : number, list_category_id: number): Observable<any>{
         //  const httpOptions: Object = {
         //      headers: new HttpHeaders({'Accept': 'image/png'}),
@@ -138,9 +132,9 @@ export class InventoryService  {
              );
     }
 
-    getAllUnits(): Observable<any>{
-        return this.http.get<any>(`${baseUrl}/units`);
-    }
+    // getAllUnits(): Observable<any>{
+    //     return this.http.get<any>(`${baseUrl}/units`);
+    // }
 
     // getInventoryByID(inventory_id: number){
     //     console.log('this.getInventoryByID',inventory_id);
@@ -158,19 +152,19 @@ export class InventoryService  {
     // }
 
 
-    loadInventory(store_id : number, list_category_id: number) {
-        if(!this.categoryInventoryNew.has(list_category_id)){
-            this.getInventoryByCategory(store_id, list_category_id)
-            .subscribe(inventory => {
-                this.categoryInventoryNew.set(list_category_id, inventory);
+    // loadInventory(store_id : number, list_category_id: number) {
+    //     if(!this.categoryInventoryNew.has(list_category_id)){
+    //         this.getInventoryByCategory(store_id, list_category_id)
+    //         .subscribe(inventory => {
+    //             this.categoryInventoryNew.set(list_category_id, inventory);
 
-                this.categoryInventoryNew.get(list_category_id)?.forEach(x => {
-                    this.loadPicture(x['inventory_id']);
-                });
-            })
-        }
-        return this.categoryInventoryNew.get(list_category_id)!;
-    }
+    //             this.categoryInventoryNew.get(list_category_id)?.forEach(x => {
+    //                 this.loadPicture(x['inventory_id']);
+    //             });
+    //         })
+    //     }
+    //     return this.categoryInventoryNew.get(list_category_id)!;
+    // }
 
 
 
@@ -214,10 +208,10 @@ export class InventoryService  {
         return this.pictureInventory.get(inventory_id) ?? "no_picture.jpg"; 
     }
 
-        capturePicture(temp_inventory_id: number, list_category_id: number){
-            console.log('temp_inventory_id:', temp_inventory_id);
-            console.log('list_category_id:', list_category_id);
-        }
+        // capturePicture(temp_inventory_id: number, list_category_id: number){
+        //     console.log('temp_inventory_id:', temp_inventory_id);
+        //     console.log('list_category_id:', list_category_id);
+        // }
 
 
         deleteInventoryItem(inventory_id: number ) : Observable<any> {
@@ -251,27 +245,28 @@ export class InventoryService  {
         });
     }       
 
-    createInventoryItemAddToShoppingList(
-        name: string, 
-        picture: string, 
-        store_id: number, 
-        list_category_id: number, 
-        quantity_id: number,
-        quantity: number,
-        shopping_date: string,
-        family_member_id: number ) : Observable<any> {
+    // createInventoryItemAddToShoppingList(
+    //     name: string, 
+    //     picture: string, 
+    //     store_id: number, 
+    //     list_category_id: number, 
+    //     quantity_id: number,
+    //     quantity: number,
+    //     shopping_date: string,
+    //     family_member_id: number ) : Observable<any> {
             
-            return this.http.post(`${baseUrl}/create_inventory_item_add_to_shoppinglist`, {
-                name, 
-                picture,
-                store_id,
-                list_category_id,
-                quantity_id,
-                quantity,
-                shopping_date,
-                family_member_id
-            });            
-    }
+    //         return this.http.post(`${baseUrl}/create_inventory_item_add_to_shoppinglist`, {
+    //             name, 
+    //             picture,
+    //             store_id,
+    //             list_category_id,
+    //             quantity_id,
+    //             quantity,
+    //             shopping_date,
+    //             family_member_id
+    //         });            
+    // }
+    
     // create(data: any): Observable<any> {
     //     return this.http.post(baseUrl, data);
     //   }

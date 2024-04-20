@@ -14,33 +14,34 @@ module.exports = function(app) {
   
     var router = require("express").Router();
   
-    router.get("/validate_token", family_member.validateToken);
-
-    
-
-      // retrieve all family_members exclude 'password'
-    router.get("/", family_member.findAll);
-
+    // retrieve one family_members with 'password'
+    //router.post("/login", family_member.login);
+    //router.get("/validate_token", family_member.validateToken);
     // retrieve all family_members exclude 'password'
+    //router.get("/", family_member.findAll);
+
+    // Retrieve all available colors for a family for a given
+    // family id.
     router.get("/colors", family_member.findAllColors);
 
-    // retrieve family_id based on family_code
+    // Retrieve the family_id based on the generated family code.
     router.get("/family_code", family_member.findFamilyCode);
+
+    // Retrieve the family id based on the family code.
     router.get("/family_id", family_member.getFamilyID);
 
+    // Generate a new family code that needs to be used
+    // to join an existing family
     router.get("/new_family_code", family_member.getNewFamilyCode);
     
-
-    // retrieve username based on family_code
+    // This is used to check if a username alreayd
+    // exists when a new family member signs up. The
+    // app requires unique usernames.
     router.get("/username", family_member.findUsername);
 
-    // retrieve one family_members with 'password'
-    router.post("/login", family_member.login);
-
-    // create new family_member
+    // Create new family_member with unique username, a
+    // chosen color and connected to a unique family code.
     router.post("/create", family_member.createFamilyMember);
-    
-    
 
     app.use('/api/family_member', router);
   };

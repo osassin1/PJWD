@@ -8,6 +8,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 
 import { AuthenticationService } from '../authentication/authentication.service';
+import { FamilyMemberService } from '../family_member/family_member.service';
 
 @Component({
   selector: 'app-authentication',
@@ -87,6 +88,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private authenticationService: AuthenticationService,
+    private familyMemberService: FamilyMemberService,
     private route: ActivatedRoute,
     private router: Router,
     private cd: ChangeDetectorRef
@@ -96,7 +98,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
     this.formLoginSignup = this.formBuilder.group({
       username: ['', {
         validators: [Validators.required, Validators.minLength(6), Validators.maxLength(20)],
-        asyncValidators: [usernameExistsValidator(this.authenticationService)], updateOn: 'blur'
+        asyncValidators: [usernameExistsValidator(this.familyMemberService)], updateOn: 'blur'
       }],
       password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20)]],
       firstName: ['', Validators.required],
@@ -104,14 +106,14 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
       colorSelect: null,
       familyCode: ['', {
         validators: [Validators.required],
-        asyncValidators: [codeExistsValidator(this.authenticationService)], updateOn: 'blur'
+        asyncValidators: [codeExistsValidator(this.familyMemberService)], updateOn: 'blur'
       }]
     });
     this.buttonSignup = "Next";
   }
 
   private loadColors(family_id: number) {
-    this.authenticationService.getAllColors(family_id).subscribe((response: any) => {
+    this.familyMemberService.getAllColors(family_id).subscribe((response: any) => {
       this.colorsToSelectFrom = response;
       this.formLoginSignup.controls['colorSelect'].enable();
     });
@@ -158,7 +160,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
   }
 
   onNewFamilyCode() {
-    this.authenticationService.getNewFamilyCode().subscribe((response: any) => {
+    this.familyMemberService.getNewFamilyCode().subscribe((response: any) => {
       this.newFamilyCode = response['family_code'];
       this.formLoginSignup.controls['familyCode'].setValue(response['family_code']);
     });
@@ -181,7 +183,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
       if (this.formLoginSignup.invalid) {
         return;
       }
-      this.authenticationService.getFamilyID(this.fgc['familyCode'].value)
+      this.familyMemberService.getFamilyID(this.fgc['familyCode'].value)
         .subscribe((response: any) => {
           //console.log('response:', response);
           this.family_id = response['family_id'];
@@ -195,7 +197,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
       } else {
         this.selectColorError = false;
         this.loading = true;
-        this.authenticationService.createNewFamilyMember(
+        this.familyMemberService.createNewFamilyMember(
           this.fgc['username'].value,
           this.fgc['password'].value,
           this.fgc['firstName'].value,
@@ -272,7 +274,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
 // (2) the family code has to be valid - that's neceassry
 //     to connect a new family member to a family.
 
-export function usernameExistsValidator(auth: AuthenticationService): AsyncValidatorFn {
+export function usernameExistsValidator(auth: FamilyMemberService): AsyncValidatorFn {
   return (control: AbstractControl) => {
     return auth.findUsername(control.value)
       .pipe(map(fc => fc ? { usernameExists: true } : null)
@@ -280,7 +282,7 @@ export function usernameExistsValidator(auth: AuthenticationService): AsyncValid
   }
 };
 
-export function codeExistsValidator(auth: AuthenticationService): AsyncValidatorFn {
+export function codeExistsValidator(auth: FamilyMemberService): AsyncValidatorFn {
   return (control: AbstractControl) => {
 
     return auth.findFamilyCode(control.value)
