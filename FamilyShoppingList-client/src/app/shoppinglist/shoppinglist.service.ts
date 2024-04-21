@@ -67,7 +67,9 @@ export class ShoppingListService implements OnDestroy {
     // gray filter applied to inventory items in shopping list
     _inventoryImage: string[] = [];
 
-    // for n-select when clicking the circle-plus  
+    // This conatins the inventory one can select from when 
+    // clicking the circle-plus icon. This the call the shoppinglist-add
+    // component.  
     _selectInventoryByCategory: any[] = [];
 
     _store!: Store;
@@ -89,6 +91,7 @@ export class ShoppingListService implements OnDestroy {
         // this will be TRUE - initial value is FALSE
         this.shoppingListDoneObservable = this.shoppingListDoneSubject.asObservable();
         this.editInventoryLockObservable = this.editInventoryLockSubject.asObservable();
+
         this.onInit();
     }
 
@@ -261,14 +264,13 @@ export class ShoppingListService implements OnDestroy {
             .subscribe({
                 next: (v) => {
                     this.selectInventoryByCategory[list_category_id] = v;
-                    v.forEach((i: any) => {
+                    this.selectInventoryByCategory[list_category_id].forEach((i: any) => {
                         var inventory_id = i['inventory_id'];
-                        this.inventoryService.loadPicture(inventory_id);
+                        i.picture = this.inventoryService.loadPicture(inventory_id);
                     })
                 }, error: (e) => {
                     console.error(e.error.message);
                 }, complete: () => {
-                    //console.log('complete')
                 }
             })
     }

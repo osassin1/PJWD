@@ -67,3 +67,4 @@ app.listen(port, () => {
 
 console.log("*** FamilyShoppingList Server ***\n");
 console.log("runing in mode: ", process.env.NODE_ENV);
+console.log("listing at port: ", port);

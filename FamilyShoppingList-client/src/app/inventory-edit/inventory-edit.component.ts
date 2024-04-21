@@ -57,11 +57,11 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
     
     this.inventoryEditForm = this.formBuilder.group({
       name: [this.inventory.name, Validators.required],
-      notes: this.inventory.notes,
-      picture: this.inventory.picture,
+      notes: this.inventory.notes, 
+      picture: this.inventory.picture, 
       store_id: this.store.store_id,
-      list_category: this.list_category,
-      quantity: this.inventory.inventory_to_quantity
+      list_category: [null, Validators.required],
+      quantity: [this.inventory.inventory_to_quantity, Validators.required]
   });
 
     // the category can either come from an existing inventory item
@@ -81,17 +81,29 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
         this.inventoryEditForm.controls['quantity'].setValue( this.quantities.find((item)=> item.quantity_id == 3) );
       }
     })
-    
+
+    // name: [this.inventory.name, Validators.required],
+    // notes: this.inventory.notes, 
+    // picture: this.inventory.picture, 
+    // store_id: this.store.store_id,
+    // list_category: [this.list_category, Validators.required],
+    // quantity: [this.inventory.inventory_to_quantity, Validators.required]
+  
   }
 
   ngOnDestroy(): void {
     console.log('InventoryEditComponent', 'ngOnDestroy')  
+    this.inventoryEditForm.reset();
+
     //this.inventory.picture = "no_picture.jpg";
     //this.done.emit(false);
   }
 
   get ief(){
-    return this.inventoryEditForm.value['inventoryForm'];
+    return this.inventoryEditForm;
+  }
+  get iefc(){
+    return this.inventoryEditForm.controls;
   }
 
  
@@ -101,6 +113,10 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
   }
 
   onDoneEdit(){
+    if( this.inventoryEditForm.invalid ){
+      return;
+    }
+
     this.inventory.name = this.inventoryEditForm.controls['name'].value;
     this.inventory.notes = this.inventoryEditForm.controls['notes'].value;
     this.inventory.inventory_to_quantity.quantity_id = this.inventoryEditForm.controls['quantity'].value['quantity_id'];
@@ -120,6 +136,7 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
             console.log('updateInventoryItem', v)
           },
           complete: () => {
+            this.inventoryEditForm.reset();
             this.done.emit(true);
           }
         }) 
@@ -144,16 +161,18 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
               this.inventoryService.pictureInventory.set(this.inventory.inventory_id, this.inventory.picture)
             },
             complete: () => {
+              this.inventoryEditForm.reset();
               this.done.emit(true);
             }
           }) 
           
   
     }
-    this.inventoryEditForm.reset();
+    
   }
 
   onCancelEdit(){
+    this.inventoryEditForm.reset();
     this.done.emit(false);
   }
 

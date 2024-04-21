@@ -79,6 +79,15 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
       }
       this.cd.detectChanges();
     })
+
+    // this.shoppingListService.selectInventoryByCategoryUpdateObservable.subscribe((res: boolean) => {
+    //   console.log('ShoppinglistAddComponent::this.shoppingListService.selectInventoryByCategoryUpdateObservable', res)
+    //   if ( res ){
+    //     this.shoppingListAddForm.controls['inventoryToAdd']
+    //     this.cd.detectChanges();
+        
+    //   }
+    // })
   }
 
   ngOnDestroy() {

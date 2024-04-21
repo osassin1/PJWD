@@ -10,7 +10,8 @@
                 <span>{{item.name}}</span>
             </ng-template>
             <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-                <img class="inventory-picture me-1" height="40" width="40" [src]="getPicture(item.inventory_id)" />
+                <!-- <img class="inventory-picture me-1" height="40" width="40" [src]=getPicture(item.inventory_id) /> -->
+                <img class="inventory-picture me-1" height="40" width="40" [src]=item.picture />
                 <span>{{item.name}}</span>
             </ng-template>
         </ng-select>

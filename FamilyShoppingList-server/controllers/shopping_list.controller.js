@@ -178,79 +178,86 @@ exports.getAllShoppingListStatus = (req, res) => {
 }
 
 
-
+// This moves an inventory item from the list into the shopping cart
+// by changing the shopping_status from '1' to '2'. The item is now
+// in the cart. While doing this, the server keeps track of what is in
+// the cart and provides this information to all other shopping 
+// family members.
 exports.shoppedItem = (req, res) => {
   shopping_date = req.body.shopping_date;
   store_id = parseInt(req.body.store_id);
   family_id = parseInt(req.body.family_id);
   inventory_id = parseInt(req.body.inventory_id);
 
-  console.log('shoppedItem', shopping_date, store_id, family_id, inventory_id)
+  //Create the unique key for this shopping event.
   let key = new ShoppingKey(shopping_date, store_id, family_id);
+
+  // If the key already exists then just add the new item to the 'cart'
   if (shoppingInventory.has(key.key())) {
     shoppingInventory = shoppingInventory.set(key.key(), shoppingInventory.get(key.key()).add(inventory_id));
   } else {
+    // This is the firt element that will be in the cart,
+    // initialize the 'cart' and put the inventory item inside.
     let inventoryList = new Set();
     inventoryList = inventoryList.add(inventory_id);
     shoppingInventory = shoppingInventory.set(key.key(), inventoryList);
   }
-  console.log('shoppedItem::shoppingInventory', [...shoppingInventory.entries()], shoppingInventory.get(key.key()).toArray())
 
-    shopping_list.update({
-          shopping_status_id: 2
-        },{
-          where : {
-            inventory_id: inventory_id,
-            shopping_date: shopping_date,
-            family_member_id: {
-              [Op.in]:  Sequelize.literal(`(select family_member_id from family_member where family_id=${family_id})`)
-            }
+  // Update the shopping the shopping list with shopping_status to '2',
+  // the challenge was that this applies to all family members and
+  // the sub-query had to added manually.   
+  shopping_list.update({
+        shopping_status_id: 2
+      },{
+        where : {
+          inventory_id: inventory_id,
+          shopping_date: shopping_date,
+          family_member_id: {
+            [Op.in]:  Sequelize.literal(`(select family_member_id from family_member where family_id=${family_id})`)
           }
-        }).then( f1 => {
-          console.log('f1',JSON.stringify(f1));
-          if( f1 ) {
-            res.status(200).send();
-          } else {
-            res.status(500).send({
-              message: "error while updating shopping list status."      
-            });
-          }
-        })
+        }
+      }).then( f => {
+        if( f ) {
+          res.status(200).send();
+        } else {
+          res.status(500).send({
+            message: "error while updating shopping list status."      
+          });
+        }
+      })
 }
 
-
+//
 exports.unShoppedItem = (req, res) => {
   shopping_date = req.body.shopping_date;
   store_id = parseInt(req.body.store_id);
-  family_id = parseInt(req.body.family_id); 
-  inventory_id = parseInt(req.body.inventory_id); 
+  family_id = parseInt(req.body.family_id);
+  inventory_id = parseInt(req.body.inventory_id);
 
-//  console.log('unShoppedItem', shopping_date, store_id, family_id, inventory_id)
   let key = new ShoppingKey(shopping_date, store_id, family_id);
-  if(shoppingInventory.has(key.key()) ){
-    shoppingInventory = shoppingInventory.set(key.key(), shoppingInventory.get(key.key()).delete(inventory_id) );
+  if (shoppingInventory.has(key.key())) {
+    shoppingInventory = shoppingInventory.set(key.key(), shoppingInventory.get(key.key()).delete(inventory_id));
   }
-//  console.log('shoppedItem::shoppingInventory', [...shoppingInventory.entries()], shoppingInventory.get(key.key()).toArray())
-shopping_list.update({
-  shopping_status_id: 1
-},{
-  where : {
-    inventory_id: inventory_id,
-    shopping_date: shopping_date,
-    family_member_id: {
-      [Op.in]:  Sequelize.literal(`(select family_member_id from family_member where family_id=${family_id})`)
+  shopping_list.update({
+    shopping_status_id: 1
+  }, {
+    where: {
+      inventory_id: inventory_id,
+      shopping_date: shopping_date,
+      family_member_id: {
+        [Op.in]: Sequelize.literal(`(select family_member_id from family_member where family_id=${family_id})`)
+      }
     }
-  }
-}).then( f1 => {
-  console.log('f1',JSON.stringify(f1));
-  if( f1 ) {
-    res.status(200).send();
-  } else {
-    res.status(500).send({
-      message: "error while updating shopping list status."      
-    });
-  }
-})
+  }).then(f1 => {
+    console.log('f1', JSON.stringify(f1));
+    if (f1) {
+      res.status(200).send();
+    } else {
+      res.status(500).send({
+        message: "error while updating shopping list status."
+      });
+    }
+  })
 }
 
 
@@ -320,29 +327,6 @@ exports.getShoppedItemStatus = (req, res) => {
       })
   }
 }
-
-
-
-// exports.createShoppingList = (req, res) => {
-//   shopping_list.build({
-//     shopping_date: req.body.shopping_date,
-//     family_member_id: req.body.family_member_id,
-//     inventory_id : req.body.inventory_id,
-//     quantity: req.body.quantity,
-//     created_at: new Date(),
-//     updated_at : new Date()
-//   }).save().then(insertResult =>{
-//     console.log('shopping_list.build --> insertResult', insertResult);
-//   }).catch(error_insert => {
-//     console.log('error_insert',error_insert);
-//     res.status(500).send({
-//       message: error_insert.message || "error while inserting during updating shopping list."      
-//     })
-//   })
-// }
-
-
-
 
 exports.updateShoppingList = (req, res) => {
   // if quantity is 0 then remove the item from

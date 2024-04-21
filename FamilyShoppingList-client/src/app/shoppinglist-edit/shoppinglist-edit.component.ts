@@ -6,6 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
 import { ShoppingListService } from '../shoppinglist/shoppinglist.service';
+import { InventoryService } from '../inventory/inventory.service';
 
 import { InventoryPictureComponent } from '../inventory-picture/inventory-picture.component'
 import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
@@ -38,6 +39,7 @@ export class ShoppinglistEditComponent implements OnInit {
 
   constructor(
     private shoppingListService: ShoppingListService,
+    private inventoryService: InventoryService,
     private formBuilder: FormBuilder) {
   }
 
@@ -61,6 +63,11 @@ export class ShoppinglistEditComponent implements OnInit {
         this.onCancelEdit();
       }
     })
+
+    // This is necessary if a new item was added while a family member
+    // was in the same shop related category. Kind of a corner case
+    // but still.
+    this.shoppingListItem.picture = this.inventoryService.loadPicture(this.shoppingListItem.inventory_id);
 
     this.shoppingListService.lockInventoryEdit = true;
     this.shoppingListService.changeEditInventoryLock(true);

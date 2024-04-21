@@ -163,10 +163,28 @@ export class InventoryComponent implements OnInit {
     if (this.isAddNewInventoryItem && inventory_id) {
       this.isAddNewInventoryItem = false;
     }
+    this.isAddNewInventoryItem = false;
 
     if ($event) {
       this.onStoreSelectChange();
     }
+    console.log('onCreateItem-->newInventory',this.newInventory)
+
+    this.newInventory.inventory_id = 0;
+    this.newInventory.name = "";
+    this.newInventory.picture =  "no_picture.jpg";
+    this.newInventory.notes = "";
+    //this.newInventory.inventory_to_quantity = "";
+    // symbol: "",
+    // unit: 0,
+    // family_members: null,
+    // inventory_to_quantity: {
+    //   quantity_id: 0,
+    //   name: "",
+    //   symbol: "",
+    //   unit: 0
+    // },
+
   }
 
   // Activate the edit action for an inventory item
@@ -175,10 +193,12 @@ export class InventoryComponent implements OnInit {
     if (this.isAddNewInventoryItem && inventory_id) {
       this.isAddNewInventoryItem = false;
     }
+    this.isAddNewInventoryItem = false;
 
     if ($event) {
       this.onStoreSelectChange();
     }
+    console.log('newInventory',this.newInventory)
   }
 
 
