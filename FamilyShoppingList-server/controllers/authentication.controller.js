@@ -63,8 +63,7 @@ exports.login = (req, res) => {
       where: {
         username: req.body.username
       }
-  })
-  .then(family_member => {
+  }).then(family_member => {
       if( family_member === null ){
         return res.status(401).send({
           accessToken: null,
@@ -105,11 +104,12 @@ exports.login = (req, res) => {
                     name: family_member.family_member_to_color.name },
           token
         });
-    })
-    .catch(err => {
+    }).catch(err => {
       res.status(500).send({
         message:
           err.message || "error while login family_member."
-      });
-    });
+      })
+    })
 };
+
+//--- end of file ---

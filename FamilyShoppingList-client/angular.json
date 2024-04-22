@@ -21,8 +21,11 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "src/favicon.ico",
+              "src/familyshoppinglist.ico",
               "src/no_picture.jpg",
+              "src/familyshoppinglist.jpg",
+              "src/familyshoppinglist.jpeg",
+              "src/familyshoppinglist.png",
               "src/assets"
             ],
             "styles": [
@@ -82,8 +85,12 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              "src/familyshoppinglist.ico",
+              "src/assets",
+              "src/familyshoppinglist.jpg",
+              "src/familyshoppinglist.jpeg",
+              "src/familyshoppinglist.png",
+              "src/no_picture.jpg"
             ],
             "styles": [
               "src/styles.css"

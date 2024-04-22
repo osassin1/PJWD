@@ -1,12 +1,47 @@
 'use strict';
 
-
-const { QueryTypes } = require("sequelize");
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
 const basename = path.basename(__filename);
+
+
+// When starting the server.js process, the environment
+// variable NODE_ENV will be read to determine what database
+// configuration should be used. If this is not set then
+// the 'development' will be used.
+//
+// For a pure local environemnt, please use 'test'. In the
+// config.json there are there defined environments:
+//
+// {
+//   "development": {
+//     "username": "shopping_list",
+//     "password": "airY@Shop99",
+//     "database": "shopping_list_db",
+//     "host": "192.168.1.195",
+//     "dialect": "mysql"
+//   },
+//   "test": {
+//     "username": "shopping_list",
+//     "password": "airY@Shop99",
+//     "database": "shopping_list_db",
+//     "host": "127.0.0.1",
+//     "dialect": "mysql"
+//     },
+//   "production": {
+//     "username": "root",
+//     "password": null,
+//     "database": "database_production",
+//     "host": "127.0.0.1",
+//     "dialect": "mysql"
+//   }
+// }
+//
+// The production environemnt is not really defined
+// but could be used for production.
+
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
@@ -42,28 +77,16 @@ if (config.use_env_variable) {
   );
 }
 
-    // "define" : { "freezeTableName": true,
-    //              "underscored": true,
-    //              "scopes": {
-    //               "excludeCreatedAtUpdateAt" : "attributes: { exclude: ['createdAt', 'updatedAt', 'created_at', 'updated_at'] }"
-    //              }
-    //            }
-    // "define" : { "freezeTableName": true,
-    //              "underscored": true
-    //            }
 
-
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
+// Load the data model into sequelize
+fs.readdirSync(__dirname).filter(file => {
     return (
       file.indexOf('.') !== 0 &&
       file !== basename &&
       file.slice(-3) === '.js' &&
       file.indexOf('.test.js') === -1
     );
-  })
-  .forEach(file => {
+  }).forEach(file => {
     console.log(file);
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
@@ -79,25 +102,12 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 db.quantity = require("./quantity")(sequelize, Sequelize);
-
 db.inventory = require("./inventory")(sequelize, Sequelize);
 db.store = require("./store")(sequelize, Sequelize);
 db.list_category = require("./list_category")(sequelize, Sequelize);
 db.color = require("./color")(sequelize, Sequelize);
 db.shopping_list = require("./shopping_list")(sequelize, Sequelize);
 db.family = require("./family")(sequelize, Sequelize);
-
-// db.inventory.hasOne(db.listcategory,{
-//     through: "inventory_list_category_id",
-//     as: "list_category",  // database table name
-//     foreignKey: "id",
-// });
-
-// db.listcategory.hasMany(db.inventory,{
-// //    through: "inventory_list_category_id",
-// //    as: "inventory",  // database table name
-// //    foreignKey: "id",
-// });
 
 
 // without these associations, it doesn't work
@@ -129,20 +139,7 @@ db.family_member.belongsTo(db.color,{
   foreignKey: "color_id",
 });
 
-// db.color.belongsTo(db.family_member,{
-//   through: "family_member_id",
-//   as: "family_member",  // database table name
-//   foreignKey: "family_member_id",
-// });
-
-// db.shopping_list.belongsTo(db.shopping_status,{
-//   through: "shopping_status_id",
-//   as: "shopping_list_to_shopping_status",
-//   foreignKey: "shopping_status_id",
-// });
-
 // C:C relationship
-
 db.shopping_list.belongsTo(db.inventory,{
   through: "inventory_id",
   as: "shopping_list_to_inventory",
@@ -161,14 +158,5 @@ db.family_member.belongsTo(db.family, {
   foreignKey: "family_id",
 })
 
-// db.inventory.belongsToMany(db.shopping_list,{
-//   through: "shopping",
-// });
-
-
-
-      module.exports = db;
-
-
-  
-  
+module.exports = db;
+ 

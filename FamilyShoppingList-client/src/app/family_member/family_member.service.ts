@@ -21,10 +21,6 @@ export class FamilyMemberService {
         private http: HttpClient
     ) { }
 
-
-    // getAll(family_id: number): Observable<FamilyMember[]> {
-    //     return this.http.get<FamilyMember[]>(`${baseUrl}?family_id=${family_id}`);
-    // }
     getAllColors(family_id: number): Observable<Color[]> {
         return this.http.get<Color[]>(`${baseUrl}/colors?family_id=${family_id}`);
     }
@@ -58,3 +54,4 @@ export class FamilyMemberService {
     };
 }
 
+//--- end of file ---

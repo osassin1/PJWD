@@ -1,5 +1,4 @@
-//var bcrypt = require("bcryptjs");
-//var jwt = require("jsonwebtoken");
+var bcrypt = require("bcryptjs");
 const db = require("../models");
 const { v4: familyCode } = require("uuid");
 
@@ -7,29 +6,6 @@ const family_member = db.family_member;
 const family = db.family;
 
 const Op = db.Sequelize.Op;
-
-
-// Retrieve all family_members from the database.
-// exports.findAll = (req, res) => {
-//   family_member.findAll({
-//     attributes: ['family_member_id', 'username', 'first_name', 'last_name', 'family_id'],
-//     include: { association: 'family_member_to_color', attributes: ['color_id', 'family_member_id', 'name'] },
-//     where: {
-//       family_id: req.query.family_id
-//     }
-//   }
-//   )
-//     .then(data => {
-//       //console.log(data);
-//       res.send(data);
-//     })
-//     .catch(err => {
-//       res.status(500).send({
-//         message:
-//           err.message || "error while retrieving family_member."
-//       });
-//     });
-// };
 
 
 // This is a SET - MINUS operation, which is not supported by sequelize;
@@ -46,7 +22,6 @@ exports.findAllColors = (req, res) => {
                       ON color.color_id=family_member.color_id AND family_id=${req.query.family_id} 
                       WHERE family_id is null;`)
     .then(color => {
-      console.log('color', color);
       res.send(color[0]);
     }).catch(err => {
       res.status(500).send({
@@ -56,6 +31,7 @@ exports.findAllColors = (req, res) => {
     });
 };
 
+// When using an existing family code, retrieve the family id
 exports.getFamilyID = (req, res) => {
   family.scope('excludeCreatedAtUpdateAt').findOne({
     attribute: ['family_id'],
@@ -72,13 +48,13 @@ exports.getFamilyID = (req, res) => {
   });
 };
 
+// Generate a new family code and send it back.
 exports.getNewFamilyCode = (req, res) => {
   family.scope('excludeCreatedAtUpdateAt').create({
     family_code: familyCode(),
     created_at: new Date(),
     updated_at: new Date()
   }).then(createResult => {
-    console.log('createResult', createResult)
     res.send(createResult);
   }).catch(err => {
       res.status(500).send({
@@ -88,6 +64,7 @@ exports.getNewFamilyCode = (req, res) => {
   });
 }
 
+// See if a family code exists.
 exports.findFamilyCode = (req, res) => {
   family.scope('excludeCreatedAtUpdateAt').findOne({
     attribute: ['family_id'],
@@ -95,7 +72,6 @@ exports.findFamilyCode = (req, res) => {
       family_code: req.query.family_code
     }
   }).then(data => {
-      console.log(data);
       if (data) {
         res.send("");
       } else {
@@ -109,6 +85,7 @@ exports.findFamilyCode = (req, res) => {
   });
 };
 
+// See if a username already exists.
 exports.findUsername = (req, res) => {
   family_member.scope('excludeCreatedAtUpdateAt').findOne({
     attribute: ['username'],
@@ -127,6 +104,7 @@ exports.findUsername = (req, res) => {
     });
 };
 
+// Create a new family member and encrypt the password.
 exports.createFamilyMember = (req, res) => {
   family_member.build({
     username: req.body.username,
@@ -147,3 +125,5 @@ exports.createFamilyMember = (req, res) => {
     });
   });
 };
+
+//--- end of file ---

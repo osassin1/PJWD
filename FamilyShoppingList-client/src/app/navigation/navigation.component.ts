@@ -2,9 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {  RouterLink, RouterLinkActive } from '@angular/router';
 
-//import { AuthenticationComponent } from '../authentication/authentication.component';
 import { AuthenticationService } from '../authentication/authentication.service';
-//import { FamilyMemberService } from '../family_member/family_member.service';
 
 @Component({
   selector: 'app-navigation',
@@ -19,6 +17,8 @@ import { AuthenticationService } from '../authentication/authentication.service'
 })
 export class NavigationComponent {
 
+  // Click on the name and get the family code
+  // and toggle back to the name.
   toggleNameFamilyCodeBoolean = false;
 
   constructor(private authenticationService:AuthenticationService){}
@@ -47,11 +47,16 @@ export class NavigationComponent {
     }
     return "";
   }
+  // When clicking on the name (first and last), toggle to the
+  // family code
   get familyCode() {
     if( this.authenticationService.familyMemberValue ) {
       return this.authenticationService.familyMemberValue.family_code;
     }
     return "";
+  }
+  toggleNameFamilyCode(){
+    this.toggleNameFamilyCodeBoolean = !this.toggleNameFamilyCodeBoolean;
   }
 
   color() {
@@ -61,11 +66,11 @@ export class NavigationComponent {
     return "";
   }
 
-  noOfItemsOnList(){
-    return 0;
-  }
+  // noOfItemsOnList(){
+  //   return 0;
+  // }
 
-  toggleNameFamilyCode(){
-    this.toggleNameFamilyCodeBoolean = !this.toggleNameFamilyCodeBoolean;
-  }
+
 }
+
+//--- end of file ---

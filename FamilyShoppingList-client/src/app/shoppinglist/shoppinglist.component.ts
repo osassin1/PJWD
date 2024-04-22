@@ -59,8 +59,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
 
   selectShoppingListForm!: FormGroup;
 
-  // // gray filter applied to inventory items in shopping list
-  // inventoryImage: string[] = [];
 
   selectedShoppingCategoryItem: any = "";
 
@@ -77,23 +75,12 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   // change it to bi-dash-circle when clicked
   iconPlusDash: string[] = [];
 
-  // // adding new shopping list via the 
-  // // icon (bi-plus) in the shopping list
-  // // change it to bi-dash when clicked
-  // iconPlusMinus: string = "bi-plus";
-
-
-
-  //onAccordionCollapse: any;
-  //storeInventoryByCategory: any[] = [];
-
   constructor(private shoppingListService: ShoppingListService,
     private inventoryService: InventoryService,
     private authenticationService: AuthenticationService,
     private formBuilder: FormBuilder,
     private cd: ChangeDetectorRef
-  ) {
-  }
+  ) {  }
 
 
   ngOnInit() {
@@ -327,3 +314,5 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   }
 
 }
+
+//--- end of file ---

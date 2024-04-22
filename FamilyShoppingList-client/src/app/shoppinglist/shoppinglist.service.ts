@@ -35,6 +35,8 @@ export class ShoppingListService implements OnDestroy {
     public editInventoryLockObservable: Observable<boolean>;
     _lockInventoryEdit: boolean = false;
 
+    // Polling for updates; it's running when the app starts
+    // it could be activated when shopping is in progress?
     pollingTimeInMilliSeconds: number = 5000;
     private subChangeCategory: any;
 
@@ -72,6 +74,8 @@ export class ShoppingListService implements OnDestroy {
     // component.  
     _selectInventoryByCategory: any[] = [];
 
+    // Set the store that has been selected in the shopping list
+    // page and use it when navigating to inventory.
     _store!: Store;
 
     _isShopping: boolean = false;
@@ -83,8 +87,6 @@ export class ShoppingListService implements OnDestroy {
         private authenticationService: AuthenticationService,
         private http: HttpClient
     ) {
-        //console.log('ShoppingListService::constructor')
-
         this.shoppingListObservable = this.shoppingListSubject.asObservable();
 
         // When a shopping list is removed (after checkout confirmed) then
@@ -96,8 +98,6 @@ export class ShoppingListService implements OnDestroy {
     }
 
     onInit() {
-        //console.log('ShoppingListService:: ngOnInit');
-
         this.inventoryService.getListCatgory().subscribe(res => {
             this.listCategory = res;
         })
@@ -112,8 +112,6 @@ export class ShoppingListService implements OnDestroy {
         // If the shoppingList changes then load the shopping list from
         // the service/db
         this.shoppingListObservable.subscribe((x: ShoppingListDates) => {
-            // console.log('shoppingListService --> subscribed to shoppingListDate x=', x)
-
             this.shoppingListDoneSubject.next(true);
 
             for (let item in this.listCategory) {
@@ -204,7 +202,6 @@ export class ShoppingListService implements OnDestroy {
         return this._listCategory;
     }
     set listCategory(s: any) {
-        console.log('ShoppingListService --> set listCategory', s)
         this._listCategory = s;
     }
     get familyMemberID() {
@@ -315,7 +312,6 @@ export class ShoppingListService implements OnDestroy {
                     }
                 })
         } else {
-
             this.inventoryImage[inventory_id] = "";
             this.unShoppedItem(
                 this.shoppingList.shopping_date,
@@ -329,16 +325,13 @@ export class ShoppingListService implements OnDestroy {
                     }, complete: () => {
                     }
                 })
-
         }
     }
 
     monitorChanges() {
-
         if( !this.authenticationService.familyMemberValue ){
             return;
         }
-
         // For the current shopping list, ask for changes that are cached
         // on the server. This can be optimized by only returning data that
         // actually changed.
@@ -375,7 +368,6 @@ export class ShoppingListService implements OnDestroy {
                         this.inventoryImage[inventory_id] = "disabled";
                     })
                 }
-
             })
     }
 
@@ -426,7 +418,6 @@ export class ShoppingListService implements OnDestroy {
     }
 
     getAllDates(family_id: number): Observable<ShoppingListDates[]> {
-        //console.log('getAllDates', family_id, `${baseUrl}/shopping_dates?family_id=${family_id}`)
         return this.http.get<ShoppingListDates[]>(`${baseUrl}/shopping_dates?family_id=${family_id}`);
     }
 
@@ -463,7 +454,6 @@ export class ShoppingListService implements OnDestroy {
             return sl;
         }));
     }
-
 
     checkoutShoppingList(shopping_date: string, store_id: number, family_id: number) {
         return this.http.post<any>(`${baseUrl}/checkout_shopping_list`, {
@@ -517,3 +507,4 @@ export class ShoppingListService implements OnDestroy {
 }
 
 
+//---- end of file ---

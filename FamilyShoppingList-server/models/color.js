@@ -20,11 +20,6 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true,
     },
-    // family_member_id : {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: true,
-    //   foreignKey: true
-    // },
     name: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -43,7 +43,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       picture: {
-        type: Sequelize.BLOB('medium')    // max size is 64 KB
+        type: Sequelize.BLOB('medium')    
       },
       notes: {
         type: Sequelize.STRING

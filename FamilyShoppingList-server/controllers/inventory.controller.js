@@ -25,10 +25,9 @@ exports.checkInventoryForDeletion = (req, res) => {
     }
   }
  }).then(data => {
-    console.log(data.length);
     res.send(`{"NumberOfReferences": ${data.length} }`);
   }).catch(error => {
-    console.log('error',error);
+    console.error(error);
     res.status(500).send({
       message: error.message || "error while creating new inventory item."      
     })
@@ -126,96 +125,6 @@ exports.createInventoryItem = (req, res) => {
   })
 }
 
-
-
-// exports.createInventoryItemAddToShoppingList = (req, res) => {
-
-//   var inventory_id = 0;
-
-//   inventory.create({
-//     name : req.body.name,
-//     picture : req.body.picture,
-//     store_id : req.body.store_id,
-//     list_category_id : req.body.list_category_id,
-//     quantity_id : req.body.quantity_id,
-//     created_at: new Date(),
-//     updated_at : new Date()    
-//   }).then( createResult => {
-//     logging.logEntryLocal('createInventoryItem --> createResult', res );
-//     logging.logEntryLocal("createResult['inventory_id']", createResult['inventory_id']);
-//     //console.log('createInventoryItem --> createResult', createResult);
-
-//     inventory_id = createResult['inventory_id'];
-
-//     shopping_list.build({
-//       shopping_date: req.body.shopping_date,
-//       family_member_id: req.body.family_member_id,
-//       inventory_id : inventory_id,
-//       quantity: req.body.quantity,
-//       shopping_status_id: 1,
-//       created_at: new Date(),
-//       updated_at : new Date()
-//     }).save().then(insertResult =>{
-//       logging.logEntryLocal('shopping_list.build --> insertResult', insertResult);
-//       res.send(insertResult);
-//     }).catch(error_insert => {
-//       logging.logEntryLocal('error_insert',error_insert);
-//       res.status(500).send({
-//         message: error_insert.message || "error while inserting during updating shopping list."      
-//       })
-//     })
-
-
-
-//   }).catch(error => {
-//     console.log('error',error);
-//     res.status(500).send({
-//       message: error.message || "error while creating new inventory item."      
-//     })
-//   })
-// }
-
-
-// exports.getInventoryByStore = (req, res) => {
-//   inventory.scope('excludeCreatedAtUpdateAt').findAll({
-//       attributes: ['inventory_id', 'name', 'notes' ], 
-//       include: { association: 'inventory_to_quantity', attribues: ['name', 'unit', 'symbol'], exclude : ['createdAt','updatedAt'] },
-//       exclude: ['createdAt','updatedAt'],
-//       where: {
-//         store_id: req.query.store_id,
-//         status: 'A'
-//       }
-//      }
-//   )
-//   .then(data => {
-//    var inventoryDataByStore = new List();
-//    data.forEach(x => {
-    
-//     inventoryDataByStore = inventoryDataByStore.push(
-//       {
-//         'inventory_id' : x['inventory_id'],
-//         'inventory_name' : x['name'],
-//         'inventory_notes' : x['notes'],
-//         'inventory_symbol' : x['inventory_to_quantity']['symbol'],
-//         'quantity_id': x['inventory_to_quantity']['quantity_id'],
-//         'quantity_unit' : x['inventory_to_quantity']['unit'],
-//         'quantity_name' : x['inventory_to_quantity']['name'],
-//         'quantity_symbol' : x['inventory_to_quantity']['symbol'],
-//       });
-//     })
-
-//     console.log('inventoryDataByStore.toArray():',inventoryDataByStore.toArray());
-//     res.send(inventoryDataByStore.toArray());
-//   })
-//   .catch(err => {
-//     res.status(500).send({
-//       message:
-//         err.message || "error while retrieving inventory by store."
-//     });
-//   });
-// };
-
-
 // Get all inventory items for a store, so it can be
 // modified. This request also includes the 'pictures'
 // of the inventory items.
@@ -240,7 +149,6 @@ exports.getInventoryByStoreForEdit = (req, res) => {
     });
   });
 };
-
 
   // When using the category filter within the inventory page,
   // just return the list for that category. This seemed to be
@@ -268,8 +176,6 @@ exports.getInventoryByStoreForEditByCategory = (req, res) => {
     });
   });
 };
-
-
 
 // This returns the items availabe within a certain category
 // for a particular store. The pictures for items are handeled
@@ -349,8 +255,8 @@ exports.getListOfStores = (req,res) => {
     res.status(500).send({
       message:
         err.message || "error while retrieving list of stores."
-    });
-  });;
+    })
+  })
 }
 
 // Get all defined quantities (like pounds/Lbs).
@@ -362,8 +268,8 @@ exports.getQuantities = (req,res) => {
     res.status(500).send({
       message:
         err.message || "error while retrieving quantities."
-    });
-  });
+    })
+  })
 }
 
 // Get all defined inventory categories,e.g., fruit, meat.
@@ -381,4 +287,4 @@ exports.getListCategory = (req, res) => {
   });
 }
 
-
+//--- end of file ---

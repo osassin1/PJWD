@@ -25,6 +25,15 @@ import { FamilyMemberService } from '../family_member/family_member.service';
   styleUrl: './authentication.component.css'
 })
 
+// The component offers to log into the system (login) or to
+// sign up as a new family member (signup). In order to join
+// an existing family the family code needs to be provided,
+// alternatively, one can sign up as a new family and a new
+// code is generated.
+// Existing family code's can be accessed by family members
+// once they have logged in and click on their name. It will
+// toggle between name and family code.
+
 export class AuthenticationComponent implements OnInit, OnDestroy {
 
   // One form group for login & signup.
@@ -112,6 +121,8 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
     this.buttonSignup = "Next";
   }
 
+  // Get all remaining colors to chose from while
+  // sining up.
   private loadColors(family_id: number) {
     this.familyMemberService.getAllColors(family_id).subscribe((response: any) => {
       this.colorsToSelectFrom = response;
@@ -119,6 +130,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Execute the login process.
   private loginFamilyMember(username: string, password: string) {
     this.error = '';
     this.loading = true;
@@ -130,9 +142,6 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (v) => {
           // go to the returnUrl or '/shoppinglist'
-
-          //console.log('loginFamilyMember', v)
-
           this.loading = false;
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/shoppinglist';
           this.router.navigateByUrl(returnUrl);
@@ -150,23 +159,24 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
     clearTimeout(this.timeOut);
   }
 
+  // The login button was clicked.
   onLogin() {
     this.submittedLogin = true;
     this.loginFamilyMember(this.fgc['username'].value, this.fgc['password'].value);
     this.timeOut = setTimeout(() => {
       this.loading = false;
     }, 2000);
-
   }
 
+  // Generate a new family code for a new family.
   onNewFamilyCode() {
     this.familyMemberService.getNewFamilyCode().subscribe((response: any) => {
       this.newFamilyCode = response['family_code'];
       this.formLoginSignup.controls['familyCode'].setValue(response['family_code']);
     });
-
   }
 
+  // Signup was clicked instead of login
   onSignup() {
     this.fg.reset();
     this.error = "";
@@ -177,6 +187,8 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
     this.cd.detectChanges();
   }
 
+  // The signup process needs to use or generate a family code
+  // and assign a color (or remaining color)
   onSubmitSignup() {
     if (this.buttonSignup == "Next") {
       this.submittedSignup = true;
@@ -185,7 +197,6 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
       }
       this.familyMemberService.getFamilyID(this.fgc['familyCode'].value)
         .subscribe((response: any) => {
-          //console.log('response:', response);
           this.family_id = response['family_id'];
           this.loadColors(this.family_id);
           this.buttonSignup = "Submit";
@@ -250,20 +261,6 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
   set signup(b: boolean) {
     this._signup = b;
   }
-  
-   // Return true if family member is logged in
-   //
-   // *** NOT SURE IF STILL USED ***
-  // get isAuthenticated() {                              
-  //   return this.authenticationService.isAuthenticated;
-  // }
-
-  // getFamilyID() {
-  //   if (this.authenticationService.familyMemberValue) {
-  //     return this.authenticationService.familyMemberValue?.family_id;
-  //   }
-  //   return false;
-  // }
 }
 
 //--- Async Validators ---
@@ -290,3 +287,5 @@ export function codeExistsValidator(auth: FamilyMemberService): AsyncValidatorFn
       );
   }
 };
+
+//--- end of file ---
