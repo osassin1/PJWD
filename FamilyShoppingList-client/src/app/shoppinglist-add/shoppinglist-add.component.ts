@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -28,13 +28,10 @@ import { ListCategory } from '../models/list_category.model'
 })
 
 
-export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
+export class ShoppinglistAddComponent implements OnInit, OnChanges {
 
   @Input() inventoryList: Inventory[] = [];
   @Input() list_category!: ListCategory;
-
-  // @Input() familyMemberID: number = 0;
-  // @Input() shoppingDate: string = "";
   @Input() background: string = "";
   @Input() disabledString: string = "";
   @Output() done = new EventEmitter<any>();
@@ -59,13 +56,14 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-
     this.shoppingListAddForm = this.formBuilder.group({
       inventoryToAdd: null
     });
 
+    // After a new item is created, the quantity must be confirmed,
+    // which is executed by a different component. That component will emit
+    // the editInventoryLockObservable lock and also release it. 
     this.shoppingListService.editInventoryLockObservable.subscribe((res: boolean) => {
-      //console.log('ShoppinglistAddComponent::OnInit editInventoryLock:', res)
       if (this.editInventoryLock != res) {
         this.editInventoryLock = res;
       }
@@ -77,31 +75,17 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
           this.shoppingListAddForm.controls['inventoryToAdd'].reset();
         }
       }
+      // A child made a change that this component needs to
+      // act on.
       this.cd.detectChanges();
     })
-
-    // this.shoppingListService.selectInventoryByCategoryUpdateObservable.subscribe((res: boolean) => {
-    //   console.log('ShoppinglistAddComponent::this.shoppingListService.selectInventoryByCategoryUpdateObservable', res)
-    //   if ( res ){
-    //     this.shoppingListAddForm.controls['inventoryToAdd']
-    //     this.cd.detectChanges();
-        
-    //   }
-    // })
   }
-
-  ngOnDestroy() {
-    console.log('OnDestroy')
-  }
-
 
   ngOnChanges(changes: SimpleChanges) {
-
     if (changes['inventoryList'] != undefined && !changes['inventoryList'].firstChange) {
       this.storeInventoryByCategory = changes['inventoryList'].currentValue;
     }
   }
-
 
   getPicture(inventory_id: number) {
     return this.storeInventory.find(i => i.inventory_id == inventory_id)?.picture;
@@ -112,7 +96,6 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get store() {
-    //console.log('ShoppinglistAddComponent-->store',this.shoppingListService.store)
     return this.shoppingListService.store;
   }
 
@@ -137,7 +120,6 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
 
   onNewInventoryDone($event: any) {
     if ($event) {
-      //console.log('ShoppinglistAddComponent::onNewInventoryDone',this.newInventory )
       this.storeInventory.push(this.newInventory);
       this.storeInventoryByCategory.push(this.newInventory);
 
@@ -155,7 +137,6 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     delete this.newInventory;
-    //console.log('shoppinglist-add::onNewInventoryDone', $event)
     this.done.emit($event);
   }
 
@@ -190,3 +171,4 @@ export class ShoppinglistAddComponent implements OnInit, OnDestroy, OnChanges {
   }
 }
 
+//--- end of file ---

@@ -1,4 +1,4 @@
-<div class="col-md-8">
+<div class="col-sm-8">
     <form [formGroup]="inventoryForm">
         <div class="d-flex flex-column ms-2">
             <div class="d-flex justify-content-between">
@@ -38,8 +38,6 @@
                     <i class="bi bi-plus-circle icon-style p-2"></i>
                 }
             </button>      
-            
-            
 
             @if(fbc['storesToSelectFrom'].value && isAddNewInventoryItem){
                 <app-inventory-edit class="d-flex flex-row w-100" 
@@ -51,16 +49,11 @@
                 </app-inventory-edit>          
             }  
 
-
             <br>
             <div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0">
                 @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
-                    <!-- filter based on category -->
-                    <!-- @if( (list_category!=undefined && list_category.list_category_id) || (list_category!=undefined)) -->
-
                     @if( (list_category!=undefined && (!list_category.list_category_id || inventory.inventory_to_list_category.list_category_id ==
-                    this.list_category.list_category_id))) 
-                    {
+                    this.list_category.list_category_id))) {
                         <!-- either just display or call the edit component -->
                         @if(!inventoryEdit[inventory.inventory_id]){
                         <div class="d-flex {{getBG(e)}} pb-1">

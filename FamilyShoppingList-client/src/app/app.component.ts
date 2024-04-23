@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NavigationComponent } from './navigation/navigation.component';
 
+const packageJson = require( '../../package.json' );
 
 @Component({
   selector: 'app-root',
@@ -18,4 +19,5 @@ import { NavigationComponent } from './navigation/navigation.component';
 
 export class AppComponent {
   title = 'FamilyShoppingList';
+  appVersion: string = packageJson.version;
 }

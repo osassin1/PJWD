@@ -7,13 +7,8 @@ import { FamilyMember } from '../models/family_member.model';
 
 import { AppConfiguration } from "read-appsettings-json";
 
-//const baseUrl = 'http://192.168.1.193:8080/api/family_member';
-//const baseUrl = 'http://localhost:8080/api/family_member'; 
-//const baseUrl = 'http://127.0.0.1:3000/api/family_member';
 
-// The base
 const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/authentication";
-
 
 @Injectable({
     providedIn: 'root',
@@ -132,6 +127,5 @@ export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: Ro
 
     return authenticationService.canActivate(next, state);
 }
-
 
 //--- end of file ---

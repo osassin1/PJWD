@@ -293,7 +293,6 @@ export class ShoppingListService implements OnDestroy {
     // Update the status of items being in the process of being shopped and
     // set variables according to that status. With inventoryImage[inventory_id] = "disabled"
     // the item will be grayed out.
-
     checkInventoryItem(inventory_id: number) {
         if (this.inventoryImage[inventory_id] == "" ||
             this.inventoryImage[inventory_id] == undefined) {
@@ -372,8 +371,6 @@ export class ShoppingListService implements OnDestroy {
     }
 
     updateListInventory(localInventory: ShoppingListInventory[], remoteInventory: ShoppingListInventory[], list_category_id: number) {
-
-        //this.selectInventoryByCategory[list_category_id]
         let madeChanges: boolean = false;
 
         localInventory.forEach(li => {
@@ -505,6 +502,5 @@ export class ShoppingListService implements OnDestroy {
             );
     }
 }
-
 
 //---- end of file ---

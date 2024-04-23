@@ -83,12 +83,10 @@ export class InventoryComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.inventoryForm = this.formBuilder.group({
       storesToSelectFrom: this.shoppingListService.store,
       categoriesToSelectFrom: null,
     });
-
 
     // get all shops that can be shopped from
     this.inventoryService.getListOfStores().subscribe((response: Store[]) => {
@@ -99,13 +97,9 @@ export class InventoryComponent implements OnInit {
     this.inventoryService.getListCatgory().subscribe((response: any) => {
       this.categoriesToSelectFrom = response;
     });
-
-    //this.fbc['categoriesToSelectFrom'].
     this.fbc['categoriesToSelectFrom'].setValue(null);
   }
 
-
-  //--- get ---
   get fbc() {
     return this.inventoryForm.controls;
   }
@@ -122,7 +116,6 @@ export class InventoryComponent implements OnInit {
     }
   }
 
-  //--- on ---
   onStoreSelectChange() {
     this.store_id = this.fbc['storesToSelectFrom'].value['store_id'];
     this.inventoryService.loadInventoryByStore(this.store_id);
@@ -174,17 +167,6 @@ export class InventoryComponent implements OnInit {
     this.newInventory.name = "";
     this.newInventory.picture =  "no_picture.jpg";
     this.newInventory.notes = "";
-    //this.newInventory.inventory_to_quantity = "";
-    // symbol: "",
-    // unit: 0,
-    // family_members: null,
-    // inventory_to_quantity: {
-    //   quantity_id: 0,
-    //   name: "",
-    //   symbol: "",
-    //   unit: 0
-    // },
-
   }
 
   // Activate the edit action for an inventory item
@@ -217,10 +199,6 @@ export class InventoryComponent implements OnInit {
     console.log('onAddInvetoryItem', this.list_category.list_category_id)
   }
 
-
-
-  //--- do ----
-
   doCancelDeletion(inventory_id: number) {
     this.inventoryTrash[inventory_id] = false;
   }
@@ -250,3 +228,5 @@ export class InventoryComponent implements OnInit {
     })
   }
 }
+
+//--- end of file ---

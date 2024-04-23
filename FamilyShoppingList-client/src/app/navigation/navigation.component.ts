@@ -4,6 +4,8 @@ import {  RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuthenticationService } from '../authentication/authentication.service';
 
+
+
 @Component({
   selector: 'app-navigation',
   standalone: true,
@@ -17,6 +19,8 @@ import { AuthenticationService } from '../authentication/authentication.service'
 })
 export class NavigationComponent {
 
+
+
   // Click on the name and get the family code
   // and toggle back to the name.
   toggleNameFamilyCodeBoolean = false;
@@ -29,10 +33,6 @@ export class NavigationComponent {
 
   logout() {
     this.authenticationService.logout();
-  }
-
-  fmv(){
-    return this.authenticationService.familyMemberValue;
   }
 
   firstName() {
@@ -65,12 +65,6 @@ export class NavigationComponent {
     }
     return "";
   }
-
-  // noOfItemsOnList(){
-  //   return 0;
-  // }
-
-
 }
 
 //--- end of file ---

@@ -1,38 +1,50 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<div *ngIf="isAuthenticated" class="col-md-8">
+<div *ngIf="isAuthenticated" class="col-sm-8">
     <nav class="navbar navbar-expand-lg" style="background-color:rgb(108, 197, 252)">
         <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" style="border: none;"
-                data-bs-target="#navbarToggler">
-                <!-- <span class="navbar-toggler-icon"></span> -->
-                <i class="h4 bi bi-list"></i>
-                <!-- <img src="familyshoppinglist.png" width="60" height="60" class="d-inline-block align-top" style="border: none"  alt=""> -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                style="border: none; border-image: none;" data-bs-target="#navbarToggler">
+                <img src="familyshoppinglist.png" width="60" height="60" class="d-inline-block align-top"
+                    style="border: none;  border-image: none;" alt="">
 
             </button>
-            <a class="navbar-brand" style="font-size:2em font-weight-bold">
-                <div>
-                <img src="familyshoppinglist.png" width="60" height="60"  class="collapse navbar-collapse" id="navbarToggler" style="border: none"  alt="">
+            <div class="d-none d-lg-block">
+                <img src="familyshoppinglist.png" width="60" height="60" style="border: none" alt="">
             </div>
-                <div class="collapse navbar-collapse" id="navbarToggler">
-                FamilyShoppingList
-            </div>
-            </a>
+            FamilyShoppingList
+            <!-- This will only be displayed on screen size <992px (lg) -->
+            <button class="nav-link d-lg-none" type="button" href="#" (click)="toggleNameFamilyCode()">
+                <div
+                    style="display:flex; flex-direction: row; justify-content: center; align-items: center; font-size:0.75em">
+                    <div *ngIf="toggleNameFamilyCodeBoolean; else familyMemberName">
+                        {{familyCode}}
+                    </div>
+                    <ng-template #familyMemberName>
+                        <span class="d-inline-block family_member_dot p-1"
+                            [ngStyle]="{ 'background-color': color() }"></span>
+                        <label> {{firstName()}} {{lastName()}}</label>
+                    </ng-template>
+                </div>
+            </button>
+
             <div class="collapse navbar-collapse" id="navbarToggler">
-                 <ul class="navbar-nav mb-2 px-5 mb-lg-0" style="justify-content: center">
+                <ul class="navbar-nav mb-2 px-5 mb-lg-0" style="justify-content: center">
                     <li class="nav-item">
-                        <a class="nav-link"  type="button" routerLink="/shoppinglist" routerLinkActive="active">list</a>
+                        <a class="nav-link" type="button" routerLink="/shoppinglist" routerLinkActive="active">list</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link"  type="button" routerLink="/inventory" routerLinkActive="active">inventory</a>
+                        <a class="nav-link" type="button" routerLink="/inventory"
+                            routerLinkActive="active">inventory</a>
                     </li>
                     <li class="nav-item">
                         <button class="nav-link" type="button" href="#" (click)="logout()">logout</button>
                     </li>
                 </ul>
             </div>
-
-            <button class="nav-link" type="button" href="#" (click)="toggleNameFamilyCode()">
+           
+            <!-- This will only be displayed an screen size >=992 (lg) -->
+            <button class="nav-link d-none d-lg-block" type="button" href="#" (click)="toggleNameFamilyCode()">
                 <div
                     style="display:flex; flex-direction: row; justify-content: center; align-items: center; font-size:0.75em">
                     <div *ngIf="toggleNameFamilyCodeBoolean; else familyMemberName">

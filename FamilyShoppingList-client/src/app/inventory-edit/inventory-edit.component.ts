@@ -106,6 +106,9 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
     this.inventory.inventory_to_quantity.quantity_id = this.inventoryEditForm.controls['quantity'].value['quantity_id'];
     this.inventory.inventory_to_list_category.list_category_id = this.inventoryEditForm.controls['list_category'].value['list_category_id'];
 
+    // If an inventory_id is there (>0) then we need
+    // to update the existing item. Otherwise, we create
+    // a new one.
     if( this.inventory.inventory_id ){
       this.inventoryService.updateInventoryItem(
         this.inventory.inventory_id,

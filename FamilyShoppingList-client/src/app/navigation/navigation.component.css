@@ -1,0 +1,10 @@
+.navbar-toggler{
+    &:focus {
+        color: rgb(0, 197, 252);
+        box-shadow: none;
+
+    }
+    &:hover {
+        outline: none;
+    }
+}

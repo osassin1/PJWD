@@ -30,6 +30,9 @@ import { interval } from 'rxjs';
 
 export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
 
+  // Get a reference on the plus/minus (+/-) add button of the cntrl component
+  // to add a new shopping list. Once the list ok'ed / or cancel'ed, the button
+  // needs to be pressed to collapse the shoppinglist-new component.
   @ViewChild('newShoppingList', { static: false }) newShoppingListButton!: ElementRef;
 
   @Input() background: any;
@@ -72,24 +75,13 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
 
     // Get all shopping dates currently available; it's the content
     // for the first selector <Select Shopping List>    
-    console.log('this.authenticationService.familyMemberValue!.family_id', this.authenticationService.familyMemberValue!.family_id)
     this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
       this.shoppingToSelectFrom = response;
-      //this.selectedShoppingList = true; 
-      //console.log('this.shoppingToSelectFrom', this.shoppingToSelectFrom)
-      //console.log('this.shoppingListService.shoppingList', this.shoppingListService.shoppingList)
     });
 
-    this.authenticationService.familyMember.subscribe((f) => {
-      console.log('this.authenticationService.familyMember in Shoppinglist-CNTRL --> f', f)
-    })
-
-    this.shoppingListService.shoppingListDoneObservable.subscribe(x => {
-      console.log('this.shoppingListService.shoppingListDoneObservable', x)
-    })
-
+    // Get updates if an item on the list is being in edit mode and
+    // prevent changing the shopping process (shop -> check -> done).
     this.shoppingListService.editInventoryLockObservable.subscribe((res: boolean) => {
-      //console.log('ShoppinglistAddComponent::OnInit editInventoryLock:', res)
       if (this.editInventoryLock != res) {
         this.editInventoryLock = res;
       }
@@ -102,7 +94,7 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.monitorChangeShoppingList.unsubscribe();
   }
 
@@ -137,7 +129,6 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
     return this.shoppingListService.shoppingList;
   }
 
-
   onShoppinglistNewDone($event: any) {
     if ($event) {
       this.slcf['shopping_list_form'].setValue(this.shoppingListService.shoppingList);
@@ -150,8 +141,6 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
   }
 
   onShoppingListNew($event: any) {
-    //console.log('ShoppinglistCntrlComponent --> any:', $event)
-
     this.shoppingListService.shoppingList = $event;
     this.slcf['shopping_list_form'].reset();
     this.slcf['shopping_list_form'].setValue($event);
@@ -162,7 +151,6 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
   // process is done and a new shopping 
   // prcess can start.
   //
-
   onConfirmCheckout() {
     this.slcf['shopping_list_form'].enable();
     this.shoppingListService.isCheckoutConfirm = false;
@@ -179,9 +167,6 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
           console.error(e);
         }, complete: () => {
           this.slcf['shopping_list_form'].reset();
-          //          this.shoppingListService.shoppingListRemovedObservable.
-          //this.onSelectShoppingList()
-
           this.shoppingListService.getAllShoppingDates(
             this.shoppingListService.shoppingList.family_id
           );
@@ -218,19 +203,12 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
   //
   // The checkout is enabled next and when pressed, it can either
   // confirmed or cancelled.
-
   onShopping() {
-    // console.log('onShopping', this.shoppingListService.isShopping)
-    //var shopping_status: string = "";
-
     if (this.shoppingListService.isShopping) {
       this.shoppingListService.isShopping = false;
       this.shoppingListService.isCheckout = true;
-      // console.log('onShopping (change 1)', this.shoppingListService.isShopping)
-
     } else {
       this.shoppingListService.isShopping = true;
-      // console.log('onShopping (change 2)', this.shoppingListService.isShopping)
       this.slcf['shopping_list_form'].disable();
     }
     this.saveShoppingListStatus();
@@ -242,7 +220,7 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
     this.saveShoppingListStatus();
   }
 
-  // The shopping status determine where in the process
+  // The shopping status determines where in the process
   // of shopping a list is, i.e., start shopping, stop (done)
   // shopping, checkout (paying and going home).
   //
@@ -250,7 +228,6 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
   //            1 : in the store shopping, checkoff the item in the cart
   //            2 : done and at the register
   //            3 : checked out (paid) and confirming
-
   saveShoppingListStatus() {
     var statusCode: number = 0;
     if (this.shoppingListService.isShopping && !this.shoppingListService.isCheckout && !this.shoppingListService.isCheckoutConfirm) {
@@ -350,11 +327,10 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
         this.loadShoppingListStatus(tempShoppingList);
       }
     }
-
   }
 
   monitorChangesShoppingList() {
-    if( !this.authenticationService.familyMemberValue ){
+    if (!this.authenticationService.familyMemberValue) {
       return;
     }
     this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
@@ -400,23 +376,18 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
     }
   }
 
-  //--- get ---
   get slcf() {
     return this.shoppinglistCntrlForm.controls;
   }
-
-
   get slf() {
     return this.shoppinglistCntrlForm;
   }
-
   get shopping_date() {
     if (this.shoppingListService.shoppingList != undefined) {
       return this.shoppingListService.shoppingList.shopping_date;
     }
     return null;
   }
-
   get isCheckout() {
     return this.shoppingListService.isCheckout;
   }
@@ -427,7 +398,6 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
     return this.shoppingListService.isShopping;
   }
 
-
   onIconPlusMinus() {
     if (this.iconPlusMinus == "bi-plus") {
       this.iconPlusMinus = "bi-dash";
@@ -436,3 +406,5 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
     }
   }
 }
+
+//--- end of file ---

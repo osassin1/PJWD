@@ -23,7 +23,6 @@ import { Observable } from 'rxjs';
 // shopping list at least one item needs to be added for
 // the list to exist by the items added to it.
 
-
 @Component({
   selector: 'app-shoppinglist-new',
   standalone: true,
@@ -125,7 +124,6 @@ export class ShoppinglistNewComponent implements OnInit {
   }
 }
 
-
 // Check if there was already a date and store combination for a shopping list.
 // Also 'old' shopping lists will be excluded (shopping status >= 3).
 export function exitsShoppingDateValidator(sls: ShoppingListService, auth: AuthenticationService): AsyncValidatorFn {
@@ -139,4 +137,4 @@ export function exitsShoppingDateValidator(sls: ShoppingListService, auth: Authe
   }
 }
 
-
+//--- end of file ---

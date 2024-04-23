@@ -37,7 +37,7 @@ import { AuthenticationService } from '../authentication/authentication.service'
 
 export class ShoppinglistComponent implements OnInit, OnDestroy {
 
-  newInventoryDisplay: boolean = true;
+  //newInventoryDisplay: boolean = true;
 
   // Array of booleans to keep track which item is in edit mode
   isInventoryEdit: boolean[] = [];
@@ -48,22 +48,16 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
   // turn on/off monitoring of changes
   isMonitorOn: boolean = false;
 
-  // isImageDisabled: boolean = false;
-  //isShopping: boolean = false;
-
   // monitoring changes
   private subChangeCategory: any;
   pollingTimeInSeconds: number = 5000;
-  //pollingData: any;
   pollingShoppedItems: any;
 
   selectShoppingListForm!: FormGroup;
 
 
-  selectedShoppingCategoryItem: any = "";
+  //selectedShoppingCategoryItem: any = "";
 
-  // // for n-select when clicking the circle-plus  
-  // selectInventoryByCategory: any[] = [];
 
   // The current shopping date, store and what's on
   // the list:
@@ -122,14 +116,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
       // change detection
       this.cd.detectChanges();
     })
-
-    // Changes to the logged in family member, e.g., logout could
-    // be processed here, however, there's no clear for that right now.
-    // --> It could be deleted?
-    this.authenticationService.familyMember.subscribe((f) => {
-      console.log('this.authenticationService.familyMember in Shoppinglist --> f', f)
-    })
-
   }
 
   // Clean up when component goes away, e.g., family member changes
@@ -192,23 +178,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     this.shoppingListService.changeEditInventoryLock(false);
   }
 
-
-  // onShoppinglistCtrlDone($event:any){
-  //   //console.log('onShoppinglistCtrlDone', $event)
-  //   if( $event ) {
-  //     //this.newShoppingListCreated = true; 
-  //     //this.selectShoppingListForm.controls['shopping_list_form'].setValue(this.shoppingListService.shoppingList);
-  //   }
-  //   else {
-  //     //this.newShoppingListCreated = false;
-  //   }
-
-  //   // this will 'click' on the add (+/-) button
-  //   // const event = new MouseEvent('click', { view: window});
-  //   // this.newShoppingListButton.nativeElement.dispatchEvent(event);
-  // }
-
-
   // Changing icons when clicking one, for example,
   // circle (+) should change to circle (-),
   // + should change to -,
@@ -219,7 +188,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
       this.iconPlusDash[list_category_id] = "bi-plus-circle";
     }
   }
-
 
   // When opening a category in the shopping list,
   // store the category_id
@@ -280,13 +248,11 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     return this.shoppingListService.lockInventoryEdit;
   }
 
-
   // Get the picture information as a string
   // from the inventory cache
   getPicture(inventory_id: number) {
     return this.inventoryService.pictureInventory.get(inventory_id) ?? "no_picture.jpg";
   }
-
 
   adjustForDecimals(x: any, unit: number) {
     if (unit == 2) {  // number
@@ -295,7 +261,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     }
     return x;
   }
-
 
   checkInventoryItem(inventory_id: number) {
     this.shoppingListService.checkInventoryItem(inventory_id);
@@ -312,7 +277,6 @@ export class ShoppinglistComponent implements OnInit, OnDestroy {
     }
     return retIsActiveOrDisabled
   }
-
 }
 
 //--- end of file ---

@@ -26,6 +26,8 @@ import { Inventory } from '../models/inventory.model'
 })
 export class ShoppinglistEditComponent implements OnInit {
 
+  // This component is being called from the invetory and the
+  // shoppinglist component (or their children).
   @Input() shoppingListItem!: ShoppingListInventory | Inventory;
   @Input() background: string = "";
   @Input() disabledString: string = "";
@@ -34,7 +36,8 @@ export class ShoppinglistEditComponent implements OnInit {
 
   shoppingListEditForm!: FormGroup;
 
-
+  // The quantity on an item on the list for
+  // that family member.
   quantity: number = 0;
 
   constructor(
@@ -89,7 +92,6 @@ export class ShoppinglistEditComponent implements OnInit {
       this.shoppingListItem.inventory_id,
       this.quantity).subscribe({
         next: (v) => {
-          // console.log('shoppinglist-edit::onDoneEdit v:',v)
         },
         error: (e) => {
           console.error('error', e);
@@ -103,14 +105,12 @@ export class ShoppinglistEditComponent implements OnInit {
       });
   }
 
-
   onCancelEdit() {
     this.shoppingListService.lockInventoryEdit = false;
     this.shoppingListService.changeEditInventoryLock(false);
     this.inventory_id.emit(this.shoppingListItem.inventory_id);
     this.done.emit(false);
   }
-
 
   doIncreaseShoppingListQuantity() {
     if (this.quantity <= 49) {
@@ -130,7 +130,6 @@ export class ShoppinglistEditComponent implements OnInit {
     }
   }
 
-
   adjustForDecimals(x: any, unit: number) {
     if (unit == 2) {  // number
       const v = Number.parseFloat(x).toFixed(0);
@@ -139,3 +138,5 @@ export class ShoppinglistEditComponent implements OnInit {
     return x;
   }
 }
+
+//--- end of file ---
