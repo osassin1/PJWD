@@ -6,4 +6,6 @@
   <router-outlet></router-outlet>
 </div>
 <br>
-<div style="font-size: xx-small;">Ver. {{appVersion}}</div>
+@if( isAuthenticated ){
+  <div style="font-size: xx-small;">Ver. {{appVersion}}</div>
+}

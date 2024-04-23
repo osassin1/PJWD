@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NavigationComponent } from './navigation/navigation.component';
 
+import { AuthenticationService } from '../app/authentication/authentication.service'
+
+
 const packageJson = require( '../../package.json' );
 
 @Component({
@@ -18,6 +21,11 @@ const packageJson = require( '../../package.json' );
 })
 
 export class AppComponent {
+
+  constructor(private authenticationService:AuthenticationService ){}
   title = 'FamilyShoppingList';
   appVersion: string = packageJson.version;
+  get isAuthenticated(){
+    return this.authenticationService.isAuthenticated;
+  }
 }
