@@ -23,7 +23,7 @@ const packageJson = require( '../../package.json' );
 export class AppComponent {
 
   constructor(private authenticationService:AuthenticationService ){}
-  title = 'FamilyShoppingList';
+  title = 'Family Shopping List';
   appVersion: string = packageJson.version;
   get isAuthenticated(){
     return this.authenticationService.isAuthenticated;

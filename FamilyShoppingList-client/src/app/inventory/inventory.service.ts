@@ -1,16 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
-import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
 import { Inventory } from '../models/inventory.model';
-
 import { AppConfiguration } from "read-appsettings-json";
-import { catchError, map } from 'rxjs/operators';
-
-import{ ListCategory } from '../models/list_category.model';
-
+import { ListCategory } from '../models/list_category.model';
 
 
 // Refer to appsettings.json to see possible 'serverUrl' settings
@@ -20,13 +15,21 @@ const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/in
     providedIn: 'root',
 })
 
-export class InventoryService  {
-   public pictureInventory : Map<number,SafeUrl> = new Map<0,"">();
-   public inventoryData  : Map<number,any> = new Map<0,"">;
+export class InventoryService {
 
-   storeInventory!: Inventory[];
+    // This Map contains the picture for a store by inventory_id
+    // as key. The pictures are stored as SafeUrl's.
+    public pictureInventory: Map<number, SafeUrl> = new Map<0, "">();
 
-   public categoryInventoryNew : Map<number,any[]> = new Map<0,[]>;
+    // *** DELETION ***
+    // The inventory data is also cached within a Map keyed
+    // by inventory id.
+    //public inventoryData: Map<number, any> = new Map<0, "">;
+
+    // This used to display all inventory data for a store
+    // and get's changed once a category is changed from all to
+    // any specific one.
+    storeInventory!: Inventory[];
 
     constructor(
         private http: HttpClient,
@@ -35,17 +38,19 @@ export class InventoryService  {
 
     }
 
-    checkInventoryForDeleteion(inventory_id: number){
+    // Check if an invetory item is still used (referenced) in any shopping
+    // list as active (shopping_status < 3)
+    checkInventoryForDeleteion(inventory_id: number) {
         return this.http.get<any>(`${baseUrl}/check_inventory_for_deletion?inventory_id=${inventory_id}`);
     }
 
     // This returns the list of stores defined in the system
-    getListOfStores(): Observable<any>{
+    getListOfStores(): Observable<any> {
         return this.http.get<any>(`${baseUrl}/list_of_stores`);
     }
 
     // Load all available quantities from table quantity
-    getQuantities(): Observable<any>{
+    getQuantities(): Observable<any> {
         return this.http.get<any>(`${baseUrl}/quantities`);
     }
 
@@ -57,7 +62,7 @@ export class InventoryService  {
     // Picture of inventory items are already stored as a string
     // and just need to be retrieved as string, therefore, responseType
     // is text and NOT blob.
-    getPicture(inventory_id : number): Observable<any>{
+    getPicture(inventory_id: number): Observable<any> {
 
         // The following did not work:
         //
@@ -67,21 +72,15 @@ export class InventoryService  {
         //   };
 
         const httpOptions: Object = {
-             responseType: 'text'
-         };
+            responseType: 'text'
+        };
         return this.http.get<any>(`${baseUrl}/picture?inventory_id=${inventory_id}`, httpOptions);
     }
-
-    // getInventoryByStore(store_id : number): Observable<any>{
-    //     return this.http.get<any>
-    //          (`${baseUrl}/inventory_by_store?store_id=${store_id}`);
-    // }
-
 
     // Get all inventory items for a store, so it can be
     // modified. This request also includes the 'pictures'
     // of the inventory items.
-    getInventoryByStoreForEdit(store_id : number): Observable<any>{
+    getInventoryByStoreForEdit(store_id: number): Observable<any> {
         //  const httpOptions: Object = {
         //      headers: new HttpHeaders({'Accept': 'image/png'}),
         //      responseType: 'text' 
@@ -90,29 +89,29 @@ export class InventoryService  {
             responseType: 'text'
         };
         return this.http.get<any>
-             (`${baseUrl}/inventory_by_store_for_edit?store_id=${store_id}`,httpOptions);
+            (`${baseUrl}/inventory_by_store_for_edit?store_id=${store_id}`, httpOptions);
     }
 
     // It's wrapper around the actual loading function
     // to get all inventory items by store to be loaded
-    loadInventoryByStore(store_id : number)  {
+    loadInventoryByStore(store_id: number) {
         this.storeInventory = [];
         this.getInventoryByStoreForEdit(store_id).subscribe({
             next: (v) => {
-              let a = JSON.parse(v);
-              this.storeInventory = a;
+                let a = JSON.parse(v);
+                this.storeInventory = a;
             }, error: (e) => {
-              console.error(e.error.message);
+                console.error(e.error.message);
             },
             complete: () => {
             }
-          })        
+        })
     }
 
     // When using the category filter within the inventory page,
     // just return the list for that category. This seemed to be
     // easier than dealing with filtering on the client side.
-    getInventoryByStoreForEditByCategory(store_id : number, list_category_id: number): Observable<any>{
+    getInventoryByStoreForEditByCategory(store_id: number, list_category_id: number): Observable<any> {
         //  const httpOptions: Object = {
         //      headers: new HttpHeaders({'Accept': 'image/png'}),
         //      responseType: 'text' 
@@ -121,77 +120,23 @@ export class InventoryService  {
             responseType: 'text'
         };
         return this.http.get<any>
-             (`${baseUrl}/inventory_by_store_for_edit_by_category?store_id=${store_id}&list_category_id=${list_category_id}`,httpOptions);
+            (`${baseUrl}/inventory_by_store_for_edit_by_category?store_id=${store_id}&list_category_id=${list_category_id}`, httpOptions);
     }
 
-
-
-    getInventoryByCategory(store_id : number, list_category_id : number): Observable<any>{
+    getInventoryByCategory(store_id: number, list_category_id: number): Observable<any> {
         return this.http.get<any>
-             (`${baseUrl}/inventory_by_category?store_id=${store_id}&list_category_id=${list_category_id}`
-             );
+            (`${baseUrl}/inventory_by_category?store_id=${store_id}&list_category_id=${list_category_id}`
+            );
     }
 
-    // getAllUnits(): Observable<any>{
-    //     return this.http.get<any>(`${baseUrl}/units`);
-    // }
-
-    // getInventoryByID(inventory_id: number){
-    //     console.log('this.getInventoryByID',inventory_id);
-
-    //     if(!this.inventoryData.has(inventory_id)){
-    //         this.categoryInventoryNew.forEach(e => {
-    //             e.forEach(i => {
-    //                 var id = i['inventory_id'];
-    //                 if(!this.inventoryData.has(id)){
-    //                     this.inventoryData.set(id, i);
-    //                 }
-    //             })
-    //     })}
-    //     return this.inventoryData.get(inventory_id);
-    // }
-
-
-    // loadInventory(store_id : number, list_category_id: number) {
-    //     if(!this.categoryInventoryNew.has(list_category_id)){
-    //         this.getInventoryByCategory(store_id, list_category_id)
-    //         .subscribe(inventory => {
-    //             this.categoryInventoryNew.set(list_category_id, inventory);
-
-    //             this.categoryInventoryNew.get(list_category_id)?.forEach(x => {
-    //                 this.loadPicture(x['inventory_id']);
-    //             });
-    //         })
-    //     }
-    //     return this.categoryInventoryNew.get(list_category_id)!;
-    // }
-
-
-
-
-//     this.inventoryService.getInventoryByCategory(store_id, list_category_id)
-//       .subscribe({
-//         next: (v) => {
-//           this.selectInventoryByCategory[list_category_id] = v;
-//           v.forEach((i: any) => {
-//             var inventory_id = i['inventory_id'];
-//             this.inventoryService.loadPicture(inventory_id);
-
-//           })
-//         },
-//         complete: () => {
-//           console.log('complete')
-//         }
-//       })
-//   }
-
-
-    loadPicture(inventory_id: number) : SafeUrl {
+    // Load a picture from the service for an inventory item and
+    // place it into the picture Map. 
+    loadPicture(inventory_id: number): SafeUrl {
         if (!this.pictureInventory.has(inventory_id)) {
             this.getPicture(inventory_id)
                 .subscribe({
                     next: (picture) => {
-                        let objectURL = picture;   
+                        let objectURL = picture;
                         // picture is a string containing the correct format of 
                         // an image to be display via <img [src]  (property binding)
                         const cleanedPicture = this.domSanatizer.bypassSecurityTrustUrl(objectURL);
@@ -201,78 +146,48 @@ export class InventoryService  {
                     complete: () => {
                         // the function needs to retunr SafeUrl
                         // but Map.get() could be SafeUrl or undefined
-                        return this.pictureInventory.get(inventory_id) ?? "no_picture.jpg";    
+                        return this.pictureInventory.get(inventory_id) ?? "no_picture.jpg";
                     }
                 })
         }
-        return this.pictureInventory.get(inventory_id) ?? "no_picture.jpg"; 
+        return this.pictureInventory.get(inventory_id) ?? "no_picture.jpg";
     }
 
-        // capturePicture(temp_inventory_id: number, list_category_id: number){
-        //     console.log('temp_inventory_id:', temp_inventory_id);
-        //     console.log('list_category_id:', list_category_id);
-        // }
+    // Before deleting an inventory item (actually it only changes the status)
+    // from active (A) to deleted (D) in the database, no shopping list can
+    // reference it anymore.
+    deleteInventoryItem(inventory_id: number): Observable<any> {
+        return this.http.post(`${baseUrl}/delete_inventory_item`, {
+            inventory_id
+        });
+    }
 
 
-        deleteInventoryItem(inventory_id: number ) : Observable<any> {
-            return this.http.post(`${baseUrl}/delete_inventory_item`, {
-                inventory_id
-            });
-        }       
-    
-
-        updateInventoryItem(inventory_id: number, name: string, notes: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
-            return this.http.post(`${baseUrl}/update_inventory_item`, {
-                inventory_id,
-                name, 
-                notes,
-                picture,
-                store_id,
-                list_category_id,
-                quantity_id
-            });
-        }       
-            
-
-    createInventoryItem(name: string, notes: string, picture: string, store_id: number, list_category_id: number, quantity_id: number ) : Observable<any> {
-        return this.http.post(`${baseUrl}/create_inventory_item`, {
-            name, 
+    updateInventoryItem(inventory_id: number, name: string, notes: string, picture: string, 
+                        store_id: number, list_category_id: number, quantity_id: number): Observable<any> {
+        return this.http.post(`${baseUrl}/update_inventory_item`, {
+            inventory_id,
+            name,
             notes,
             picture,
             store_id,
             list_category_id,
             quantity_id
         });
-    }       
+    }
 
-    // createInventoryItemAddToShoppingList(
-    //     name: string, 
-    //     picture: string, 
-    //     store_id: number, 
-    //     list_category_id: number, 
-    //     quantity_id: number,
-    //     quantity: number,
-    //     shopping_date: string,
-    //     family_member_id: number ) : Observable<any> {
-            
-    //         return this.http.post(`${baseUrl}/create_inventory_item_add_to_shoppinglist`, {
-    //             name, 
-    //             picture,
-    //             store_id,
-    //             list_category_id,
-    //             quantity_id,
-    //             quantity,
-    //             shopping_date,
-    //             family_member_id
-    //         });            
-    // }
-    
-    // create(data: any): Observable<any> {
-    //     return this.http.post(baseUrl, data);
-    //   }
 
+    createInventoryItem(name: string, notes: string, picture: string, store_id: number, 
+                        list_category_id: number, quantity_id: number): Observable<any> {
+        return this.http.post(`${baseUrl}/create_inventory_item`, {
+            name,
+            notes,
+            picture,
+            store_id,
+            list_category_id,
+            quantity_id
+        });
+    }
 }
 
-    
-
-
+//--- end of file ---

@@ -336,7 +336,7 @@ export class ShoppingListService implements OnDestroy {
         // actually changed.
         for (let item in this.listCategory) {
             const list_category_id = this.listCategory[item]['list_category_id'];
-            this.getListByCategoryByGroupCached(
+            this.getListByCategoryByGroup(
                 this.shoppingList.shopping_date,
                 this.shoppingList.store_id,
                 list_category_id,
@@ -406,6 +406,14 @@ export class ShoppingListService implements OnDestroy {
                 madeChanges = true;
             }
         })
+
+        // if( madeChanges ){
+        //     this.getShoppingListByCategory(
+        //         this.shoppingList.shopping_date,
+        //         this.shoppingList.store_id,
+        //         this.shoppingList.family_id,
+        //         list_category_id);
+        // }
 
         return madeChanges;
     }
