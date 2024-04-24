@@ -1,10 +1,10 @@
 <form [formGroup]="formLoginSignup">
 
-	<div *ngIf="!getSignup()">
+	<div *ngIf="!signup">
 		<div class="d-flex justify-content-center mt-5">
 			<div class="flex-row ">
 				<div class="card" style="width: 20rem; align-content:center">
-					<h4 class="card-header" style="background-color:lightskyblue">FamilyShoppingList</h4>
+					<h4 class="card-header" style="background-color:lightskyblue">Family Shopping List</h4>
 					<div class="card-body">
 						<div class="mb-3">
 							<label class="form-label">Username</label>
@@ -35,11 +35,11 @@
 			</div>
 		</div>
 	</div>
-	<div *ngIf="getSignup()">
+	<div *ngIf="signup">
 		<div class="d-flex justify-content-center mt-5">
 			<div class="flex-row">
 				<div class="card" style="width: 24rem;">
-					<h4 class="card-header" style="background-color:lightskyblue">FamilyShoppingList</h4>
+					<h4 class="card-header" style="background-color:lightskyblue">Family Shopping List</h4>
 					<div class="card-body">
 						<div class="mb-3">
 							<label class="form-label">Family Code</label>
@@ -109,6 +109,7 @@
 								<div *ngIf="fgc['lastName'].errors['required']">last name is required</div>
 							</div>
 						</div>
+						
 						<div *ngIf="submittedSignup && fg.valid">
 							<label for="signupForm">Select color</label>
 							<ng-select [items]="colorsToSelectFrom" bindLabel="name" bindValue="color_id"

@@ -9,37 +9,12 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-
-    // db.shopping_list.belongsTo(db.inventory,{
-    //   through: "inventory_shopping_list",
-    //   as: "shopping_items",  
-    //   foreignKey: "inventory_id",
-    // });
-    
-    // db.inventory.belongsToMany(db.shopping_list,{
-    //   through: "inventory_shopping_list",
-    //   as: "shopping_list",  
-    // });
     
     static associate(models) { 
-      // this.belongsTo(models.inventory, {
-      //     through: "inventory_shopping_list",
-      //     foreignKey: "inventory_id",
-      // }),
-      // models.inventory.belongsToMany( this, {
-      //     through: "inventory_shopping_list",
-      // })
     }
   }
 
   shopping_list.init({
-    // shopping_list_id: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    //   autoIncrement: true,
-    //   primaryKey: true,
-    // },
-
     shopping_date: {
       type: DataTypes.STRING,
       allowNull: false,

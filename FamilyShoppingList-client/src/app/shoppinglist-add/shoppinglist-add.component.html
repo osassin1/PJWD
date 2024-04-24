@@ -1,39 +1,36 @@
 <div class="d-flex flex-column {{background}}  w-100">
-    <div class="d-flex flex-row">
-    <form [formGroup]="shoppingListAddForm" class="d-flex flex-grow-1">
-        <ng-select formControlName="inventoryToAdd" [items]="storeInventoryByCategory" bindLabel="inventory_id"
-            placeholder="Select inventory item" class="ng-select-container" name="mySelectBox"
-            (change)="storeInventoryByCategory" (clear)="storeInventoryByCategory" (click)="onSelectedInventory()"
-            class="w-100 px-2 my-2">
-            <ng-template ng-label-tmp let-item="item">
-                <span>{{item.name}}</span>
-            </ng-template>
-            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-                <img class="inventory-picture me-1" height="40" width="40" [src]="getPicture(item.inventory_id)" />
-                <span>{{item.name}}</span>
-            </ng-template>
-        </ng-select>
-    </form>
-    <button class="ok-cancel-button bi bi-camera {{background}} py-1 my-1"
-            type="button" 
-            (click)="doNewInventoryItemForShoppingList()" [disabled]="false">
-    </button>
-</div>
+    <div *ngIf="shoppingList.store_id>0" class="d-flex flex-row">
+        <form [formGroup]="shoppingListAddForm" class="d-flex flex-grow-1">
+            <ng-select formControlName="inventoryToAdd" [items]="storeInventoryByCategory" bindLabel="inventory_id"
+                placeholder="Select inventory item" class="ng-select-container" name="mySelectBox"
+                (change)="storeInventoryByCategory" (clear)="storeInventoryByCategory" (click)="onSelectedInventory()"
+                class="w-100 px-2 my-2">
+                <ng-template ng-label-tmp let-item="item">
+                    <span>{{item.name}}</span>
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                    <img class="inventory-picture me-1" height="40" width="40" [src]=item.picture />
+                    <span>{{item.name}}</span>
+                </ng-template>
+            </ng-select>
+        </form>
+        <button class="ok-cancel-button bi bi-camera {{background}} py-1 my-1" type="button"
+            [disabled]="lockInventoryEdit" (click)="doNewInventoryItemForShoppingList()" [disabled]="false">
+        </button>
+    </div>
     @if(selectedInventory){
     <div>
         <app-shoppinglist-edit class="d-flex flex-row w-100 px-1" [shoppingListItem]="selectedInventory"
-            [familyMemberID]="familyMemberID" [shoppingDate]="shoppingDate" [background]="background"
-            (done)="onInventoryEditDone(selectedInventory.inventory_id, $event)">
+            [background]="background" (inventory_id)="onInventoryID($event)" (done)="onInventoryEditDone($event)">
         </app-shoppinglist-edit>
     </div>
     }
     @if(newInventory){
-        <div>
-            <app-inventory-edit class="d-flex flex-row w-100" [store]="store"
-                [inventory]="newInventory" [background]="background" 
-                [list_category]="list_category"
-                (done)="onNewInventoryDone($event)">
-            </app-inventory-edit>          
-        </div>
-        }
+    <div>
+        <app-inventory-edit class="d-flex flex-row w-100" [store]="store" [inventory]="newInventory"
+            [background]="background" [list_category]="list_category" (inventory_id)="onInventoryID($event)"
+            (done)="onNewInventoryDone($event)">
+        </app-inventory-edit>
     </div>
+    }
+</div>

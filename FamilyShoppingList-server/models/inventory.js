@@ -17,8 +17,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      //store,
-      //list_category
     }
   }
   inventory.init({
@@ -42,8 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     }, 
     notes: DataTypes.STRING,
-
-    store_id : {
+    store_id: {
       type: DataTypes.INTEGER,
       foreignKey: true,
       refrences : {
@@ -52,9 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'inventory_to_store'
       }
     },
-
-    list_category_id :
-    {
+    list_category_id: {
       type: DataTypes.INTEGER,
       foreignKey: true,
       refrences : {
@@ -63,9 +58,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'inventory_to_list_category'
       }
     },
-
-    quantity_id :
-    {
+    quantity_id: {
       type: DataTypes.INTEGER,
       foreignKey: true,
       refrences : {
@@ -74,13 +67,10 @@ module.exports = (sequelize, DataTypes) => {
         as: 'inventory_to_quantity' 
       }
     },
-
     status: {
       type: DataTypes.CHAR,
-      defaultValue: 'A',  // active
+      defaultValue: 'A',  // active and 'D" for deleted
     } 
-
-
   }, {
     sequelize,
     modelName: 'inventory',

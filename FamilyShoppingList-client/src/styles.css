@@ -5,20 +5,6 @@
 @import "../node_modules/@ng-select/ng-select/themes/default.theme.css";
 
 
-/* these need to removed  */
-.bg-red {
-    background-color: red;
-}
-
-.bg-blue {
-    background-color: blue;
-}
-
-.bg-green {
-    background-color: green;
-}
-
-/* ------------------------------------------------------- */
 
 
 /* Style for the shopping list categories in format:
@@ -53,27 +39,10 @@
 
 button{
     border: none;
-    /* 1px solid  #ccc; */
     &:focus {
-        /* border-color: #007eff; */
-        /* box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1); */
-        /* outline-color: #007eff; */
-        /* outline-color: #007eff; */
         outline-color: #007eff;
         outline-style: inset;
-        /* outline-style: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 1px rgba(0, 126, 255, 0.1); */
-
-        /* outline: 1px solid  #ccc; */
-        
     }
-
-    /* &:active{
-        border-color: #007eff; 
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(255, 0, 0, 0.1);
-
-    } */
-
-
 }
 
 /* Each family member gets a color assigned and is displayed
@@ -131,7 +100,6 @@ button{
 
     }
 }
-
 
 :root {
     color-scheme: only light;

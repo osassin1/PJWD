@@ -3,12 +3,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('shopping_list', {
-      // shopping_list_id: {
-      //   allowNull: false,
-      //   autoIncrement: true,
-      //   primaryKey: true,
-      //   type: Sequelize.INTEGER
-      // },
       shopping_date: {
         type: DataTypes.DATE,
         allowNull: false,

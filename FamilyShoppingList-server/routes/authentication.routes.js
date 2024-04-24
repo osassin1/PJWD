@@ -10,12 +10,13 @@ module.exports = function(app) {
     next();
   });
 
-    const logging = require("../controllers/logging.controller.js");
+    const authentication = require("../controllers/authentication.controller.js");
   
     var router = require("express").Router();
   
-    router.post("/log", logging.logEntry)
-    
-    app.use('/api/logging', router);
+    router.get("/validate_token", authentication.validateToken);
+    router.post("/login", authentication.login);
+
+    app.use('/api/authentication', router);
   };
   

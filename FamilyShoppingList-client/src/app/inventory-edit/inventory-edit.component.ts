@@ -52,14 +52,14 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
+    
     this.inventoryEditForm = this.formBuilder.group({
       name: [this.inventory.name, Validators.required],
-      notes: this.inventory.notes,
-      picture: this.inventory.picture,
+      notes: this.inventory.notes, 
+      picture: this.inventory.picture, 
       store_id: this.store.store_id,
-      list_category: this.list_category,
-      quantity: this.inventory.inventory_to_quantity
+      list_category: [this.list_category, Validators.required],
+      quantity: [this.inventory.inventory_to_quantity, Validators.required]
   });
 
     // the category can either come from an existing inventory item
@@ -79,29 +79,36 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
         this.inventoryEditForm.controls['quantity'].setValue( this.quantities.find((item)=> item.quantity_id == 3) );
       }
     })
-    
   }
 
   ngOnDestroy(): void {
-    //console.log('InventoryEditComponent', 'ngOnDestroy')  
-    //this.inventory.picture = "no_picture.jpg";
+    this.inventoryEditForm.reset();
   }
 
   get ief(){
-    return this.inventoryEditForm.value['inventoryForm'];
+    return this.inventoryEditForm;
   }
-  
+  get iefc(){
+    return this.inventoryEditForm.controls;
+  }
+
   onPicture(){
-    console.log('onPicture');
     this.takePicture = !this.takePicture;
   }
 
   onDoneEdit(){
+    if( this.inventoryEditForm.invalid ){
+      return;
+    }
+
     this.inventory.name = this.inventoryEditForm.controls['name'].value;
     this.inventory.notes = this.inventoryEditForm.controls['notes'].value;
     this.inventory.inventory_to_quantity.quantity_id = this.inventoryEditForm.controls['quantity'].value['quantity_id'];
     this.inventory.inventory_to_list_category.list_category_id = this.inventoryEditForm.controls['list_category'].value['list_category_id'];
 
+    // If an inventory_id is there (>0) then we need
+    // to update the existing item. Otherwise, we create
+    // a new one.
     if( this.inventory.inventory_id ){
       this.inventoryService.updateInventoryItem(
         this.inventory.inventory_id,
@@ -113,9 +120,10 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
         this.inventory.inventory_to_quantity.quantity_id,
         ).subscribe({
           next: (v) => {
-            console.log('updateInventoryItem', v)
+            console.info('updateInventoryItem', v)
           },
           complete: () => {
+            this.inventoryEditForm.reset();
             this.done.emit(true);
           }
         }) 
@@ -129,28 +137,24 @@ export class InventoryEditComponent implements OnInit, OnDestroy {
           this.inventory.inventory_to_quantity.quantity_id,
           ).subscribe({
             next: (v) => {
+              console.info('createInventoryItem', v)
               this.inventory.inventory_id = v;
+
+              // add the new picture to the inventory (of pictures)
+              this.inventoryService.pictureInventory.set(this.inventory.inventory_id, this.inventory.picture)
             },
             complete: () => {
+              this.inventoryEditForm.reset();
               this.done.emit(true);
             }
           }) 
-          
-  
     }
-    this.inventoryEditForm.reset();
   }
 
   onCancelEdit(){
+    this.inventoryEditForm.reset();
     this.done.emit(false);
   }
-
-
-  // ngOnChanges(){
-  //   console.log('ngOnChanges')
-  //   console.log('ngOnChanges: store', this.store)
-  // }
-
-
-
 }
+
+//--- end of file ---

@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NavigationComponent } from './navigation/navigation.component';
 
+import { AuthenticationService } from '../app/authentication/authentication.service'
+
+
+const packageJson = require( '../../package.json' );
 
 @Component({
   selector: 'app-root',
@@ -17,5 +21,11 @@ import { NavigationComponent } from './navigation/navigation.component';
 })
 
 export class AppComponent {
-  title = 'FamilyShoppingList';
+
+  constructor(private authenticationService:AuthenticationService ){}
+  title = 'Family Shopping List';
+  appVersion: string = packageJson.version;
+  get isAuthenticated(){
+    return this.authenticationService.isAuthenticated;
+  }
 }

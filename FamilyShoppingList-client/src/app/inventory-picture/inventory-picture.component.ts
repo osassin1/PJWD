@@ -1,10 +1,5 @@
-import { Component, Input, OnInit, ElementRef, ViewChild, AfterViewInit, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { CommonModule, NgStyle } from '@angular/common';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-// import { Observable } from 'rxjs';
-// import { Subject } from 'rxjs';
+import { Component, ElementRef, ViewChild, AfterViewInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 // compression for pictures (jpeg, png); 
 // if iOS is used then HEIC format needs to
@@ -12,15 +7,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxImageCompressService } from 'ngx-image-compress';
 import heic2any from "heic2any";
 
-
-
 @Component({
   selector: 'app-inventory-picture',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    CommonModule
   ],
   templateUrl: './inventory-picture.component.html',
   styleUrl: './inventory-picture.component.css'
@@ -34,52 +25,41 @@ export class InventoryPictureComponent implements AfterViewInit, OnDestroy {
   // this is the return of the image
   @Output() pictureChange = new EventEmitter<string>();
 
-  // get background color from caller
-  //not needed
-  //@Input() background: string = "";
-
-
   // either uploaded or taken picture (mobil)
   selectedPicture: any;
 
-
-
   constructor(
-    private imageCompress: NgxImageCompressService,
-    private formBuilder: FormBuilder,
-  ) {
-  }
-
+    private imageCompress: NgxImageCompressService
+  ) { }
 
   ngAfterViewInit(): void {
     const event = new MouseEvent('click', { view: window, bubbles: true, cancelable: true });
     this.imageInput.nativeElement.dispatchEvent(event);
   }
 
-
-  ngOnDestroy(){
+  ngOnDestroy() {
     delete this.selectedPicture;
   }
 
 
 
-// --- Pictures / Upload ----
-//
-// This entire section handles the upload of pictures incl.
-// converting them (e.g., from iOS HEIC to JPEG) and compressing
-// them with the goal to stay under 100kB.
-//
-// Source: https://alexcorvi.github.io/heic2any/
-//         https://www.npmjs.com/package/ngx-image-compress
+  // --- Pictures / Upload ----
+  //
+  // This entire section handles the upload of pictures incl.
+  // converting them (e.g., from iOS HEIC to JPEG) and compressing
+  // them with the goal to stay under 100kB.
+  //
+  // Source: https://alexcorvi.github.io/heic2any/
+  //         https://www.npmjs.com/package/ngx-image-compress
+  //
+  //
+  // Either upload a picture from your computer or if mobile
+  // take a picture that will be used.
 
 
-// Either upload a picture from your computer or if mobile
-// take a picture that will be used
-
-
-imageSelectCancel() {
-  delete this.selectedPicture;
-}
+  imageSelectCancel() {
+    delete this.selectedPicture;
+  }
 
   imageSelected($event: any) {
 
@@ -101,10 +81,10 @@ imageSelectCancel() {
       console.log('heic');
       convProm = heic2any({ blob: fileName, toType: "image/jpeg", quality: 0 }).then((jpgBlob: any) => {
         console.log('(1) jpgBlob', jpgBlob);
-        
+
         let newName = fileName.name.replace(/\.[^/.]+$/, ".jpg");
         file = this.blobToFile(jpgBlob, newName);
-        
+
       }).catch(err => {
         //Handle error
       });
@@ -113,7 +93,6 @@ imageSelectCancel() {
       //This is not a HEIC image so we can just resolve
       convProm = Promise.resolve(true);
 
-      
       const file = new FileReader();
       file.readAsDataURL(fileName);
       file.onload = () => {
@@ -124,9 +103,7 @@ imageSelectCancel() {
             this.pictureChange.emit(compressedImage);
           }
         )
-        
       }
-
     }
 
     convProm.then(() => {
@@ -146,7 +123,7 @@ imageSelectCancel() {
           compressedImage => {
             _thisComp.selectedPicture = compressedImage;
             _thisComp.pictureChange.emit(compressedImage);
-           
+
           }
         )
 
@@ -163,5 +140,6 @@ imageSelectCancel() {
     //Cast to a File() type
     return <File>theBlob;
   }
-
 }
+
+//--- end of file ---

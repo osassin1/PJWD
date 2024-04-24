@@ -42,7 +42,6 @@ module.exports = (sequelize, DataTypes) => {
         key: 'color_id',
       }
     },
-
     family_id : {
       type: DataTypes.INTEGER,
       foreignKey: true,
@@ -52,7 +51,6 @@ module.exports = (sequelize, DataTypes) => {
         as: 'family_member_to_family',
       }
     }
-
   }, {
     sequelize,
     modelName: 'family_member',

@@ -1,7 +1,7 @@
-import { Component, Input, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
@@ -10,13 +10,10 @@ import { InventoryService } from '../inventory/inventory.service';
 import { AuthenticationService } from '../authentication/authentication.service';
 
 import { ShoppinglistNewComponent } from '../shoppinglist-new/shoppinglist-new.component';
-import { InventoryPictureComponent } from '../inventory-picture/inventory-picture.component'
 
-import { ShoppingListTotal } from '../models/shopping_list_total.model';
-import { ShoppingListInventory } from '../models/shopping_list_inventory.model';
-import { Inventory } from '../models/inventory.model'
 import { ShoppingListDates } from '../models/shopping_list_dates.model';
-import { ListCategory } from '../models/list_category.model';
+import { Store } from '../models/store.model';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-shoppinglist-cntrl',
@@ -31,119 +28,138 @@ import { ListCategory } from '../models/list_category.model';
   styleUrl: './shoppinglist-cntrl.component.css'
 })
 
-export class ShoppinglistCntrlComponent implements OnInit{
+export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
 
+  // Get a reference on the plus/minus (+/-) add button of the cntrl component
+  // to add a new shopping list. Once the list ok'ed / or cancel'ed, the button
+  // needs to be pressed to collapse the shoppinglist-new component.
   @ViewChild('newShoppingList', { static: false }) newShoppingListButton!: ElementRef;
 
-  @Input() familyMemberID: any;
-//  @Input() storesToSelectFrom: any;
   @Input() background: any;
 
-
-
-
+  currentShoppingList!: ShoppingListDates;
   shoppinglistCntrlForm!: FormGroup;
 
-    // adding new shopping list via the 
+  // adding new shopping list via the 
   // icon (bi-plus) in the shopping list
   // change it to bi-dash when clicked
   iconPlusMinus: string = "bi-plus";
 
+  // Take a note that a new shopping list has
+  // been created but not stored yet, it will
+  // only be stored once an inventory item is
+  // added (no race condition if another family
+  // member creates the same list - it's family
+  // member independent)
+  newShoppingListCreated: boolean = false;
 
-  // shopping process
-  isImageDisabled: boolean = false;
-  isShopping: boolean = false;
-  isCheckout: boolean = false;
-  isCheckoutConfirm: boolean = false;
   statusShoppingList: number = 0;
 
+  editInventoryLock: boolean = false;
+
+  // Monitor changes in shopping lists
+  pollingTimeInMilliSeconds: number = 5000;
+  monitorChangeShoppingList: any;
 
   constructor(
     private shoppingListService: ShoppingListService,
     private authenticationService: AuthenticationService,
-    private inventoryService:InventoryService,
-    private formBuilder: FormBuilder ){
+    private inventoryService: InventoryService,
+    private formBuilder: FormBuilder) {
   }
-  
+
   ngOnInit(): void {
     this.shoppinglistCntrlForm = this.formBuilder.group({
-      shopping_list_form: null,
-    });   
+      shopping_list_form: this.shoppingListService.shoppingList,
+    });
 
     // Get all shopping dates currently available; it's the content
     // for the first selector <Select Shopping List>    
-    console.log('this.authenticationService.familyMemberValue!.family_id', this.authenticationService.familyMemberValue!.family_id)
     this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
       this.shoppingToSelectFrom = response;
-      //this.selectedShoppingList = true; 
-      console.log('this.shoppingToSelectFrom', this.shoppingToSelectFrom)
     });
 
-    this.inventoryService.getListCatgory().subscribe(res => {
-      this.listCategory = res;
-      console.log('listCategory', this.listCategory)
-    }) 
-    
+    // Get updates if an item on the list is being in edit mode and
+    // prevent changing the shopping process (shop -> check -> done).
+    this.shoppingListService.editInventoryLockObservable.subscribe((res: boolean) => {
+      if (this.editInventoryLock != res) {
+        this.editInventoryLock = res;
+      }
+    })
+
+    this.monitorChangeShoppingList = interval(this.pollingTimeInMilliSeconds)
+      .subscribe(() => {
+        this.monitorChangesShoppingList();
+      })
+
   }
 
+  ngOnDestroy() {
+    this.monitorChangeShoppingList.unsubscribe();
+  }
 
-  get shoppingToSelectFrom(){
+  get shoppingToSelectFrom() {
     return this.shoppingListService.shoppingToSelectFrom;
   }
 
-  get selectedShoppingList(){
+  get selectedShoppingList() {
     return this.shoppingListService.selectedShoppingList;
   }
 
-  set shoppingToSelectFrom(s: any){
+  set shoppingToSelectFrom(s: any) {
     this.shoppingListService.shoppingToSelectFrom = s;
   }
 
-  set selectedShoppingList(s: any){
+  set selectedShoppingList(s: any) {
     this.shoppingListService.selectedShoppingList = s
   }
 
-  get listCategory(){
+  get listCategory() {
     return this.shoppingListService.listCategory;
   }
-  set listCategory(s:any){
+  set listCategory(s: any) {
     this.shoppingListService.listCategory = s;
   }
 
-  get shoppingListAllTotal(){
+  get shoppingListAllTotal() {
     return this.shoppingListService.shoppingListAllTotal;
   }
 
+  get shoppingList() {
+    return this.shoppingListService.shoppingList;
+  }
 
-  onShoppinglistNewDone($event:any){
-    if( $event ) {
-      //this.newShoppingListCreated = true; 
+  onShoppinglistNewDone($event: any) {
+    if ($event) {
       this.slcf['shopping_list_form'].setValue(this.shoppingListService.shoppingList);
+      this.newShoppingListCreated = true;
     }
-    else {
-      //this.newShoppingListCreated = false;
-    }
-  
+
     // this will 'click' on the add (+/-) button
-    const event = new MouseEvent('click', { view: window});
+    const event = new MouseEvent('click', { view: window });
     this.newShoppingListButton.nativeElement.dispatchEvent(event);
   }
-  
 
-    // When confirming that the shopping
+  onShoppingListNew($event: any) {
+    this.shoppingListService.shoppingList = $event;
+    this.slcf['shopping_list_form'].reset();
+    this.slcf['shopping_list_form'].setValue($event);
+  }
+
+
+  // When confirming that the shopping
   // process is done and a new shopping 
   // prcess can start.
   //
-  
   onConfirmCheckout() {
     this.slcf['shopping_list_form'].enable();
-    this.isCheckoutConfirm = false;
-    this.isCheckout = false;
-    this.isCheckoutConfirm = false;
+    this.shoppingListService.isCheckoutConfirm = false;
+    this.shoppingListService.isCheckout = false;
+    this.shoppingListService.isCheckoutConfirm = false;
     this.saveShoppingListStatus();
     this.shoppingListService.checkoutShoppingList(
-      this.shoppingListService.shoppingList.shopping_date, 
-      this.shoppingListService.shoppingList.store_id, 
+      this.shoppingListService.shoppingList.shopping_date,
+      this.shoppingListService.shoppingList.store_id,
       this.shoppingListService.shoppingList.family_id)
       .subscribe({
         next: (v) => {
@@ -151,21 +167,30 @@ export class ShoppinglistCntrlComponent implements OnInit{
           console.error(e);
         }, complete: () => {
           this.slcf['shopping_list_form'].reset();
-          this.onSelectShoppingList()
-          this.shoppingListService.getAllDates(this.shoppingListService.shoppingList.family_id).subscribe((response: any) => {
-            this.shoppingToSelectFrom = response;
-            this.selectedShoppingList = true;
-          });
-      
+          this.shoppingListService.getAllShoppingDates(
+            this.shoppingListService.shoppingList.family_id
+          );
+
+          this.shoppingListService.shoppingList = <ShoppingListDates>{
+            shopping_date: "",
+            store_id: 0,
+            name: "",
+            family_id: this.authenticationService.familyMemberValue!.family_id
+          }
+
+          this.shoppingListService.store = <Store>{
+            store_id: 0,
+            name: "",
+          }
         }
       })
   }
 
   onCancelCheckout() {
     this.slcf['shopping_list_form'].enable();
-    this.isCheckoutConfirm = false;
-    this.isCheckout = false;
-    this.isCheckoutConfirm = false;
+    this.shoppingListService.isCheckoutConfirm = false;
+    this.shoppingListService.isCheckout = false;
+    this.shoppingListService.isCheckoutConfirm = false;
     this.saveShoppingListStatus();
 
   }
@@ -178,30 +203,24 @@ export class ShoppinglistCntrlComponent implements OnInit{
   //
   // The checkout is enabled next and when pressed, it can either
   // confirmed or cancelled.
-
   onShopping() {
-    var shopping_status: string = "";
-
-    if (this.isShopping) {
-      this.isShopping = false;
-      this.isCheckout = true;
-      shopping_status = "stop";
-
+    if (this.shoppingListService.isShopping) {
+      this.shoppingListService.isShopping = false;
+      this.shoppingListService.isCheckout = true;
     } else {
-      this.isShopping = true;
-      shopping_status = "start";
+      this.shoppingListService.isShopping = true;
       this.slcf['shopping_list_form'].disable();
     }
     this.saveShoppingListStatus();
   }
 
   onCheckout() {
-    this.isCheckoutConfirm = true;
-    this.isCheckout = false;
+    this.shoppingListService.isCheckoutConfirm = true;
+    this.shoppingListService.isCheckout = false;
     this.saveShoppingListStatus();
   }
 
-  // The shopping status determine where in the process
+  // The shopping status determines where in the process
   // of shopping a list is, i.e., start shopping, stop (done)
   // shopping, checkout (paying and going home).
   //
@@ -209,20 +228,19 @@ export class ShoppinglistCntrlComponent implements OnInit{
   //            1 : in the store shopping, checkoff the item in the cart
   //            2 : done and at the register
   //            3 : checked out (paid) and confirming
-
   saveShoppingListStatus() {
     var statusCode: number = 0;
-    if (this.isShopping && !this.isCheckout && !this.isCheckoutConfirm) {
+    if (this.shoppingListService.isShopping && !this.shoppingListService.isCheckout && !this.shoppingListService.isCheckoutConfirm) {
       statusCode = 1;
-    } else if (!this.isShopping && this.isCheckout && !this.isCheckoutConfirm) {
+    } else if (!this.shoppingListService.isShopping && this.shoppingListService.isCheckout && !this.shoppingListService.isCheckoutConfirm) {
       statusCode = 2;
-    } else if (!this.isShopping && !this.isCheckout && this.isCheckoutConfirm) {
+    } else if (!this.shoppingListService.isShopping && !this.shoppingListService.isCheckout && this.shoppingListService.isCheckoutConfirm) {
       statusCode = 3;
     }
     this.shoppingListService.changeShoppingStatus(
-      this.shoppingListService.shoppingList.shopping_date, 
-      this.shoppingListService.shoppingList.store_id, 
-      this.shoppingListService.shoppingList.family_id, 
+      this.shoppingListService.shoppingList.shopping_date,
+      this.shoppingListService.shoppingList.store_id,
+      this.shoppingListService.shoppingList.family_id,
       statusCode)
       .subscribe({
         next: (v) => {
@@ -233,31 +251,36 @@ export class ShoppinglistCntrlComponent implements OnInit{
       })
   }
 
-  loadShoppingListStatus(): number {
-    //console.log('loadShoppingListStatus')
+  loadShoppingListStatus(shoppingList: ShoppingListDates): number {
+
+    if (shoppingList == undefined) {
+      console.error('loadShoppingListStatus NO shoppingList')
+      return 0;
+    }
+
     this.shoppingListService.getShoppingListStatus(
-      this.shoppingListService.shoppingList.shopping_date, 
-      this.shoppingListService.shoppingList.store_id, 
-      this.shoppingListService.shoppingList.family_id)
+      shoppingList.shopping_date,
+      shoppingList.store_id,
+      shoppingList.family_id)
       .subscribe({
         next: (v) => {
           this.statusShoppingList = v['status'];
           if (this.statusShoppingList == 0) {
-            this.isShopping = false;
-            this.isCheckout = false;
-            this.isCheckoutConfirm = false;
+            this.shoppingListService.isShopping = false;
+            this.shoppingListService.isCheckout = false;
+            this.shoppingListService.isCheckoutConfirm = false;
           } else if (this.statusShoppingList == 1) {
-            this.isShopping = true;
-            this.isCheckout = false;
-            this.isCheckoutConfirm = false;
+            this.shoppingListService.isShopping = true;
+            this.shoppingListService.isCheckout = false;
+            this.shoppingListService.isCheckoutConfirm = false;
           } else if (this.statusShoppingList == 2) {
-            this.isShopping = false;
-            this.isCheckout = true;
-            this.isCheckoutConfirm = false;
+            this.shoppingListService.isShopping = false;
+            this.shoppingListService.isCheckout = true;
+            this.shoppingListService.isCheckoutConfirm = false;
           } else if (this.statusShoppingList == 3) {
-            this.isShopping = false;
-            this.isCheckout = false;
-            this.isCheckoutConfirm = true;
+            this.shoppingListService.isShopping = false;
+            this.shoppingListService.isCheckout = false;
+            this.shoppingListService.isCheckoutConfirm = true;
           }
         }, error: (e) => {
           console.error(e);
@@ -267,8 +290,6 @@ export class ShoppinglistCntrlComponent implements OnInit{
           } else {
             this.slcf['shopping_list_form'].enable();
           }
-          //console.log('loadShoppingListStatus', this.statusShoppingList)
-
           return this.statusShoppingList;
         }
       })
@@ -285,94 +306,97 @@ export class ShoppinglistCntrlComponent implements OnInit{
   // and array from [first_category, ..., last_category] and for each item
   // store what is on the list and what is available (or known) for that store.
   onSelectShoppingList() {
-        this.shoppingListService.hasStore = false;
+    if (this.slf.value['shopping_list_form']) {
 
-        //initialize the shopping list
-        // need to review
-        for (let item in this.listCategory) {
-          const list_category_id = this.listCategory[item]['list_category_id'];
-          this.shoppingListService.shoppingListAll.delete(list_category_id);
-          this.shoppingListService.shoppingListAllTotal.delete(list_category_id);
-        }
+      this.shoppingListService.store = <Store>{
+        store_id: this.slf.value['shopping_list_form'].store_id,
+        name: this.slf.value['shopping_list_form'].name,
+      }
 
-        if (this.slf.value['shopping_list_form']) {
+      const tempShoppingList = <ShoppingListDates>{
+        shopping_date: this.slf.value['shopping_list_form'].shopping_date,
+        store_id: this.slf.value['shopping_list_form'].store_id,
+        name: this.slf.value['shopping_list_form'].name,
+        family_id: this.authenticationService.familyMemberValue!.family_id
+      }
 
-          this.shoppingListService.shoppingList = <ShoppingListDates>{
-            shopping_date: this.slf.value['shopping_list_form']['shopping_date'],
-            store_id: this.slf.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.store_id'],
-            name: this.slf.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.name'],
-            family_id: this.authenticationService.familyMemberValue!.family_id
-          }
-
-          console.log('this.shoppingListService.shoppingList', this.shoppingListService.shoppingList)
-          // this.shopping_date = this.slf.value['shopping_list_form']['shopping_date'];
-          // this.store_id = this.slf.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.store_id'];
-          // this.store_name = this.slf.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store.name'];
-
-          // load inventory for store
-          this.inventoryService.loadInventoryByStore(this.shoppingListService.shoppingList.store_id);
-          //console.log('storeInventory', this.shoppingListService.storeInventory);
-
-          this.shoppingListService.hasStore = true;
-
-          //*** need to REVIEW THAT****/
-          //this.selectedShoppingList = false;
-
-          //console.log('onSelectShoppingList  --> store_id', this.store_id)
-          //console.log('onSelectShoppingList  --> store', this.selectShoppingListForm.value['shopping_list_form']['shopping_list_to_inventory.inventory_to_store'])
-
-          for (let item in this.listCategory) {
-            const list_category_id = this.listCategory[item]['list_category_id'];
-
-            // The method performs the following:
-            // (1) fills shoppingListAll contains all inventory items for a category on the shopping list
-            // (2) fills shoppingListAllTotal (it's the summary of what the category contains
-            //     and is the accordion's button: <category name>  <family member dots> <total number of items>)
-            this.shoppingListService.getShoppingListByCategory(
-              this.shoppingListService.shoppingList.shopping_date, 
-              this.shoppingListService.shoppingList.store_id, 
-              list_category_id);
-            this.shoppingListService.getInventoryByCategory(this.shoppingListService.shoppingList.store_id, list_category_id);
-
-            console.log('shoppingListAllTotal', this.shoppingListAllTotal);
-            //console.log('shoppingListTotal', this.shoppingListTotal);
-
-            // reset the formcontrol for selecting existing invenorty items
-            // to be added to the shopping list
-            //this.slcf['select_shopping_category'].patchValue(null);
-
-            // uncheck all elements checkInventoryChecked(inventoryImage[inventoryItem.inventory_id])
-            this.shoppingListService.inventoryImage.splice(0, this.shoppingListService.inventoryImage.length);
-
-              
-          
-            //*** NEEDS TO BE REVIEWED *** */
-            //this.loadShoppingListStatus();
-            //this.iconPlusDash[list_category_id] = "bi-plus-circle";
-
-          }
-        }
-
+      // Check if the two objects are different by comparing their string
+      // representation. It's a simple way to compare two objects.
+      if (JSON.stringify(tempShoppingList) != JSON.stringify(this.shoppingListService.shoppingList)) {
+        this.shoppingListService.shoppingList = tempShoppingList;
+        this.loadShoppingListStatus(tempShoppingList);
+      }
+    }
   }
 
+  monitorChangesShoppingList() {
+    if (!this.authenticationService.familyMemberValue) {
+      return;
+    }
+    this.shoppingListService.getAllDates(this.authenticationService.familyMemberValue!.family_id).subscribe((response: any) => {
+      this.shoppingToSelectFrom = response;
+    });
 
+    if (this.shoppingList != undefined) {
+      this.loadShoppingListStatus(this.shoppingList);
+    }
 
-  //--- get ---
-  get slcf(){
+    let removeShoppingList = true;
+    // it needs to to be synced amongst all family_members
+    // the event of checking out mut be propergated to all active
+    // sessions
+    this.shoppingToSelectFrom.forEach((x: ShoppingListDates) => {
+      if (this.slf.value['shopping_list_form'] &&
+        this.slf.value['shopping_list_form'].shopping_date == x.shopping_date &&
+        this.slf.value['shopping_list_form'].store_id == x.store_id
+      ) {
+
+        removeShoppingList = false;
+        if (this.newShoppingListCreated) {
+          this.newShoppingListCreated = false;  // a new shopping list that was created, is now stored
+        }
+      }
+    })
+    if (!this.newShoppingListCreated && removeShoppingList) {
+      this.shoppingListService.isCheckoutConfirm = false;
+      this.shoppingListService.isCheckout = false;
+      this.slf.reset();
+
+      this.shoppingListService.shoppingList = <ShoppingListDates>{
+        shopping_date: "",
+        store_id: 0,
+        name: "",
+        family_id: this.authenticationService.familyMemberValue!.family_id
+      }
+
+      this.shoppingListService.store = <Store>{
+        store_id: 0,
+        name: "",
+      }
+    }
+  }
+
+  get slcf() {
     return this.shoppinglistCntrlForm.controls;
   }
-
-
-  get slf(){
+  get slf() {
     return this.shoppinglistCntrlForm;
   }
-
-get shopping_date(){
-  if( this.shoppingListService.shoppingList != undefined ) {
+  get shopping_date() {
+    if (this.shoppingListService.shoppingList != undefined) {
       return this.shoppingListService.shoppingList.shopping_date;
+    }
+    return null;
   }
-  return null;
-}
+  get isCheckout() {
+    return this.shoppingListService.isCheckout;
+  }
+  get isCheckoutConfirm() {
+    return this.shoppingListService.isCheckoutConfirm;
+  }
+  get isShopping() {
+    return this.shoppingListService.isShopping;
+  }
 
   onIconPlusMinus() {
     if (this.iconPlusMinus == "bi-plus") {
@@ -380,5 +404,7 @@ get shopping_date(){
     } else {
       this.iconPlusMinus = "bi-plus";
     }
-  }  
+  }
 }
+
+//--- end of file ---

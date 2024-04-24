@@ -1,4 +1,4 @@
-<div class="col-md-8">
+<div class="col-sm-8">
     <form [formGroup]="inventoryForm">
         <div class="d-flex flex-column ms-2">
             <div class="d-flex justify-content-between">
@@ -6,7 +6,7 @@
                     <label for="storesToSelectFrom" class="input-label">Store</label>
                     <ng-select [items]="storesToSelectFrom" placeholder="Select Store" style="min-width: 10rem;"
                         labelForId="storesToSelectFrom" formControlName="storesToSelectFrom" [tabIndex]=0
-                        [clearable]="false" (ngModelChange)="onStoreSelectChange()" required>
+                        [clearable]="false" (ngModelChange)="onStoreSelectChange()">
                         <ng-template ng-label-tmp let-item="item">
                             <span class="label-text">{{item.name}}</span>
                         </ng-template>
@@ -19,7 +19,8 @@
                     <label for="categoriesToSelectFrom" class="input-label">Category</label>
                     <ng-select [items]="categoriesToSelectFrom" placeholder="All Categories" style="min-width: 10rem;"
                         labelForId="categoriesToSelectFrom" formControlName="categoriesToSelectFrom" [tabIndex]=0
-                        [clearable]="true" (ngModelChange)="onCategorySelectChange()" required>
+                        (clear)="onClearCategoriesToSelectFrom()"
+                        [clearable]="true" (ngModelChange)="onCategorySelectChange()">
                         <ng-template ng-label-tmp let-item="item">
                             <span class="label-text">{{item.name}}</span>
                         </ng-template>
@@ -37,8 +38,6 @@
                     <i class="bi bi-plus-circle icon-style p-2"></i>
                 }
             </button>      
-            
-            
 
             @if(fbc['storesToSelectFrom'].value && isAddNewInventoryItem){
                 <app-inventory-edit class="d-flex flex-row w-100" 
@@ -50,13 +49,11 @@
                 </app-inventory-edit>          
             }  
 
-
             <br>
             <div *ngIf="fbc['storesToSelectFrom'].value && storeInventory.length > 0">
                 @for (inventory of storeInventory; track inventory.inventory_id; let idx=$index, e=$even){
-                    <!-- filter based on category -->
-                    @if( this.list_category && !this.list_category.list_category_id || inventory.inventory_to_list_category.list_category_id ==
-                    this.list_category.list_category_id) {
+                    @if( (list_category!=undefined && (!list_category.list_category_id || inventory.inventory_to_list_category.list_category_id ==
+                    this.list_category.list_category_id))) {
                         <!-- either just display or call the edit component -->
                         @if(!inventoryEdit[inventory.inventory_id]){
                         <div class="d-flex {{getBG(e)}} pb-1">
@@ -107,7 +104,8 @@
                         </div>
                         } @else {
                         <app-inventory-edit class="d-flex flex-row w-100" [store]="fbc['storesToSelectFrom'].value"
-                            [inventory]="inventory" [background]="getBG(e)" (done)="onPenEdit(inventory.inventory_id, $event)">
+                            [inventory]="inventory" [background]="getBG(e)" 
+                            (done)="onPenEdit(inventory.inventory_id, $event)">
                         </app-inventory-edit>
                         }
                         <!-- check if the trash icon was clicked and if the item can be deleted -->

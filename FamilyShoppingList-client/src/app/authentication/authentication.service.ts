@@ -1,28 +1,24 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable, BehaviorSubject, map } from 'rxjs';
+import { Observable, BehaviorSubject, map, interval } from 'rxjs';
 
 import { FamilyMember } from '../models/family_member.model';
-import { Color } from '../models/color.model';
 
 import { AppConfiguration } from "read-appsettings-json";
 
-//const baseUrl = 'http://192.168.1.193:8080/api/family_member';
-//const baseUrl = 'http://localhost:8080/api/family_member'; 
-//const baseUrl = 'http://127.0.0.1:3000/api/family_member';
 
-const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/family_member";
-
+const baseUrl = `${AppConfiguration.Setting().Application.serverUrl}` + "/api/authentication";
 
 @Injectable({
     providedIn: 'root',
 })
-export class AuthenticationService {
+export class AuthenticationService implements OnDestroy {
     private familyMemberSubject: BehaviorSubject<FamilyMember | null>;
     public familyMember: Observable<FamilyMember | null>;
 
-    //family_id: number = 0;
+    pollingTimeInMilliSeconds: number = 60000; // every minute check
+    private checkAuthenticationPolling: any;
 
     constructor(
         private router: Router,
@@ -30,6 +26,22 @@ export class AuthenticationService {
     ) {
         this.familyMemberSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('familyMember')!));
         this.familyMember = this.familyMemberSubject.asObservable();
+
+        // Check immediately if the loaded family member still
+        // has a valid token
+        this.checkAuthentication();
+
+        // Continue checking on the token's validicity every one minuute
+        this.checkAuthenticationPolling = interval(this.pollingTimeInMilliSeconds)
+            .subscribe(() => {
+                this.checkAuthentication();
+            })
+
+    }
+
+    ngOnDestroy(): void {
+        console.log('AuthenticationService', 'ngOnDestroy')
+        this.checkAuthenticationPolling.unsubscribe();
     }
 
     public get isAuthenticated() {
@@ -44,46 +56,6 @@ export class AuthenticationService {
         return this.familyMemberSubject.value;
     }
 
-    getAll(family_id: number): Observable<FamilyMember[]> {
-        return this.http.get<FamilyMember[]>(`${baseUrl}?family_id=${family_id}`);
-    }
-    getAllColors(family_id: number): Observable<Color[]> {
-        return this.http.get<Color[]>(`${baseUrl}/colors?family_id=${family_id}`);
-    }
-
-
-    getFamilyID(family_code: string): Observable<any> {
-        return this.http.get<any>(`${baseUrl}/family_id?family_code=${family_code}`);
-    }
-
-    findFamilyCode(family_code: string): Observable<any> {
-        return this.http.get<any>(`${baseUrl}/family_code?family_code=${family_code}`);
-    }
-
-    getNewFamilyCode(): Observable<any> {
-        return this.http.get<any>(`${baseUrl}/new_family_code`);
-    }
-
-    findUsername(username: string): Observable<any> {
-        return this.http.get<any>(`${baseUrl}/username?username=${username}`);
-    }
-
-    createNewFamilyMember(username: string,
-        password: string,
-        first_name: string,
-        last_name: string,
-        color_id: number,
-        family_id: number): Observable<FamilyMember> {
-        return this.http.post<FamilyMember>(`${baseUrl}/create`, {
-            username,
-            password,
-            first_name,
-            last_name,
-            color_id,
-            family_id
-        });
-    };
-
     login(username: string, password: string): Observable<FamilyMember> {
         return this.http.post<FamilyMember>(`${baseUrl}/login`, {
             username,
@@ -96,6 +68,12 @@ export class AuthenticationService {
         }));
     };
 
+    // Call the server and provide the token - 
+    // the family_id is encode within the token and the idea is
+    // to check against it.
+    validateToken(token: string, family_member_id: number): Observable<any> {
+        return this.http.get<any>(`${baseUrl}/validate_token?token=${token}&family_member_id=${family_member_id}`);
+    }
 
     // logout the current family member; remove data from local storage
     // and navigate back to login screen
@@ -105,25 +83,49 @@ export class AuthenticationService {
         this.router.navigate(['/authentication']);
     }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-
+    // Check with the server if the current token (received during login) is
+    // still valid (a token expires after a certain time) and would force a
+    // re-login if invalid.
+    checkAuthentication() {
         if (this.familyMemberSubject.value) {
-            // logged in so return true
+            this.validateToken(this.familyMemberSubject.value!.token, this.familyMemberSubject.value!.family_member_id).
+                subscribe({
+                    next: (v) => {
+                        if (!v) {
+                            this.familyMemberSubject.next(null);
+                            this.logout();
+                        }
+                        return v;
+                    },
+                    error: () => {
+                        this.familyMemberSubject.next(null);
+                        this.logout();
+                        return false;
+                    }
+                })
+        }
+    }
+
+    // The oberservale would be necessary if an async verification is used, however,
+    // going back to the server and add additional roundtrips might be too much (resources, 
+    // network, time).
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
+        if (this.familyMemberSubject.value) {
             return true;
         }
-
-        // not logged in so redirect to login page with the return url
-        //console.log('AuthenticationService: canActivate --> no : ', state.url);
-        //this.router.navigate(['/authentication'], { queryParams: { returnUrl: state.url } });
         return false;
     }
 }
 
-export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+// This function checks if a page can be accessed or activated. It
+// uses the authentication services instance that is running
+// to just ensure that there is a valif family member. It does
+// not verifu anything else.
+export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean => {
 
     const authenticationService = inject(AuthenticationService);
 
     return authenticationService.canActivate(next, state);
 }
 
-
+//--- end of file ---
