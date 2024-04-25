@@ -84,7 +84,7 @@ export class InventoryComponent implements OnInit {
 
   ngOnInit() {
     this.inventoryForm = this.formBuilder.group({
-      storesToSelectFrom: this.shoppingListService.store,
+      storesToSelectFrom: null,
       categoriesToSelectFrom: null,
     });
 
@@ -92,6 +92,10 @@ export class InventoryComponent implements OnInit {
     this.inventoryService.getListOfStores().subscribe((response: Store[]) => {
       this.storesToSelectFrom = response;
     });
+
+    if( this.shoppingListService.store.store_id > 0){
+      this.inventoryForm.controls['storesToSelectFrom'].setValue(this.shoppingListService.store);
+    }
 
     // get all categories one can shop from
     this.inventoryService.getListCatgory().subscribe((response: any) => {
