@@ -32,7 +32,6 @@ var corsOptions = {
   }
 }
 
-
 app.use(cors(corsOptions));
 app.use(express.json());  // for images this needs to be changed when handling it
 app.use(express.urlencoded({ extended: true }));

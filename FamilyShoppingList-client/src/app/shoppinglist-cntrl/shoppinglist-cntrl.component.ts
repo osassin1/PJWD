@@ -6,7 +6,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
 import { ShoppingListService } from '../shoppinglist/shoppinglist.service';
-import { InventoryService } from '../inventory/inventory.service';
 import { AuthenticationService } from '../authentication/authentication.service';
 
 import { ShoppinglistNewComponent } from '../shoppinglist-new/shoppinglist-new.component';
@@ -63,8 +62,7 @@ export class ShoppinglistCntrlComponent implements OnInit, OnDestroy {
 
   constructor(
     private shoppingListService: ShoppingListService,
-    private authenticationService: AuthenticationService,
-    private inventoryService: InventoryService,
+    private authenticationService: AuthenticationService,    
     private formBuilder: FormBuilder) {
   }
 
