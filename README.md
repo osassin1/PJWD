@@ -4,3 +4,40 @@ While in the store shopping for the items from the shopping list, family members
 
 A mobile-first and responsive web design guided the development of the entire app. Hosting the web-app with a web server, for example, Apache Tomcat, was easily accomplished.
 
+Installation for Ubuntu 22
+
+1. Install npm and Node.js
+
+Update the linux environment and install npm
+
+    sudo apt update
+    
+    sudo apt upgrade
+     
+    sudo apt install npm
+     
+    sudo npm install -g @angular/cli
+
+Check version of node.js
+
+    node -v
+
+If the version is less than 16, update Node.js:
+  
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+
+Check the changes and then use the changes:
+
+    source ~/.bashrc
+
+Take a look at all available versions:
+
+    nvm list-remote
+
+Install version 20.11.0:
+
+    nvm install v20.11.0
+
+For more info, please refer to:
+
+    https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04#option-3-installing-node-using-the-node-version-manager
