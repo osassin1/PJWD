@@ -52,6 +52,9 @@ export class InventoryPictureComponent implements AfterViewInit, OnDestroy {
   // Source: https://alexcorvi.github.io/heic2any/
   //         https://www.npmjs.com/package/ngx-image-compress
   //
+  //  Alex Covi provided examples on how to convert HEIC/HEIF to JPEG
+  //
+  //  David Faure provided examples on how to compress PNG/JPEG to JPEG
   //
   // Either upload a picture from your computer or if mobile
   // take a picture that will be used.
@@ -77,20 +80,18 @@ export class InventoryPictureComponent implements AfterViewInit, OnDestroy {
 
     let convProm: Promise<any>;
 
+    // Test is the file has HEIC format and convert it to JPEG
+    // and then (the convProm) compress it.
     if (/image\/hei(c|f)/.test(fileName.type) || fileName.type == "") {
-      console.log('heic');
       convProm = heic2any({ blob: fileName, toType: "image/jpeg", quality: 0 }).then((jpgBlob: any) => {
-        console.log('(1) jpgBlob', jpgBlob);
-
         let newName = fileName.name.replace(/\.[^/.]+$/, ".jpg");
         file = this.blobToFile(jpgBlob, newName);
-
       }).catch(err => {
         //Handle error
       });
     } else {
-      console.log('type', fileName.type);
       //This is not a HEIC image so we can just resolve
+      // and compress it.
       convProm = Promise.resolve(true);
 
       const file = new FileReader();
@@ -130,6 +131,10 @@ export class InventoryPictureComponent implements AfterViewInit, OnDestroy {
       }
     });
   }
+
+  // Chris Barr provided help converting a Blob into a file
+  // source: https://stackoverflow.com/a/29390393
+  //
   private blobToFile = (theBlob: Blob, fileName: string): File => {
     let b: any = theBlob;
 

@@ -102,6 +102,7 @@ export class InventoryComponent implements OnInit {
       this.categoriesToSelectFrom = response;
     });
     this.fbc['categoriesToSelectFrom'].setValue(null);
+    this.isAddNewInventoryItem = false;
   }
 
   get fbc() {
@@ -163,8 +164,13 @@ export class InventoryComponent implements OnInit {
     this.isAddNewInventoryItem = false;
 
     if ($event) {
-      this.onStoreSelectChange();
+      if( this.fbc['categoriesToSelectFrom'].value ) {
+        this.onCategorySelectChange();
+      } else {
+        this.onStoreSelectChange();
+      }
     }
+
     console.log('onCreateItem-->newInventory',this.newInventory)
 
     this.newInventory.inventory_id = 0;
@@ -182,8 +188,13 @@ export class InventoryComponent implements OnInit {
     this.isAddNewInventoryItem = false;
 
     if ($event) {
-      this.onStoreSelectChange();
+      if( this.fbc['categoriesToSelectFrom'].value ) {
+        this.onCategorySelectChange();
+      } else {
+        this.onStoreSelectChange();
+      }
     }
+
     console.log('newInventory',this.newInventory)
   }
 
