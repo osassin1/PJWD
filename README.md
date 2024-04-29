@@ -41,3 +41,71 @@ Install version 20.11.0:
 For more info, please refer to:
 
     https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04#option-3-installing-node-using-the-node-version-manager
+
+2. Install MySQL
+
+Follow the directions outlined here:
+
+    https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04
+
+This for a new MySQL installation and creating a new user. Use your sql terminal and create the default settings:
+
+    CREATE USER 'shopping_list'@'localhost' IDENTIFIED BY 'airY@Shop99';
+
+Grant the following:
+
+    GRANT CREATE, ALTER, DROP, INSERT, UPDATE, INDEX, DELETE, SELECT, REFERENCES, RELOAD on *.* TO 'shopping_list'@'localhost' WITH GRANT OPTION;
+
+Login in as shopping_list and create database:
+
+    CREATE SCHEMA `shopping_list_db` ;
+
+3. Install the app from github
+
+Clone the repository from github.com:
+
+    git clone git@github.com:osassin1/PJWD.git
+
+Change directory to PJWD:
+
+    cd PJWD
+
+You should see something like this:
+
+            ~/PJWD$ ls -l
+            total 8
+            drwxr-xr-x  4 ... 4096 Apr 28 12:35 FamilyShoppingList-client
+            drwxr-xr-x 12 ... 4096 Apr 28 12:35 FamilyShoppingList-server
+
+Change directory to FamilyShoppingList-client and install:
+
+    cd FamilyShoppingList-client/
+
+Install the client with npm install:
+
+    npm install
+
+Start the app using ng serve at port 8089:
+
+    ng serve --port 8089
+
+Start the server by changing to the directory and starting it:
+
+    cd FamilyShoppingList-server/
+
+Use the startup script:
+
+    ./startup.sh
+
+
+4. Seeding the database with test data
+
+Use sequelize to run all seeds contained in this script in directory FamilyShoppingList-server:
+
+    ./seed.sh
+
+
+
+
+
+
