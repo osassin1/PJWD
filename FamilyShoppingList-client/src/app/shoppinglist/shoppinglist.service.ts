@@ -76,7 +76,7 @@ export class ShoppingListService implements OnDestroy {
 
     // Set the store that has been selected in the shopping list
     // page and use it when navigating to inventory.
-    _store!: Store;
+    _store: Store = <Store>{ store_id:0, name:""};
 
     _isShopping: boolean = false;
     _isCheckout: boolean = false;

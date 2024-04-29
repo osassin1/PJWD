@@ -14,7 +14,12 @@ module.exports = function(app) {
   
     var router = require("express").Router();
   
+    // Check if the oken is still valid and return
+    // ture if so and false otherwise.
     router.get("/validate_token", authentication.validateToken);
+
+    // Perform the login process with verifying the password
+    // and generate a new token if successful
     router.post("/login", authentication.login);
 
     app.use('/api/authentication', router);

@@ -84,7 +84,7 @@ export class InventoryComponent implements OnInit {
 
   ngOnInit() {
     this.inventoryForm = this.formBuilder.group({
-      storesToSelectFrom: this.shoppingListService.store,
+      storesToSelectFrom: null,
       categoriesToSelectFrom: null,
     });
 
@@ -93,11 +93,16 @@ export class InventoryComponent implements OnInit {
       this.storesToSelectFrom = response;
     });
 
+    if( this.shoppingListService.store.store_id > 0){
+      this.inventoryForm.controls['storesToSelectFrom'].setValue(this.shoppingListService.store);
+    }
+
     // get all categories one can shop from
     this.inventoryService.getListCatgory().subscribe((response: any) => {
       this.categoriesToSelectFrom = response;
     });
     this.fbc['categoriesToSelectFrom'].setValue(null);
+    this.isAddNewInventoryItem = false;
   }
 
   get fbc() {
@@ -159,8 +164,13 @@ export class InventoryComponent implements OnInit {
     this.isAddNewInventoryItem = false;
 
     if ($event) {
-      this.onStoreSelectChange();
+      if( this.fbc['categoriesToSelectFrom'].value ) {
+        this.onCategorySelectChange();
+      } else {
+        this.onStoreSelectChange();
+      }
     }
+
     console.log('onCreateItem-->newInventory',this.newInventory)
 
     this.newInventory.inventory_id = 0;
@@ -178,8 +188,13 @@ export class InventoryComponent implements OnInit {
     this.isAddNewInventoryItem = false;
 
     if ($event) {
-      this.onStoreSelectChange();
+      if( this.fbc['categoriesToSelectFrom'].value ) {
+        this.onCategorySelectChange();
+      } else {
+        this.onStoreSelectChange();
+      }
     }
+
     console.log('newInventory',this.newInventory)
   }
 
