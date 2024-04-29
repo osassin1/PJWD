@@ -21,7 +21,6 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "src/familyshoppinglist.ico",
               "src/no_picture.jpg",
               "src/familyshoppinglist.png",
               "src/familyshoppinglist_1.png",
@@ -85,7 +84,6 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
-              "src/familyshoppinglist.ico",
               "src/assets",
               "src/familyshoppinglist.png",
               "src/familyshoppinglist_1.png",
