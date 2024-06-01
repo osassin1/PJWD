@@ -78,18 +78,20 @@ Exit the MySQL terminal session:
 
 Clone the repository from github.com:
 
-    git clone git@github.com:osassin1/PJWD.git
+    git clone https://github.com/osassin1/PJWD.git
 
 Change directory to PJWD:
 
     cd PJWD
 
-You should see something like this:
+Run an ls -l command and you should see something like this (for illustration purposes only):
 
             ~/PJWD$ ls -l
-            total 8
-            drwxr-xr-x  4 ... 4096 Apr 28 12:35 FamilyShoppingList-client
-            drwxr-xr-x 12 ... 4096 Apr 28 12:35 FamilyShoppingList-server
+            total 16
+            drwxrwxr-x  2 ... ... 4096 Jun  1 19:15 docs_phase3
+            drwxrwxr-x  5 ... ... 4096 Jun  1 19:14 FamilyShoppingList-client
+            drwxrwxr-x 12 ... ... 4096 Jun  1 19:15 FamilyShoppingList-server
+            -rw-rw-r--  1 ... ... 3514 Jun  1 19:15 README.md
 
 Change directory to FamilyShoppingList-client and install:
 
