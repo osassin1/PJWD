@@ -50,9 +50,13 @@ For more info, please refer to:
 
 2. Install MySQL
 
-Follow the directions outlined here:
+Follow the directions outlined here - step 1 is sufficient to get started:
 
-    https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04
+    https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-22-04
+
+Access the MySQL terminal:
+
+    sudo mysql
 
 This for a new MySQL installation and creating a new user. Use your sql terminal and create the default settings:
 
@@ -65,6 +69,10 @@ Grant the following:
 Login in as shopping_list and create database:
 
     CREATE SCHEMA `shopping_list_db` ;
+
+Exit the MySQL terminal session:
+
+    exit
 
 3. Install the app from github
 
