@@ -11,11 +11,17 @@ Installation for Ubuntu 22
 Update the linux environment and install npm
 
     sudo apt update
-    
+
+Upgrade: 
+
     sudo apt upgrade
-     
+
+Install npm:
+
     sudo apt install npm
-     
+
+Install angular cli:
+
     sudo npm install -g @angular/cli
 
 Check version of node.js
