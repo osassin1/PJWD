@@ -113,6 +113,7 @@ Use the startup script:
 
     ./startup.sh
 
+Note that the server uses CORS and the allowed list is limited to 'http://localhost:8089', which needs to be changed as needed.
 
 4. Seeding the database with test data
 
