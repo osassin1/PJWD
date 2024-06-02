@@ -4,7 +4,7 @@ While in the store shopping for the items from the shopping list, family members
 
 A mobile-first and responsive web design guided the development of the entire app. Hosting the web-app with a web server, for example, Apache Tomcat, was easily accomplished.
 
-Installation for Ubuntu 22
+Installation for Ubuntu 22 (either natively for a desktop version or as a Windows subsystem WSL)
 
 1. Install npm and Node.js
 
