@@ -89,7 +89,7 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
   error: string = "";
 
   // Let's the login or signup button spin
-  // and it' more for show at this point
+  // and it's more for show at this point
   // with a 2000 ms timeout.
   loading: boolean = false;
   private timeOut: any;
@@ -104,6 +104,11 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+
+    if( this.isAuthenticated ) {
+      this.router.navigateByUrl("/shoppinglist");
+    }
+
     this.formLoginSignup = this.formBuilder.group({
       username: ['', {
         validators: [Validators.required, Validators.minLength(6), Validators.maxLength(20)],
@@ -260,6 +265,13 @@ export class AuthenticationComponent implements OnInit, OnDestroy {
   }
   set signup(b: boolean) {
     this._signup = b;
+  }
+  get isAuthenticated(){
+    return this.authenticationService.isAuthenticated;
+  }
+
+  logout(){
+    this.authenticationService.logout();
   }
 }
 
