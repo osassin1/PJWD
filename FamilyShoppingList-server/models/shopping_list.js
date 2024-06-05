@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     shopping_status_id : {
       type: DataTypes.INTEGER,
       foreignKey: true,
-      allowNull: true,
+      allowNull: false,
       refrences : {
         model: 'shopping_status',
         key: 'shopping_status_id',

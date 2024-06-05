@@ -107,11 +107,16 @@ db.store = require("./store")(sequelize, Sequelize);
 db.list_category = require("./list_category")(sequelize, Sequelize);
 db.color = require("./color")(sequelize, Sequelize);
 db.shopping_list = require("./shopping_list")(sequelize, Sequelize);
+db.shopping_status = require("./shopping_status")(sequelize, Sequelize);
 db.family = require("./family")(sequelize, Sequelize);
 
 
-// without these associations, it doesn't work
-//need to be done here
+
+// An inventroy item belongs to eactly one
+// list_category and a list_category can belong
+// to 0 or more inventory items (however,
+// the physical model will use a 1:N relation
+// ship)
 
 db.inventory.belongsTo(db.list_category,{
     through: "list_category_id",
@@ -119,11 +124,20 @@ db.inventory.belongsTo(db.list_category,{
     foreignKey: "list_category_id",
 });
 
+// An inventory item belongs to exactly one
+// store (one could argue that an item could
+// be sold in more than one store but here we
+// assign it to a specific store for simplicity
+// reasons)
+
 db.inventory.belongsTo(db.store,{
   through: "store_id",
   as: "inventory_to_store",  // !!!! name of the association !!!!
   foreignKey: "store_id",
 });
+
+// An inventory item belongs to exactly one
+// quantity item (e.g. item(s), kg (weight))
 
 db.inventory.belongsTo(db.quantity,{
   through: "quantity_id",
@@ -132,24 +146,18 @@ db.inventory.belongsTo(db.quantity,{
 });
 
 
-// 1:1 relationship between family_member to color
+// A family_member belongs to exactly
+// one color as part of a family, which
+// cannot be modelled easily. A family_member
+// aslo belongs to exactly one family.
+// However, a family has 0 or more
+// family_members (cannot be realized with
+// a physical model)
+
 db.family_member.belongsTo(db.color,{
   through: "color_id",
   as: "family_member_to_color",  // !!!! name of the association !!!!
   foreignKey: "color_id",
-});
-
-// C:C relationship
-db.shopping_list.belongsTo(db.inventory,{
-  through: "inventory_id",
-  as: "shopping_list_to_inventory",
-  foreignKey: "inventory_id",
-});
-
-db.shopping_list.belongsTo(db.family_member,{
-  through: "family_member_id",
-  as: 'shopping_list_to_family_member',
-  foreignKey: "family_member_id",
 });
 
 db.family_member.belongsTo(db.family, {
@@ -157,6 +165,33 @@ db.family_member.belongsTo(db.family, {
   as: 'family_member_to_family',
   foreignKey: "family_id",
 })
+
+// A shopping list (item) belongs to exactly one 
+// family_member. It is important to mention that
+// a shopping list consists of items on the list
+// and form altogether the actual list. A 
+// family_member can contribute to a shopping list
+// with 0 or more items.
+db.shopping_list.belongsTo(db.family_member,{
+  through: "family_member_id",
+  as: 'shopping_list_to_family_member',
+  foreignKey: "family_member_id",
+});
+
+// A shopping list (item) has exactly one
+// inventory item
+db.shopping_list.belongsTo(db.inventory,{
+  through: "inventory_id",
+  as: "shopping_list_to_inventory",
+  foreignKey: "inventory_id",
+});
+
+db.shopping_list.belongsTo(db.shopping_status,{
+  through: "shopping_status_id",
+  as: "shopping_list_to_shopping_status",
+  foreignKey: "shopping_status_id",
+});
+
 
 module.exports = db;
  
