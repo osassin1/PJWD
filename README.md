@@ -101,10 +101,6 @@ Install the client with npm install:
 
     npm install
 
-Install ng:
-
-    sudo apt install ng-common
-
 Start the app using ng serve at port 8089:
 
     ng serve --port 8089
