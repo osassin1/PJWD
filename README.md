@@ -40,9 +40,9 @@ Take a look at all available versions:
 
     nvm list-remote
 
-Install version 20.11.0:
+Install version 20.14.0:
 
-    nvm install v20.11.0
+    nvm install v20.14.0
 
 For more info, please refer to:
 
