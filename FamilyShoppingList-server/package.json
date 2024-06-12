@@ -1,6 +1,6 @@
 {
   "name": "familyshoppinglist-server",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "Application server for FamilyShoppingList web application",
   "main": "server.js",
   "scripts": {
