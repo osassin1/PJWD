@@ -121,8 +121,4 @@ Use sequelize to run all seeds contained in this script in directory FamilyShopp
 
     ./seed.sh
 
-
-
-
-
-
+Stop the server, run the seed and restart the server should work fine to get the database seeded with test data.
